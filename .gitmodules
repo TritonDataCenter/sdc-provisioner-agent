@@ -1,0 +1,12 @@
+[submodule "node_agent"]
+	path = node_agent
+	url = git@git.joyent.com:node_agent.git
+[submodule "amqp_agent"]
+	path = amqp_agent
+	url = git@git.joyent.com:node_agent.git
+[submodule "async-testing"]
+	path = async-testing
+	url = http://github.com/bentomas/node-async-testing.git
+[submodule "zfs"]
+	path = zfs
+	url = git@git.joyent.com:node_zfs.git
