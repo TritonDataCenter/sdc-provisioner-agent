@@ -19,13 +19,47 @@ var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 var hostname;
 
 var tests = [
-  { 'Test sending a provision command':
+  { 'Test sending an incomplete provision command':
     function (assert, finished) {
-      var msg = { zone_name: 'orlandozone' };
+      var msg = {
+        'zone_name': 'orlandozone'
+       , 'public_ip_address': 'mypublicip'
+       , 'private_ip_address': 'myprivateip'
+       , 'zone_template': 'nodejs'
+       , 'public_interface_name': 'publicif'
+       , 'private_interface_name': 'privateif'
+       , 'root_password': 'therootpw'
+       , 'admin_password': 'theadminpw'
+       , 'private_gateway': 'thegateway'
+       , 'private_netmask': 'thenetmask'
+       , 'zpool_name': 'zones'
+       , 'zpool_path': '/zones'
+       , 'cpu_shares': '4'
+       , 'lightweight_processes': 4000
+       , 'cpu_cap': '4'
+       , 'swap_in_bytes': 1000000
+       , 'ram_in_bytes': 200*1024*1024
+       };
 
       this.agent.sendCommand('provision', msg,
         function (reply) {
-          assert.equal(reply.error, undefined, "Error should be unset");
+          puts(inspect(reply));
+          assert.equal(reply.error, undefined,
+            "Error should be unset, was '" + reply.error + "'");
+          finished();
+        });
+    }
+  }
+, { 'Test sending a provision command':
+    function (assert, finished) {
+      var msg = {
+        'zone_name': 'orlandozone'
+      };
+
+      this.agent.sendCommand('provision', msg,
+        function (reply) {
+          assert.ok(reply.error, "There should be an error");
+          assert.ok(reply.error.match(/^Missing required key/));
           finished();
         });
     }
