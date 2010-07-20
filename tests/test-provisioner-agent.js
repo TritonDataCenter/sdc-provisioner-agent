@@ -21,7 +21,8 @@ var hostname;
 var tests = [
   { 'Test sending an incomplete provision command':
     function (assert, finished) {
-      var msg = {
+      var msg = {};
+      msg.data = {
         'zone_name': 'orlandozone'
        , 'public_ip_address': 'mypublicip'
        , 'private_ip_address': 'myprivateip'
@@ -34,9 +35,9 @@ var tests = [
        , 'private_netmask': 'thenetmask'
        , 'zpool_name': 'zones'
        , 'zpool_path': '/zones'
-       , 'cpu_shares': '4'
+       , 'cpu_shares': 4
        , 'lightweight_processes': 4000
-       , 'cpu_cap': '4'
+       , 'cpu_cap': 4
        , 'swap_in_bytes': 1000000
        , 'ram_in_bytes': 200*1024*1024
        };
@@ -52,12 +53,14 @@ var tests = [
   }
 , { 'Test sending a provision command':
     function (assert, finished) {
-      var msg = {
+      var msg = {};
+      msg.data = {
         'zone_name': 'orlandozone'
       };
 
       this.agent.sendCommand('provision', msg,
         function (reply) {
+          puts(inspect(reply));
           assert.ok(reply.error, "There should be an error");
           assert.ok(reply.error.match(/^Missing required key/));
           finished();
