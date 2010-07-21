@@ -31,13 +31,15 @@ echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 # vnics
 
-# XXX TODO XXX find out the physical interface name
-# /usr/sbin/dladm create-vnic -l $PHYSICAL_INTERFACE_NAME ${ZONENAME}2
+/usr/sbin/dladm create-vnic -l e1000g0 ${ZONENAME}0
+/usr/sbin/dladm create-vnic -l e1000g2 ${ZONENAME}2
 
 # 9. append to /etc/hostname.zonename
 
+echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${ZONENAME}0
 echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${ZONENAME}2
-echo "$PRIVATE_GATEWAY" > $ZONE_ROOT/etc/defaultrouter
+
+echo "$DEFAULT_GATEWAY" > $ZONE_ROOT/etc/defaultrouter
 
 # 10. append to /etc/defaultrouter
 # 11. write /root/zoneconfig

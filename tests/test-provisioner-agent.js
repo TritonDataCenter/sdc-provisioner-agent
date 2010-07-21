@@ -24,19 +24,20 @@ var tests = [
       var msg = {};
       msg.data = {
         'zonename': 'orlandozone'
-       , 'new_ip': '10.0.1.241'
-       , 'public_ip': '10.0.1.240'
-       , 'private_ip': '10.0.1.241'
-       , 'hostname': 'myhostname.joyent.us'
+       , 'new_ip': '8.19.35.119'
+       , 'public_ip': '8.19.35.119'
+       , 'private_ip': '10.19.35.119'
+       , 'hostname': 'orlandozone'
        , 'zone_template': 'nodejs'
-       , 'public_interface_name': 'e1000g0'
-       , 'private_interface_name': 'e1000g0'
-       , 'physical_interface_name': 'e1000g0'
+       , 'public_interface_name':   'orlandozone0'
+       , 'private_interface_name':  'orlandozone2'
+       , 'physical_interface_name': 'orlandozone2'
        , 'root_pw': 'therootpw'
        , 'admin_pw': 'theadminpw'
        , 'vs_pw': 'theadminpw'
-       , 'private_gateway': '10.0.1.1'
-       , 'private_netmask': '255.255.255.0'
+       , 'default_gateway': '8.19.35.1'
+       , 'public_netmask': '255.255.192.0'
+       , 'private_netmask': '255.255.192.0'
        , 'cpu_shares': 4
        , 'lightweight_processes': 40000
        , 'cpu_cap': 4
@@ -67,7 +68,7 @@ var agent;
 
 function startAgent(callback) {
   var config = {
-    hostname: 'sagan'
+    hostname: 'angel'
   };
   agent = new ProvisionerAgent(config);
   agent.connect(function () {
@@ -89,7 +90,7 @@ suite.setup(function(finished, test) {
       if (dot !== -1) hostname = hostname.slice(0, dot);
 
       startAgent(function () {
-        config = { reconnect: false };
+        config = { timeout: 60000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
           self.agent = client.getAgentHandle(hostname, 'provisioner');

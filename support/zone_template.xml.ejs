@@ -28,7 +28,7 @@
 <% if (!public_ip) { %>
   <network physical="<%= zonename %>2"/>
 
-  <% if (!additional_private_ips.length) { %>
+  <% if (additional_private_ips.length) { %>
     <% for (var i = 0; i < additional_private_ips.length; i++) { %>
       <network address="<%= additional_private_ips[i] %>" physical="<%= private_interface_name %>"/>
     <% } %>
