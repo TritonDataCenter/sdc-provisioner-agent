@@ -31,7 +31,8 @@ echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 # vnics
 
-#dladm create-vnic -l $PHYSICAL_INTERFACE_NAME ${ZONENAME}2
+# XXX TODO XXX find out the physical interface name
+# /usr/sbin/dladm create-vnic -l $PHYSICAL_INTERFACE_NAME ${ZONENAME}2
 
 # 9. append to /etc/hostname.zonename
 

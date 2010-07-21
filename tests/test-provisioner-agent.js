@@ -24,25 +24,26 @@ var tests = [
       var msg = {};
       msg.data = {
         'zonename': 'orlandozone'
-       , 'public_ip': 'mypublicip'
-       , 'new_ip': 'mypublicip'
-       , 'hostname': 'zonename'
-       , 'private_ip': 'myprivateip'
+       , 'new_ip': '10.0.1.241'
+       , 'public_ip': '10.0.1.240'
+       , 'private_ip': '10.0.1.241'
+       , 'hostname': 'myhostname.joyent.us'
        , 'zone_template': 'nodejs'
-       , 'public_interface_name': 'publicif'
-       , 'private_interface_name': 'privateif'
+       , 'public_interface_name': 'e1000g0'
+       , 'private_interface_name': 'e1000g0'
+       , 'physical_interface_name': 'e1000g0'
        , 'root_pw': 'therootpw'
        , 'admin_pw': 'theadminpw'
        , 'vs_pw': 'theadminpw'
-       , 'private_gateway': 'thegateway'
-       , 'private_netmask': 'thenetmask'
+       , 'private_gateway': '10.0.1.1'
+       , 'private_netmask': '255.255.255.0'
        , 'cpu_shares': 4
-       , 'lightweight_processes': 4000
+       , 'lightweight_processes': 40000
        , 'cpu_cap': 4
-       , 'swap_in_bytes': 1000000
-       , 'ram_in_bytes': 200*1024*1024
-       , 'disk_in_gigabytes': 1
-       , 'tmpfs': 200*1024*1024
+       , 'swap_in_bytes': 2000*1024*1024
+       , 'ram_in_bytes': 2000*1024*1024
+       , 'disk_in_gigabytes': 2
+       , 'tmpfs': 2000*1024*1024
        , 'template_version': '3.0.0'
        };
 
