@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE zone PUBLIC "-//Sun Microsystems Inc//DTD Zones//EN" "file:///usr/share/lib/xml/dtd/zonecfg.dtd.1">
 
-<zone name="[% zone_name %]" zonepath="[% zpool_path %]/[% zone_name %]" autoboot="true" scheduling-class="FSS" limitpriv="default,dtrace_proc,dtrace_user" ip-type="exclusive">
+<zone name="[% zonename %]" zonepath="[% zpool_path %]/[% zonename %]" autoboot="true" scheduling-class="FSS" limitpriv="default,dtrace_proc,dtrace_user" ip-type="exclusive">
 
   <inherited-pkg-dir directory="/lib"/>
   <inherited-pkg-dir directory="/platform"/>
@@ -25,5 +25,30 @@
   </rctl>
   <mcap physcap="[% ram_in_bytes %]"/>
 
-  <network physical="[% zone_name %]2"/>
+[% IF NOT public_ip %]
+  <network physical="[% zonename %]2"/>
+
+  [% IF NOT additional_private_ips.count %]
+    [% FOREACH priv_ip IN additional_private_ips %]
+      <network address="[% priv_ip.value %]" physical="[% private_interface_name %]"/>
+    [% END %]
+  [% END %]
+[% ELSE %]
+  <network address="[% public_ip %]" physical="[% public_interface_name %]"/>
+
+  [% IF additional_public_ips.count %]
+    [% FOREACH pub_ip IN additional_public_ips %]
+      <network address="[% pub_ip.value %]" physical="[% public_interface_name %]"/>
+    [% END %]
+  [% END %]
+
+  <network address="[% private_ip %]" physical="[% private_interface_name %]"/>
+
+  [% IF additional_private_ips.count %]
+    [% FOREACH priv_ip IN additional_private_ips %]
+      <network address="[% priv_ip.value %]" physical="[% private_interface_name %]"/>
+    [% END %]
+  [% END %]
+[% END %]
+
 </zone>

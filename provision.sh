@@ -2,61 +2,53 @@
 
 set -e
 
-ZONE_ROOT=/$zpool_name/$zone_name/root
+ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 # --- node
 # 0. recv amqp provision command
 # 1. Write /etc/zones/zonename.xml
 
+cat << __EOF__ | cat > /etc/zones/$ZONENAME.xml
+$ZONE_XML
+__EOF__
+
 # --- shell
 # 2. Edit /etc/zones/index
 
-echo "$zone_name:installed:$zpool_path/$zone_name:" >> /etc/zones/index
+echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >> /etc/zones/index
 
 # 3. zfs snapshot template_dataset
 # 4. zfs clone 
 # 5. zfs set quota
 
-/sbin/zfs snapshot "$zpool_name/$zone_template@$zone_name"
-/sbin/zfs clone "$zpool_name/$zone_template@$zone_name" "$zpool_name/$zone_name"
-/sbin/zfs set "quota=${disk_in_gigabytes}g" "$zpool_name/$zone_name"
-
-# 6. vfstab template
-# 7. write vfstab to /etc/vfstab
-
-cat << __EOF__ > "$ZONE_ROOT/etc/vfstab"
-#device         device          mount           FS      fsck    mount   mount
-#to mount       to fsck         point           type    pass    at boot options
-#
-/proc           -               /proc           proc    -       no      -
-ctfs            -               /system/contract ctfs   -       no      -
-objfs           -               /system/object  objfs   -       no      -
-sharefs         -               /etc/dfs/sharetab       sharefs -       no      -
-fd              -               /dev/fd         fd      -       no      -
-swap            -               /tmp            tmpfs   -       yes     size=$tmp_size,nosuid
-__EOF__
+/sbin/zfs snapshot "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME"
+/sbin/zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
+/sbin/zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 
 # 8. write to /etc/nodename
 
-echo "$zone_host_name" > "$ZONE_ROOT/etc/nodename"
+echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
-# something about vnics
+# vnics
 
-dladm create-vnic -l $physical_interface_name ${zone_name}2
+#dladm create-vnic -l $PHYSICAL_INTERFACE_NAME ${ZONENAME}2
 
 # 9. append to /etc/hostname.zonename
 
-echo "$private_ip_address netmask $private_netmask up" > $ZONE_ROOT/etc/hostname.${zone_name}2
-echo "$private_gateway" > $ZONE_ROOT/etc/defaultrouter
+echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${ZONENAME}2
+echo "$PRIVATE_GATEWAY" > $ZONE_ROOT/etc/defaultrouter
 
 # 10. append to /etc/defaultrouter
 # 11. write /root/zoneconfig
+
+cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
+$ZONECONFIG
+__EOF__
+
 # 12. boot
+
+/usr/sbin/zoneadm -z $ZONENAME boot
 
 # --- node
 # 13. tail log file /var/log/zoneinit.log for success symbol
 # 14. ack success to amqp
-
-echo "O HAI"
-echo $*
-export
