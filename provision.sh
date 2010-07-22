@@ -48,6 +48,9 @@ cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
 $ZONECONFIG
 __EOF__
 
+# touch log file path so we can start tailing immediately
+touch $ZONE_ROOT/var/log/zoneinit.log
+
 # 12. boot
 
 /usr/sbin/zoneadm -z $ZONENAME boot

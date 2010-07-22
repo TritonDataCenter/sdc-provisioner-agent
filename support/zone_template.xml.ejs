@@ -26,7 +26,7 @@
   <mcap physcap="<%= ram_in_bytes %>"/>
 
 <% if (!public_ip) { %>
-  <network physical="<%= zonename %>2"/>
+  <network physical="<%= public_interface_name %>"/>
 
   <% if (additional_private_ips.length) { %>
     <% for (var i = 0; i < additional_private_ips.length; i++) { %>
@@ -34,7 +34,7 @@
     <% } %>
   <% } %>
 <% } else { %>
-  <network address="<%= public_ip %>" physical="<%= public_interface_name %>"/>
+  <network physical="<%= public_interface_name %>"/>
 
   <% if (additional_public_ips.length) { %>
     <% for (var i = 0; i < additional_public_ips.length; i++) { %>
@@ -42,7 +42,7 @@
     <% } %>
   <% } %>
 
-  <network address="<%= private_ip %>" physical="<%= private_interface_name %>"/>
+  <network physical="<%= private_interface_name %>"/>
 
   <% if (additional_private_ips.length) { %>
     <% for (var i = 0; i < additional_private_ips.length; i++) { %>
