@@ -21,38 +21,53 @@ var hostname;
 var tests = [
   { 'Test sending an incomplete provision command':
     function (assert, finished) {
-      var msg = {};
-      msg.data = {
-        'zonename': 'orlandozone'
-       , 'new_ip': '8.19.35.119'
-       , 'public_ip': '8.19.35.119'
-       , 'private_ip': '10.19.35.119'
-       , 'hostname': 'orlandozone'
-       , 'zone_template': 'nodejs'
-       , 'public_interface_name':   'orlandozone0'
-       , 'private_interface_name':  'orlandozone2'
-       , 'physical_interface_name': 'orlandozone2'
-       , 'root_pw': 'therootpw'
-       , 'admin_pw': 'theadminpw'
-       , 'vs_pw': 'theadminpw'
-       , 'default_gateway': '8.19.35.1'
-       , 'public_netmask': '255.255.192.0'
-       , 'private_netmask': '255.255.192.0'
-       , 'cpu_shares': 15
-       , 'lightweight_processes': 4000
-       , 'cpu_cap': 350
-       , 'swap_in_bytes': 2147483648
-       , 'ram_in_bytes': 1073741824
-       , 'disk_in_gigabytes': 2
-       , 'tmpfs': 1024*1024*1024
-       , 'template_version': '3.0.0'
-       };
+      var zonename = 'orlandozone';
+      var msg = { data: { 'zonename': zonename
+                        , 'new_ip': '8.19.35.119'
+                        , 'public_ip': '8.19.35.119'
+                        , 'private_ip': '10.19.35.119'
+                        , 'hostname': zonename
+                        , 'zone_template': 'nodejs'
+                        , 'public_interface_name':   zonename+'0'
+                        , 'private_interface_name':  zonename+'2'
+                        , 'physical_interface_name': zonename+'2'
+                        , 'root_pw': 'therootpw'
+                        , 'admin_pw': 'theadminpw'
+                        , 'vs_pw': 'xxxtheadminpw'
+                        , 'default_gateway': '8.19.35.1'
+                        , 'public_netmask': '255.255.192.0'
+                        , 'private_netmask': '255.255.192.0'
+                        , 'cpu_shares': 15
+                        , 'lightweight_processes': 4000
+                        , 'cpu_cap': 350
+                        , 'swap_in_bytes': 2147483648
+                        , 'ram_in_bytes': 1073741824
+                        , 'disk_in_gigabytes': 2
+                        , 'tmpfs': 1024*1024*1024
+                        , 'template_version': '3.0.0'
+                        } };
 
       this.agent.sendCommand('provision', msg,
         function (reply) {
           assert.equal(reply.error, undefined,
             "Error should be unset, was '" + inspect(reply.error) + "'");
-          finished();
+
+          // Check that the zone is booted up
+          execFile('/usr/sbin/zoneadm', ['list', '-p'],
+            function (error, stdout, stderr) {
+              if (error) throw error;
+
+              var lines = stdout.split("\n");
+              assert.ok(
+                lines.some(function (line) { 
+                  var parts = line.split(':');
+                  return parts[1] == zonename
+                         && parts[2] == 'running';
+                })
+                , "our zone should be in the list");
+              finished();
+          
+            });
         });
     }
   }
