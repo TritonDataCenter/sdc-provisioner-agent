@@ -38,13 +38,13 @@ var tests = [
        , 'default_gateway': '8.19.35.1'
        , 'public_netmask': '255.255.192.0'
        , 'private_netmask': '255.255.192.0'
-       , 'cpu_shares': 4
-       , 'lightweight_processes': 40000
-       , 'cpu_cap': 4
-       , 'swap_in_bytes': 2000*1024*1024
-       , 'ram_in_bytes': 2000*1024*1024
+       , 'cpu_shares': 15
+       , 'lightweight_processes': 4000
+       , 'cpu_cap': 350
+       , 'swap_in_bytes': 2147483648
+       , 'ram_in_bytes': 1073741824
        , 'disk_in_gigabytes': 2
-       , 'tmpfs': 2000*1024*1024
+       , 'tmpfs': 1024*1024*1024
        , 'template_version': '3.0.0'
        };
 
