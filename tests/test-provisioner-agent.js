@@ -18,19 +18,20 @@ TestSuite = require('async-testing/async_testing').TestSuite;
 var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 var hostname;
 
+var testZoneName = 'orlandozone';
+
 var tests = [
-  { 'Test sending an incomplete provision command':
+  { 'Test provisioning a zone':
     function (assert, finished) {
-      var zonename = 'orlandozone';
-      var msg = { data: { 'zonename': zonename
+      var msg = { data: { 'zonename': testZoneName
                         , 'new_ip': '8.19.35.119'
                         , 'public_ip': '8.19.35.119'
                         , 'private_ip': '10.19.35.119'
-                        , 'hostname': zonename
+                        , 'hostname': testZoneName
                         , 'zone_template': 'nodejs'
-                        , 'public_interface_name':   zonename+'0'
-                        , 'private_interface_name':  zonename+'2'
-                        , 'physical_interface_name': zonename+'2'
+                        , 'public_interface_name':   testZoneName+'0'
+                        , 'private_interface_name':  testZoneName+'2'
+                        , 'physical_interface_name': testZoneName+'2'
                         , 'root_pw': 'therootpw'
                         , 'admin_pw': 'theadminpw'
                         , 'vs_pw': 'xxxtheadminpw'
@@ -50,7 +51,7 @@ var tests = [
       this.agent.sendCommand('provision', msg,
         function (reply) {
           assert.equal(reply.error, undefined,
-            "Error should be unset, was '" + inspect(reply.error) + "'");
+            "Error should be unset, but was '" + inspect(reply.error) + "'");
 
           // Check that the zone is booted up
           execFile('/usr/sbin/zoneadm', ['list', '-p'],
@@ -61,16 +62,26 @@ var tests = [
               assert.ok(
                 lines.some(function (line) { 
                   var parts = line.split(':');
-                  return parts[1] == zonename
+                  return parts[1] == testZoneName
                          && parts[2] == 'running';
                 })
                 , "our zone should be in the list");
               finished();
-          
             });
         });
     }
   }
+// , { 'Test tearing down a zone':
+//     function (assert, finished) {
+//       var msg = { data: { zonename: testZoneName } };
+//       this.agent.sendCommand('teardown', msg,
+//         function (reply) {
+//           assert.equal(reply.error, undefined,
+//             "Error should be unset, but was '" + inspect(reply.error) + "'");
+//           finished();
+//         });
+//     }
+//   }
 ];
 
 // order matters in our tests
@@ -82,10 +93,7 @@ var client;
 var agent;
 
 function startAgent(callback) {
-  var config = {
-    hostname: 'angel'
-  };
-  agent = new ProvisionerAgent(config);
+  agent = new ProvisionerAgent();
   agent.connect(function () {
     puts("Ready to rock.");
     callback && callback();
