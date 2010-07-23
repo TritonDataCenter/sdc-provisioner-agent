@@ -78,7 +78,20 @@ var tests = [
         function (reply) {
           assert.equal(reply.error, undefined,
             "Error should be unset, but was '" + inspect(reply.error) + "'");
-          finished();
+          // Check that the zone is booted up
+          execFile('/usr/sbin/zoneadm', ['list', '-p'],
+            function (error, stdout, stderr) {
+              if (error) throw error;
+
+              var lines = stdout.split("\n");
+              assert.ok(
+                !lines.some(function (line) { 
+                  var parts = line.split(':');
+                  return parts[1] == testZoneName;
+                })
+                , "our zone should be in the list");
+              finished();
+            });
         });
     }
   }
@@ -113,7 +126,7 @@ suite.setup(function(finished, test) {
       if (dot !== -1) hostname = hostname.slice(0, dot);
 
       startAgent(function () {
-        config = { timeout: 60000, reconnect: false };
+        config = { timeout: 20000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
           self.agent = client.getAgentHandle(hostname, 'provisioner');
