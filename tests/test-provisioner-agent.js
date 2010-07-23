@@ -71,17 +71,17 @@ var tests = [
         });
     }
   }
-// , { 'Test tearing down a zone':
-//     function (assert, finished) {
-//       var msg = { data: { zonename: testZoneName } };
-//       this.agent.sendCommand('teardown', msg,
-//         function (reply) {
-//           assert.equal(reply.error, undefined,
-//             "Error should be unset, but was '" + inspect(reply.error) + "'");
-//           finished();
-//         });
-//     }
-//   }
+, { 'Test tearing down a zone':
+    function (assert, finished) {
+      var msg = { data: { zonename: testZoneName } };
+      this.agent.sendCommand('teardown', msg,
+        function (reply) {
+          assert.equal(reply.error, undefined,
+            "Error should be unset, but was '" + inspect(reply.error) + "'");
+          finished();
+        });
+    }
+  }
 ];
 
 // order matters in our tests
