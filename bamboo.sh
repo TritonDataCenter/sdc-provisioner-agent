@@ -10,8 +10,11 @@ checkout() {
 }
 
 build() {
-  gmake distclean
-  gmake all
+#   gmake distclean
+#   gmake all
+  pushd amqp_agent/mDNS
+  node-waf configure build
+  popd
 }
 
 teardown() {
@@ -70,7 +73,7 @@ run_test() {
 }
 
 checkout
-#build
+build
 #teardown
 #install
 
