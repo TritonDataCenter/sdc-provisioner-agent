@@ -66,7 +66,7 @@ run_test() {
               AMQP_LOGIN=joyent \
               AMQP_PASSWORD=joytastic \
               AMQP_VHOST=/ \
-              node/node junit-tests.js"
+              node junit-tests.js"
 }
 
 checkout
