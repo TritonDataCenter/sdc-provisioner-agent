@@ -1,5 +1,6 @@
-require.paths.unshift('./lib');
-require.paths.unshift('.');
+path = require('path');
+require.paths.unshift(path.join(__dirname, 'lib'));
+require.paths.unshift(path.join(__dirname));
 
 ProvisionerAgent = require('provisioner').ProvisionerAgent;
 

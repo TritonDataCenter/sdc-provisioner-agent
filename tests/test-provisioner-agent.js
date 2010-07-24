@@ -27,16 +27,16 @@ var tests = [
     function (assert, finished) {
       var msg = { data: { 'zonename': testZoneName
                         , 'new_ip': '8.19.35.119'
-                        , 'public_ip': '8.19.35.119'
-                        , 'private_ip': '10.19.35.119'
+//                         , 'public_ip': '8.19.35.119'
+//                         , 'private_ip': '10.19.35.119'
                         , 'hostname': testZoneName
                         , 'zone_template': 'nodejs'
                         , 'root_pw': 'therootpw'
                         , 'admin_pw': 'theadminpw'
                         , 'vs_pw': 'xxxtheadminpw'
-                        , 'default_gateway': '8.19.35.1'
-                        , 'public_netmask': '255.255.192.0'
-                        , 'private_netmask': '255.255.192.0'
+//                         , 'default_gateway': '8.19.35.1'
+//                         , 'public_netmask': '255.255.192.0'
+//                         , 'private_netmask': '255.255.192.0'
                         , 'cpu_shares': 15
                         , 'lightweight_processes': 4000
                         , 'cpu_cap': 350
@@ -79,7 +79,7 @@ var tests = [
         });
     }
   }
-  , { 'Test tearing down a zone':
+, { 'Test tearing down a zone':
     function (assert, finished) {
       var msg = { data: { zonename: testZoneName } };
       this.agent.sendCommand('teardown', msg,
@@ -88,19 +88,20 @@ var tests = [
           assert.equal(reply.error, undefined,
             "Error should be unset, but was '" + inspect(reply.error) + "'.");
           // Check that the zone is not in list
-          execFile('/usr/sbin/zoneadm', ['list', '-p'],
-            function (error, stdout, stderr) {
-              if (error) throw error;
+          execFile('/usr/sbin/zoneadm'
+            , ['list', '-p']
+            , function (error, stdout, stderr) {
+                if (error) throw error;
 
-              var lines = stdout.split("\n");
-              assert.ok(
-                !lines.some(function (line) { 
-                  var parts = line.split(':');
-                  return parts[1] == testZoneName;
-                })
-                , "Our zone should not be in the list, but it was.");
-              finished();
-            });
+                var lines = stdout.split("\n");
+                assert.ok(
+                  !lines.some(function (line) { 
+                    var parts = line.split(':');
+                    return parts[1] == testZoneName;
+                  })
+                  , "Our zone should not be in the list, but it was.");
+                finished();
+              });
         });
     }
   }
@@ -115,11 +116,11 @@ var client;
 var agent;
 
 function startAgent(callback) {
-  agent = new ProvisionerAgent();
-  agent.connect(function () {
-    puts("Ready to rock.");
+//   agent = new ProvisionerAgent();
+//   agent.connect(function () {
+//     puts("Ready to rock.");
     callback && callback();
-  });
+//   });
 }
 
 suite.setup(function(finished, test) {
@@ -152,7 +153,7 @@ var testCount = tests.length;
 suite.teardown(function() {
   if (++currentTest == testCount) {
     process.nextTick(function () {
-      agent.end();
+//       agent.end();
       client.end();
     });
   }
