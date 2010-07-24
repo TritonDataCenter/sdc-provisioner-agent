@@ -1,11 +1,10 @@
-require.paths.push(__dirname + '/..');
 require.paths.push(__dirname + '/../lib');
+require.paths.push(__dirname + '/..');
 
 assert = require('assert');
 
 sys = require('sys');
 exec = require('child_process').exec;
-zfs = require('zfs').zfs;
 fs = require('fs');
 path = require('path');
 
@@ -26,7 +25,7 @@ var tests = [
   { 'Test provisioning a zone':
     function (assert, finished) {
       var msg = { data: { 'zonename': testZoneName
-                        , 'new_ip': '8.19.35.119'
+//                         , 'new_ip': '8.19.35.119'
 //                         , 'public_ip': '8.19.35.119'
 //                         , 'private_ip': '10.19.35.119'
                         , 'hostname': testZoneName
@@ -47,29 +46,30 @@ var tests = [
                         , 'template_version': '3.0.0'
                         } };
 
-      var q = this.agent.connection.queue(testZoneName);
-      q.bind('provisioner.event.*.' + hostname + '.' + testZoneName);
-      var readyRE = /^provisioner\.event\.zone_ready/;
-      q.subscribe(function (msg) {
-         console.log("%j", msg);
-         // Check that the zone is booted up
-         var zone_ready = readyRE.exec(msg._routingKey);
-         if (zone_ready) {
-            execFile('/usr/sbin/zoneadm', ['list', '-p'],
-            function (error, stdout, stderr) {
-              if (error) throw error;
+      var q = this.agent.connection.queue(testZoneName, function () {
+        q.bind('amq.topic', 'provisioner.event.*.' + hostname + '.' + testZoneName);
+        var readyRE = /^provisioner\.event\.zone_ready/;
+        q.subscribe(function (msg) {
+           console.log("%j", msg);
+           // Check that the zone is booted up
+           var zone_ready = readyRE.exec(msg._routingKey);
+           if (zone_ready) {
+              execFile('/usr/sbin/zoneadm', ['list', '-p'],
+              function (error, stdout, stderr) {
+                if (error) throw error;
 
-              var lines = stdout.split("\n");
-              assert.ok(
-                lines.some(function (line) { 
-                  var parts = line.split(':');
-                  return parts[1] == testZoneName
-                         && parts[2] == 'running';
-                })
-                , "our zone should be in the list");
-              finished();
-            }); 
-         }
+                var lines = stdout.split("\n");
+                assert.ok(
+                  lines.some(function (line) { 
+                    var parts = line.split(':');
+                    return parts[1] == testZoneName
+                           && parts[2] == 'running';
+                  })
+                  , "our zone should be in the list");
+                finished();
+              }); 
+           }
+        });
       });
 
       this.agent.sendCommand('provision', msg,
@@ -82,6 +82,7 @@ var tests = [
 , { 'Test tearing down a zone':
     function (assert, finished) {
       var msg = { data: { zonename: testZoneName } };
+      puts("Other test");
       this.agent.sendCommand('teardown', msg,
         function (reply) {
           puts("Done tearing down, sweet.");
@@ -126,8 +127,10 @@ function startAgent(callback) {
 suite.setup(function(finished, test) {
   var self = this;
   if (client) {
-    self.agent = client.getAgentHandle(hostname, 'provisioner');
-    finished();
+    client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
+      self.agent = agentHandle;
+      finished();
+    });
   }
   else {
     exec('hostname', function (err, stdout, stderr) {
@@ -139,8 +142,10 @@ suite.setup(function(finished, test) {
         config = { timeout: 30000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
-          self.agent = client.getAgentHandle(hostname, 'provisioner');
-          finished();
+          client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
+            self.agent = agentHandle;
+            finished();
+          });
         });
       });
     });
@@ -152,10 +157,8 @@ var testCount = tests.length;
 
 suite.teardown(function() {
   if (++currentTest == testCount) {
-    process.nextTick(function () {
 //       agent.end();
       client.end();
-    });
   }
 });
 
