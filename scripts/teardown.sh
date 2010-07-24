@@ -1,6 +1,6 @@
 echo "Cleaning up zone $ZONENAME"
 
-ZONENAME=orlandozone
+# ZONENAME=orlandozone
 
 # deactivate
 /usr/sbin/zoneadm -z $ZONENAME halt
