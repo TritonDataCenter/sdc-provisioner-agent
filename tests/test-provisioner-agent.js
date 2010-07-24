@@ -1,6 +1,8 @@
 require.paths.push(__dirname + '/..');
 require.paths.push(__dirname + '/../lib');
 
+assert = require('assert');
+
 sys = require('sys');
 exec = require('child_process').exec;
 zfs = require('zfs').zfs;
@@ -57,6 +59,8 @@ var tests = [
           execFile('/usr/sbin/zoneadm', ['list', '-p'],
             function (error, stdout, stderr) {
               if (error) throw error;
+              assert.notEqual(reply.data.logs, undefined
+                , "Logs member should be defined");
 
               var lines = stdout.split("\n");
               assert.ok(
@@ -76,6 +80,7 @@ var tests = [
       var msg = { data: { zonename: testZoneName } };
       this.agent.sendCommand('teardown', msg,
         function (reply) {
+          puts("Done tearing down, sweet.");
           assert.equal(reply.error, undefined,
             "Error should be unset, but was '" + inspect(reply.error) + "'");
           // Check that the zone is booted up
@@ -89,7 +94,7 @@ var tests = [
                   var parts = line.split(':');
                   return parts[1] == testZoneName;
                 })
-                , "our zone should be in the list");
+                , "our zone should not be in the list");
               finished();
             });
         });
@@ -126,7 +131,7 @@ suite.setup(function(finished, test) {
       if (dot !== -1) hostname = hostname.slice(0, dot);
 
       startAgent(function () {
-        config = { timeout: 20000, reconnect: false };
+        config = { timeout: 30000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
           self.agent = client.getAgentHandle(hostname, 'provisioner');

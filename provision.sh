@@ -49,7 +49,7 @@ $ZONECONFIG
 __EOF__
 
 # touch log file path so we can start tailing immediately
-echo > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
+cat /dev/null > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
 
 # 12. boot
 
