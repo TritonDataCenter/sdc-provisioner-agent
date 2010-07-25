@@ -1,21 +1,24 @@
 #!/bin/bash
 
+# This script is responsible for the zone configuration that needs to happen
+# at the global zone level. The provisioner agent appends to the zone index
+# file and then calls this script. At that point, the provisiner agent will
+# continue handling AMQP requests, while this script "runs in the background"
+# and eventually boots the new zone.
+
 set -e
 
 ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 # --- node
 # 0. recv amqp provision command
+
+
 # 1. Write /etc/zones/zonename.xml
 
-cat << __EOF__ | cat > /etc/zones/$ZONENAME.xml
-$ZONE_XML
-__EOF__
+# --- node
+# 2. Append to /etc/zones/index
 
-# --- shell
-# 2. Edit /etc/zones/index
-
-#echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >> /etc/zones/index
 
 # 3. zfs snapshot template_dataset
 # 4. zfs clone 
@@ -31,8 +34,15 @@ echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 # vnics
 
-/usr/sbin/dladm create-vnic -l e1000g0 ${ZONENAME}0
-/usr/sbin/dladm create-vnic -l e1000g2 ${ZONENAME}2
+if [ ! -z "$PUBLIC_INTERFACE" ];
+then
+  /usr/sbin/dladm create-vnic -l e1000g0 ${PUBLIC_INTERFACE}
+fi
+
+if [ ! -z "$PRIVATE_INTERFACE" ];
+then
+  /usr/sbin/dladm create-vnic -l e1000g2 ${PRIVATE_INTERFACE}
+fi
 
 # 9. append to /etc/hostname.zonename
 

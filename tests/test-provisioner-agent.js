@@ -31,9 +31,6 @@ var tests = [
                         , 'private_ip': '10.19.35.119'
                         , 'hostname': testZoneName
                         , 'zone_template': 'nodejs'
-                        , 'public_interface_name':   testZoneName+'0'
-                        , 'private_interface_name':  testZoneName+'2'
-                        , 'physical_interface_name': testZoneName+'2'
                         , 'root_pw': 'therootpw'
                         , 'admin_pw': 'theadminpw'
                         , 'vs_pw': 'xxxtheadminpw'
@@ -82,15 +79,15 @@ var tests = [
         });
     }
   }
-/* , { 'Test tearing down a zone':
+  , { 'Test tearing down a zone':
     function (assert, finished) {
       var msg = { data: { zonename: testZoneName } };
       this.agent.sendCommand('teardown', msg,
         function (reply) {
           puts("Done tearing down, sweet.");
           assert.equal(reply.error, undefined,
-            "Error should be unset, but was '" + inspect(reply.error) + "'");
-          // Check that the zone is booted up
+            "Error should be unset, but was '" + inspect(reply.error) + "'.");
+          // Check that the zone is not in list
           execFile('/usr/sbin/zoneadm', ['list', '-p'],
             function (error, stdout, stderr) {
               if (error) throw error;
@@ -101,12 +98,12 @@ var tests = [
                   var parts = line.split(':');
                   return parts[1] == testZoneName;
                 })
-                , "our zone should not be in the list");
+                , "Our zone should not be in the list, but it was.");
               finished();
             });
         });
     }
-  } */
+  }
 ];
 
 // order matters in our tests
