@@ -50,17 +50,17 @@ var tests = [
                         , 'template_version': '3.0.0'
                         } };
 
-      this.agent.sendCommand('provision', msg,
-        function (reply) {
-          assert.equal(reply.error, undefined,
-            "Error should be unset, but was '" + inspect(reply.error) + "'");
-
-          // Check that the zone is booted up
-          execFile('/usr/sbin/zoneadm', ['list', '-p'],
+      var q = this.agent.connection.queue(testZoneName);
+      q.bind('provisioner.event.*.' + hostname + '.' + testZoneName);
+      var readyRE = /^provisioner\.event\.zone_ready/;
+      q.subscribe(function (msg) {
+         console.log("%j", msg);
+         // Check that the zone is booted up
+         var zone_ready = readyRE.exec(msg._routingKey);
+         if (zone_ready) {
+            execFile('/usr/sbin/zoneadm', ['list', '-p'],
             function (error, stdout, stderr) {
               if (error) throw error;
-              assert.notEqual(reply.data.logs, undefined
-                , "Logs member should be defined");
 
               var lines = stdout.split("\n");
               assert.ok(
@@ -71,11 +71,18 @@ var tests = [
                 })
                 , "our zone should be in the list");
               finished();
-            });
+            }); 
+         }
+      });
+
+      this.agent.sendCommand('provision', msg,
+        function (reply) {
+          assert.equal(reply.error, undefined,
+            "Error should be unset, but was '" + inspect(reply.error) + "'");
         });
     }
   }
-, { 'Test tearing down a zone':
+/* , { 'Test tearing down a zone':
     function (assert, finished) {
       var msg = { data: { zonename: testZoneName } };
       this.agent.sendCommand('teardown', msg,
@@ -99,7 +106,7 @@ var tests = [
             });
         });
     }
-  }
+  } */
 ];
 
 // order matters in our tests

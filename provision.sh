@@ -15,7 +15,7 @@ __EOF__
 # --- shell
 # 2. Edit /etc/zones/index
 
-echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >> /etc/zones/index
+#echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >> /etc/zones/index
 
 # 3. zfs snapshot template_dataset
 # 4. zfs clone 

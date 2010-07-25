@@ -4,10 +4,7 @@ require.paths.unshift('.');
 ProvisionerAgent = require('provisioner').ProvisionerAgent;
 
 function main() {
-  var config = {
-    hostname: 'sagan'
-  };
-  var agent = new ProvisionerAgent(config);
+  var agent = new ProvisionerAgent();
   agent.connect(function () {
     puts("Ready to rock.");
   });
