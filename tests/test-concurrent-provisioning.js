@@ -21,7 +21,7 @@ var hostname;
 
 var testZoneName = 'orlandozone';
 
-var zoneCount = 1;
+var zoneCount = 3;
 
 var tests = [
  { 'Test provisioning a zone':
@@ -34,6 +34,8 @@ var tests = [
         zone_created: 0,
         zone_ready: 0,
       };
+
+      var zonesCreated = [];
 
       // The agent will emit events as it progresses through the zone creation
       // process. Make sure that the right number and types of events come in.
@@ -49,49 +51,53 @@ var tests = [
           q.subscribeJSON(function (msg) {
             console.log("Event --> %j", msg);
 
-            // Check that the zone is booted up
             var zone_event = eventRE.exec(msg._routingKey);
             events[zone_event[1]]++;
+
+            var authorizedKeysPath = path.join(
+                                       "/zones/"
+                                     , zone_event[3]
+                                     , '/root/home/node/.ssh/authorized_keys'
+                                     );
+
+
+            if (zone_event[1] == "zone_created") {
+              zonesCreated.push(zone_event[3]);
+            }
 
             if (zone_event[1] == "zone_ready") {
               puts("Zone was ready!");
 
-              execFile('/usr/sbin/zoneadm'
-              , ['list', '-p']
-              , function (error, stdout, stderr) {
-                  if (error) throw error;
+              fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+                assert.ok(!error, "Error reading authorized_keys file: "+error);
+                assert.ok(data.indexOf(authorized_keys) !== -1
+                  , "We should have found our key in the authorized keys file");
+              });
 
-                  var lines = stdout.split("\n");
-                  assert.ok(
-                    lines.some(function (line) {
-                      var parts = line.split(':');
-                      return parts[1] == zone_event[3]
-                             && parts[2] == 'running';
-                    })
-                    , "our zone should be in the list");
+              if (++successCount == zoneCount) {
+                execFile('/usr/sbin/zoneadm'
+                , ['list', '-p']
+                , function (error, stdout, stderr) {
+                    if (error) throw error;
 
-                  var authorizedKeysPath
-                    = path.join(
-                          "/zones/"
-                        , zone_event[3]
-                        , '/root/home/node/.ssh/authorized_keys'
-                        );
+                    var lines = stdout.split("\n");
+                    assert.ok(
+                      zonesCreated.some(function (zone) {
+                        return lines.some(function (line) {
+                          var parts = line.split(':');
+                          return parts[1] === zone
+                              && parts[2] === 'running';
+                        });
+                      })
+                      , "our zone should be in the list");
 
-                  fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
-                    assert.ok(!error, "Error reading authorized_keys file: "+error);
-                    assert.ok(data.indexOf(authorized_keys) !== -1
-                      , "We should have found our key in the authorized keys file");
-                  });
-                  puts("Authorized keys exists");
-
-                  if (++successCount == zoneCount) {
                     assert.equal(events.zone_created, zoneCount);
                     assert.equal(events.zone_ready, zoneCount);
                     puts("Everyone was ok!");
                     q.destroy();
                     finished();
-                  }
                 });
+              }
             }
           });
 
@@ -137,7 +143,7 @@ var tests = [
     function (assert, finished) {
       var self = this;
       var successCount = 0;
-//
+
       var q = this.agent.connection.queue(testZoneName + 'x_events',
         function () {
           var routing = 'provisioner.event.zone_destroyed.*.*';
@@ -145,31 +151,29 @@ var tests = [
           q.bind(routing);
           q.subscribeJSON(function (msg) {
             puts("EVENT -->");
-//
             // Check that the zone is not in list
-            execFile('/usr/sbin/zoneadm'
-              , ['list', '-p']
-              , function (error, stdout, stderr) {
-                  if (error) throw error;
-                  puts("Listed -->" + stdout);
-//
-                  var lines = stdout.split("\n");
-                  assert.ok(
-                    !lines.some(function (line) {
-                      var parts = line.split(':');
-                      return parts[1] == testZoneName;
-                    })
-                    , "Our zone should not be in the list, but it was.");
-                  if (++successCount == zoneCount) {
+
+            if (++successCount == zoneCount) {
+
+              execFile('/usr/sbin/zoneadm'
+                , ['list', '-p']
+                , function (error, stdout, stderr) {
+                    if (error) throw error;
+                    puts("Listed -->" + stdout);
+                    var lines = stdout.split("\n");
+                    assert.ok(
+                      !lines.some(function (line) {
+                        var parts = line.split(':');
+                        return parts[1] == testZoneName;
+                      })
+                      , "Our zone should not be in the list, but it was.");
                     puts("Everyone was ok!");
                     q.destroy();
                     finished();
-                  }
-                });
+                  });
+            }
           });
-//
           var i = zoneCount;
-//
           while (i--) {
             (function (i) {
               var msg = { data: { } };
