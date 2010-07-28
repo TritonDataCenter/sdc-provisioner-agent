@@ -8,7 +8,7 @@ formatSuite = require('./async-testing-junit').convertSuiteToJUnit;
 
 var outputDirectory = "tests/results";
 var suiteFiles = [
-  './tests/test-provisioner-agent'
+  './tests/test-concurrent-provisioning'
 ];
 
 var suites = {};
