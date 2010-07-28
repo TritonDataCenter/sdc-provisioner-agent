@@ -16,7 +16,7 @@ build() {
 
 teardown() {
   if pkginfo -q JOYprovisioner; then
-    sudo pkgrm -a ./admin -n JOYprovisioner
+    sudo pkgrm -a ./build/admin -n JOYprovisioner
   fi
   if svcs -v provisioner 2> /dev/null; then
     echo "ERROR: provisioner service still running after teardown!"
@@ -25,7 +25,7 @@ teardown() {
 }
 
 install() {
-  sudo pkgadd -a ./admin -G -d ./JOYprovisioner-*.pkg all
+  sudo pkgadd -a ./build/admin -G -d ./JOYprovisioner-*.pkg all
 
   cat << __EOF__ | sudo sh -c 'cat - > /opt/provisioner/etc/provisioner.ini'
 ; Look up AMQP broker host via mDNS. Otherwise, specify a "host" and "port"
