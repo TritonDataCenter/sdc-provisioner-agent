@@ -21,7 +21,7 @@ ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 
 # 3. zfs snapshot template_dataset
-# 4. zfs clone 
+# 4. zfs clone
 # 5. zfs set quota
 
 /sbin/zfs snapshot "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME"
@@ -59,6 +59,13 @@ fi
 cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
 $ZONECONFIG
 __EOF__
+
+if [ ! -z "$AUTHORIZED_KEYS" ]
+then
+  cat << __EOF__ | cat >> $ZONE_ROOT/home/node/.ssh/authorized_keys
+$AUTHORIZED_KEYS
+__EOF__
+fi
 
 # touch log file path so we can start tailing immediately
 cat /dev/null > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
