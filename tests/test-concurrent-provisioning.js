@@ -98,8 +98,8 @@ var tests = [
                                 , 'swap_in_bytes': 2147483648
                                 , 'ram_in_bytes': 1073741824
                                 , 'disk_in_gigabytes': 2
-                                , 'tmpfs': 1024*1024*1024
-                                , 'template_version': '3.0.0'
+                                , 'tmpfs': '200m'
+                                , 'template_version': '4.2.0'
                                 } };
               self.agent.sendCommand('provision', msg,
                 function (reply) {
