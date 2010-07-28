@@ -35,6 +35,7 @@ var tests = [
         zone_ready: 0,
       };
 
+      var times = {};
       var zonesCreated = [];
 
       // The agent will emit events as it progresses through the zone creation
@@ -66,13 +67,14 @@ var tests = [
             }
 
             if (zone_event[1] == "zone_ready") {
-              puts("Zone was ready!");
+              puts("Zone was ready in " + (Date.now() - times[zone_event[3]]) + "ms");
 
               fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
                 assert.ok(!error, "Error reading authorized_keys file: "+error);
                 assert.ok(data.indexOf(authorized_keys) !== -1
                   , "We should have found our key in the authorized keys file");
               });
+
 
               if (++successCount == zoneCount) {
                 execFile('/usr/sbin/zoneadm'
@@ -127,6 +129,7 @@ var tests = [
                                 , 'template_version': '4.2.0'
                                 , 'authorized_keys': authorized_keys
                                 } };
+              times[msg.data.zonename] = Date.now();
               self.agent.sendCommand('provision', msg,
                 function (reply) {
                   if (reply.error) {
