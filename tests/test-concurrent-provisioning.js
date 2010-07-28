@@ -21,7 +21,7 @@ var hostname;
 
 var testZoneName = 'orlandozone';
 
-var zoneCount = 3;
+var zoneCount = 2;
 
 var tests = [
  { 'Test provisioning a zone':

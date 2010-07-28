@@ -18,15 +18,9 @@ ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 # --- node
 # 2. Append to /etc/zones/index
-
-
 # 3. zfs snapshot template_dataset
 # 4. zfs clone
 # 5. zfs set quota
-
-/sbin/zfs snapshot "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME"
-/sbin/zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
-/sbin/zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 
 # 8. write to /etc/nodename
 
