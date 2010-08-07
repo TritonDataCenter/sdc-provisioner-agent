@@ -10,7 +10,7 @@ checkout() {
 }
 
 build() {
-  gmake distclean
+#  gmake distclean
   gmake all
 }
 
@@ -69,4 +69,5 @@ build
 teardown
 install
 
+sleep 10
 run_test
