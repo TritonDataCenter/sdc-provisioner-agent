@@ -41,7 +41,7 @@ var tests = [
       // The agent will emit events as it progresses through the zone creation
       // process. Make sure that the right number and types of events come in.
       var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
-      var q = this.agent.connection.queue(testZoneName + '_events',
+      var q = this.agent.connection.queue(testZoneName + '_wevents',
         function () {
           // provisioner.event.zone_created.sagan.orlandozone0
           var routing = 'provisioner.event.*.' + hostname + '.*';
@@ -135,6 +135,7 @@ var tests = [
                   if (reply.error) {
                     puts("ERROR", inspect(reply));
                     puts("MSG", inspect(msg));
+                    finished();
                   }
                 });
             })(i);
@@ -225,7 +226,7 @@ suite.setup(function(finished, test) {
       if (dot !== -1) hostname = hostname.slice(0, dot);
 
       startAgent(function () {
-        config = { timeout: 5000, reconnect: false };
+        config = { timeout: 500000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
           client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
