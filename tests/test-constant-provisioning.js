@@ -136,9 +136,9 @@ var tests = [
               times[msg.data.zonename] = Date.now();
               self.agent.sendCommand('provision', msg,
                 function (reply) {
+                  assert.ok(!reply.error);
                   if (reply.error) {
-                    puts("ERROR", inspect(reply));
-                    puts("MSG", inspect(msg));
+                    finished();
                   }
                 });
           }, 1000);
@@ -196,7 +196,7 @@ var tests = [
           }
         });
     }
-  }
+  } 
 ];
 
 // order matters in our tests
