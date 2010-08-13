@@ -21,7 +21,7 @@ var hostname;
 
 var testZoneName = 'orlandozone';
 
-var zoneCount = 3;
+var zoneCount = 30;
 
 var tests = [
  { 'Test provisioning a zone':
@@ -230,7 +230,7 @@ suite.setup(function(finished, test) {
       if (dot !== -1) hostname = hostname.slice(0, dot);
 
       startAgent(function () {
-        config = { timeout: 5000, reconnect: false };
+        config = { timeout: 500000, reconnect: false };
         client = new ProvisionerClient(config);
         client.connect(function () {
           client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
