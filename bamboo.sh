@@ -10,7 +10,7 @@ checkout() {
 }
 
 build() {
-#  gmake distclean
+  gmake distclean
   gmake all
 }
 
