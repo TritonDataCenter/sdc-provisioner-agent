@@ -30,13 +30,13 @@ echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 if [ ! -z "$PUBLIC_IP" ];
 then
-  /usr/sbin/dladm create-vnic -l e1000g0 ${PUBLIC_INTERFACE}
+  /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} ${PUBLIC_INTERFACE}
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
 
 if [ ! -z "$PRIVATE_IP" ];
 then
-  /usr/sbin/dladm create-vnic -l e1000g2 ${PRIVATE_INTERFACE}
+  /usr/sbin/dladm create-vnic -l ${INTERNAL_LINK} ${PRIVATE_INTERFACE}
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
 
