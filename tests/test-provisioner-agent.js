@@ -95,7 +95,8 @@ var tests = [
 //                             , 'default_gateway': '8.19.35.1'
 //                             , 'public_netmask': '255.255.192.0'
 //                             , 'private_netmask': '255.255.192.0'
-                            , 'hostname': testZoneName + i
+//                             ,  'public_vlan_id': 420
+                            , 'hostname': testZoneName
                             , 'zone_template': 'nodejs'
                             , 'root_pw': 'therootpw'
                             , 'admin_pw': 'theadminpw'
