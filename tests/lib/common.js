@@ -1,3 +1,6 @@
+execFile = require('child_process').execFile;
+inspect = require('sys').inspect;
+
 exports.provisionZone = function (agent, data, callback) {
   var successCount = 0;
 
@@ -26,23 +29,23 @@ exports.provisionZone = function (agent, data, callback) {
       });
 
       execFile('/usr/sbin/zoneadm'
-      , ['list', '-p']
-      , function (error, stdout, stderr) {
-        if (error) throw error;
+        , ['list', '-p']
+        , function (error, stdout, stderr) {
+          if (error) throw error;
 
-        var lines = stdout.split("\n");
-        assert.ok(
-          lines.some(function (line) {
-            var parts = line.split(':');
-            return parts[1] === data.zonename
-            && parts[2] === 'running';
-          })
-          , "our zone should be in the list");
+          var lines = stdout.split("\n");
+          assert.ok(
+            lines.some(function (line) {
+              var parts = line.split(':');
+              return parts[1] === data.zonename
+              && parts[2] === 'running';
+            })
+            , "our zone should be in the list");
 
-        console.log("Everyone was ok!");
-        q.destroy();
-        callback(null);
-      });
+          console.log("Everyone was ok!");
+          q.destroy();
+          callback(null);
+        });
     }
   }
 
@@ -76,4 +79,53 @@ exports.provisionZone = function (agent, data, callback) {
   }
 
   q = agent.connection.queue(data.zonename + '_events', queueCreated);
+};
+
+// exports.teardownZone = function (agent, data, callback) { 
+// 
+// };
+
+var zoneadmListFields = ['zoneid', 'zonename', 'state', 'zonepath', 'uuid', 'brand', 'ip-type'];
+var zoneadmListFieldCount = zoneadmListFields.length;
+
+exports.zoneadmList = function (callback) {
+  function onZoneadmList(error, stdout, stderr) {
+    if (error) return callback("shit!!!!!!!!!!!"+error.toString());
+    console.log("Listed -->" + stdout);
+
+    var zones = {};
+    var lines = stdout.split("\n");
+    var i = lines.length;
+    var parts;
+
+    while (i--) {
+      if (!lines[i]) continue;
+      parts = lines[i].split(':');
+
+      var j = zoneadmListFieldCount
+      var zonename = parts[1];
+      zones[zonename] = {};
+      while (j--) {
+        var field = zoneadmListFields[j];
+        zones[zonename][field] = parts[j];
+      }
+    }
+    console.log(inspect(zones));
+    callback(null, zones);
+  }
+
+  execFile('/usr/sbin/zoneadm', ['list', '-pi'], onZoneadmList);
+};
+
+
+exports.zoneBootTime = function (zonename, callback) {
+  execFile(
+      '/usr/sbin/zlogin'
+    , [ zonename, '/usr/bin/kstat', '-p', 'unix:0:system_misc:boot_time']
+    , function (error, stdout, stderr) {
+        if (error) throw stderr.toString();;
+        var kv = stdout.toString().split(/\s+/);
+        console.log(sys.inspect(kv));
+        callback(null, kv[1]);
+      });
 }
