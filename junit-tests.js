@@ -7,7 +7,7 @@ AsyncTest = require('./async-testing/async_testing');
 formatSuite = require('./async-testing-junit').convertSuiteToJUnit;
 
 var outputDirectory = "tests/results";
-var suiteFiles = [ './tests/test-concurrent-provisioning'
+var suiteFiles = [ './tests/test-deactivate-zone'
                  , './tests/test-provisioner-agent'
                  ];
 

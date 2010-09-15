@@ -19,7 +19,7 @@ teardown() {
     sudo pkgrm -a ./build/admin -n JOYprovisioner
   fi
   if svcs -v provisioner 2> /dev/null; then
-    echo "ERROR: provisioner service still running after teardown!"
+    echo "ERROR: provisioner service still running after teardown"
     exit 1
   fi
 }
