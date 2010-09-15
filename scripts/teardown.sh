@@ -1,7 +1,5 @@
 echo "Cleaning up zone $ZONENAME"
 
-# ZONENAME=orlandozone
-
 if [ -z "$ZONENAME" ];
 then
   echo "ZONENAME environment variable must be set" >&2
