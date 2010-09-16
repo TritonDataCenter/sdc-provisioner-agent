@@ -44,7 +44,7 @@ exports.provisionZone = function (agent, data, callback) {
 
           console.log("Everyone was ok!");
           q.destroy();
-          callback(null);
+          callback(undefined);
         });
     }
   }
@@ -111,7 +111,7 @@ exports.zoneadmList = function (callback) {
       }
     }
     console.log(inspect(zones));
-    callback(null, zones);
+    callback(undefined, zones);
   }
 
   execFile('/usr/sbin/zoneadm', ['list', '-pi'], onZoneadmList);
@@ -126,6 +126,6 @@ exports.zoneBootTime = function (zonename, callback) {
         if (error) throw stderr.toString();;
         var kv = stdout.toString().split(/\s+/);
         console.log(sys.inspect(kv));
-        callback(null, kv[1]);
+        callback(undefined, kv[1]);
       });
 }

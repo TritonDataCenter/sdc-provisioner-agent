@@ -54,7 +54,10 @@ var tests = [
                       , 'authorized_keys': authorized_keys
                       }
       provisionZone(self.agent, data, function (error) {
-        assert.ok(!error);
+        puts(inspect(arguments));
+        if (error) {
+          assert.ok(!error, "Expected no errors but found: " + error.toString());
+        }
         finished();
       });
     }
@@ -85,6 +88,36 @@ var tests = [
               finished();
             });
           });
+    }
+  }
+, { 'Test activating one zone':
+    function (assert, finished) {
+      var self = this;
+      var successCount = 0;
+      var msg = { data: { zonename: testZoneName } };
+
+      self.agent.sendCommand('activate', msg,
+        function (reply) {
+          assert.ok(!reply.error, "Error should be unset, but was '" + inspect(reply.error) + "'.");
+          setTimeout(function () {
+            execFile('/usr/sbin/zoneadm'
+            , ['list', '-pi']
+            , function (error, stdout, stderr) {
+              if (error) throw error;
+              console.log("Listed -->" + stdout);
+              var lines = stdout.split("\n");
+              assert.ok(
+                lines.some(function (line) {
+                  var parts = line.split(':');
+                  return  (    parts[1] == testZoneName
+                            && parts[2] == 'running' );
+                })
+                , "Our zone should be in the list, but it was not.");
+              console.log("Everyone was ok!");
+              finished();
+            });
+          }, 5000);
+        });
     }
   }
 , { 'Test tearing down one zone':
