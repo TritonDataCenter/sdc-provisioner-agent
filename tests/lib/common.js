@@ -129,3 +129,18 @@ exports.zoneBootTime = function (zonename, callback) {
         callback(undefined, kv[1]);
       });
 }
+
+exports.prctl = function (zonename, resourceControlName, callback) {
+  execFile
+    ( "/usr/bin/prctl"
+    , [ '-P', '-t', 'privileged'
+      , '-n', resourceControlName
+      , '-i', 'zone', zonename
+      ]
+    , function (error, stdout, stderr) { 
+        var parts = stdout.split("\n");
+        var zone = parts[1].split(/\s+/);
+        callback(null, zone);
+      }
+    );
+}

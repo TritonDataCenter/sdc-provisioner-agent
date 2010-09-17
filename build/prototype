@@ -33,6 +33,7 @@ f none provisioner/scripts/zfs.sh=../scripts/zfs.sh 0755 root root
 f none provisioner/scripts/activate.sh=../scripts/activate.sh 0755 root root
 f none provisioner/scripts/deactivate.sh=../scripts/deactivate.sh 0755 root root
 f none provisioner/scripts/reboot.sh=../scripts/reboot.sh 0755 root root
+f none provisioner/scripts/resize.sh=../scripts/resize.sh 0755 root root
 
 # Templates
 f none provisioner/support/zone_template.xml.ejs=../support/zone_template.xml.ejs 0644 root root
