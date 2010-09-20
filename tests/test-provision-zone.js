@@ -4,7 +4,10 @@ require.paths.push(path.join(__dirname, '/../lib'));
 require.paths.push(path.join(__dirname, '/..'));
 
 assert = require('assert');
+
 common = require('common');
+zoneadmList = common.zoneadmList;
+teardownZone = common.teardownZone;
 
 provisionZone = common.provisionZone;
 
@@ -120,46 +123,15 @@ var tests = [
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
-      var successCount = 0;
+      var data = { zonename: testZoneName };
+      teardownZone(self.agent, data, function (error) {
+        assert.ok(!error);
 
-      var q = this.agent.connection.queue(testZoneName + '_xevents',
-        function () {
-          var routing = 'provisioner.event.zone_destroyed.*.*.*';
-          console.log("Teardown Routing was %s", routing);
-          q.bind(routing);
-          q.subscribeJSON(function (msg) {
-            console.log("EVENT -->");
-            // Check that the zone is not in list
-
-            execFile('/usr/sbin/zoneadm'
-              , ['list', '-p']
-              , function (error, stdout, stderr) {
-                  if (error) throw error;
-                  console.log("Listed -->" + stdout);
-                  var lines = stdout.split("\n");
-                  assert.ok(
-                    !lines.some(function (line) {
-                      var parts = line.split(':');
-                      return parts[1] == testZoneName;
-                    })
-                    , "Our zone should not be in the list, but it was.");
-                  console.log("Everyone was ok!");
-                  q.destroy();
-                  finished();
-                });
-          });
-
-          var msg = { data: { } };
-          msg.data.zonename = testZoneName;
-          self.agent.sendCommand('teardown', msg,
-            function (reply) {
-              assert.equal(reply.error
-                , undefined,
-                  "Error should be unset, but was '"
-                  + inspect(reply.error) + "'.");
-            console.log("Zone destruction initiated");
-          });
+        zoneadmList(function (error, zones) {
+          assert.ok(!zones[testZoneName], "zone should be gone");
+          finished();
         });
+      });
     }
   }
 ];

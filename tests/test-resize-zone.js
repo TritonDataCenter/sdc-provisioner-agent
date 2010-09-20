@@ -11,6 +11,7 @@ provisionZone = common.provisionZone;
 zoneadmList = common.zoneadmList;
 zoneBootTime = common.zoneBootTime;
 prctl = common.prctl;
+teardownZone = common.teardownZone;
 
 sys = require('sys');
 exec = require('child_process').exec;
@@ -82,90 +83,60 @@ var tests = [
       });
     }
   }
-  , { 'Test resizing a zone':
-  function (assert, finished) {
-    var self = this;
-    var msg = { data: { zonename: testZoneName
-                      , lightweight_processes: 5000 } };
+, { 'Test resizing a zone':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName
+                        , lightweight_processes: 5000 } };
 
-    function onResize(reply) {
-      var resource = 'zone.max-lwps';
-      assert.ok(!reply.error);
-      if (reply.error) finished();
+      function onResize(reply) {
+        var resource = 'zone.max-lwps';
+        assert.ok(!reply.error);
+        if (reply.error) finished();
 
-      // check that the value has taken effect in the running system
-      prctl
-        ( testZoneName
-        , resource
-        , function (error, zone) {
-            assert.equal
-              ( zone[2]
-              , 5000
-              , "lightweight_processes value should've been set"
-              );
+        // check that the value has taken effect in the running system
+        prctl
+          ( testZoneName
+          , resource
+          , function (error, zone) {
+              assert.equal
+                ( zone[2]
+                , 5000
+                , "lightweight_processes value should've been set"
+                );
 
-            // check that the configuarion has been recorded in zonecfg
-            prctlValue
-              ( testZoneName
-              , resource
-              , function (error, value) {
-                  assert.equal
-                    ( value
-                    , 5000
-                    , "zonecfg should report the right value for lwps"
-                    );
-                  finished();
-                }
-              );
-          }
-        );
+              // check that the configuarion has been recorded in zonecfg
+              prctlValue
+                ( testZoneName
+                , resource
+                , function (error, value) {
+                    assert.equal
+                      ( value
+                      , 5000
+                      , "zonecfg should report the right value for lwps"
+                      );
+                    finished();
+                  }
+                );
+            }
+          );
+      }
+
+      self.agent.sendCommand('resize', msg, onResize);
     }
-
-    self.agent.sendCommand('resize', msg, onResize);
   }
-}
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
+      var data = { zonename: testZoneName };
+      teardownZone(self.agent, data, function (error) {
+        assert.ok(!error);
 
-      var q = this.agent.connection.queue(testZoneName + '_xevents',
-        function () {
-          var routing = 'provisioner.event.zone_destroyed.*.*.*';
-          console.log("Teardown Routing was %s", routing);
-          q.bind(routing);
-          q.subscribeJSON(function (msg) {
-            console.log("EVENT -->");
-            // Check that the zone is not in list
-
-            execFile('/usr/sbin/zoneadm'
-              , ['list', '-p']
-              , function (error, stdout, stderr) {
-                  if (error) throw error;
-                  console.log("Listed -->" + stdout);
-                  var lines = stdout.split("\n");
-                  assert.ok(
-                    !lines.some(function (line) {
-                      var parts = line.split(':');
-                      return parts[1] == testZoneName;
-                    })
-                    , "Our zone should not be in the list, but it was.");
-                  console.log("Everyone was ok!");
-                  q.destroy();
-                  finished();
-                });
-          });
-
-          var msg = { data: { } };
-          msg.data.zonename = testZoneName;
-          self.agent.sendCommand('teardown', msg,
-            function (reply) {
-              assert.equal(reply.error
-                , undefined,
-                  "Error should be unset, but was '"
-                  + inspect(reply.error) + "'.");
-            console.log("Zone destruction initiated");
-          });
+        zoneadmList(function (error, zones) {
+          assert.ok(!zones[testZoneName], "zone should be gone");
+          finished();
         });
+      });
     }
   }
 ];

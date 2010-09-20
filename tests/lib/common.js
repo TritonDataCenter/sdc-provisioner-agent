@@ -81,6 +81,86 @@ exports.provisionZone = function (agent, data, callback) {
   q = agent.connection.queue(data.zonename + '_events', queueCreated);
 };
 
+exports.teardownZone = function (agent, data, callback) {
+  var q;
+
+  function eventReceived(msg) {
+    console.log("EVENT -->");
+    // Check that the zone is not in list
+
+//     execFile
+//       ( '/usr/sbin/zoneadm'
+//       , ['list', '-p']
+//       , function (error, stdout, stderr) {
+//           if (error) throw error;
+//           console.log("Listed -->" + stdout);
+//           var lines = stdout.split("\n");
+//           assert.ok(
+//             !lines.some(function (line) {
+//               var parts = line.split(':');
+//               return parts[1] == testZoneName;
+//             })
+//             , "Our zone should not be in the list, but it was.");
+//           console.log("Everyone was ok!");
+          q.destroy();
+          callback(undefined);
+//         }
+//       );
+  };
+
+  function queueCreated() {
+    // provisioner.event.zone_created.sagan.orlandozone0
+    var routing = 'provisioner.event.*.' + agent.hostname + '.*.*';
+    console.log("Routing was %s", routing);
+
+    q.bind(routing);
+    q.subscribeJSON(eventReceived);
+
+    var msg = { data: data };
+    agent.sendCommand
+      ( 'teardown'
+      , msg
+      , function (reply) {
+          assert.equal(reply.error
+            , undefined,
+              "Error should be unset, but was '"
+              + inspect(reply.error) + "'.");
+          console.log("Zone destruction initiated");
+        }
+      );
+  }
+
+  q = agent.connection.queue(data.zonename + '_xevents', queueCreated);
+
+//   var q = this.agent.connection.queue(testZoneName + '_xevents',
+//     function () {
+//       var routing = 'provisioner.event.zone_destroyed.*.*.*';
+//       console.log("Teardown Routing was %s", routing);
+//       q.bind(routing);
+//       q.subscribeJSON(function (msg) {
+//         console.log("EVENT -->");
+//         // Check that the zone is not in list
+// 
+//         execFile('/usr/sbin/zoneadm'
+//           , ['list', '-p']
+//           , function (error, stdout, stderr) {
+//               if (error) throw error;
+//               console.log("Listed -->" + stdout);
+//               var lines = stdout.split("\n");
+//               assert.ok(
+//                 !lines.some(function (line) {
+//                   var parts = line.split(':');
+//                   return parts[1] == testZoneName;
+//                 })
+//                 , "Our zone should not be in the list, but it was.");
+//               console.log("Everyone was ok!");
+//               q.destroy();
+//               finished();
+//             });
+//       });
+
+}
+
 // exports.teardownZone = function (agent, data, callback) { 
 // 
 // };
@@ -90,7 +170,7 @@ var zoneadmListFieldCount = zoneadmListFields.length;
 
 exports.zoneadmList = function (callback) {
   function onZoneadmList(error, stdout, stderr) {
-    if (error) return callback("shit!!!!!!!!!!!"+error.toString());
+    if (error) return callback(error);
     console.log("Listed -->" + stdout);
 
     var zones = {};
@@ -110,18 +190,16 @@ exports.zoneadmList = function (callback) {
         zones[zonename][field] = parts[j];
       }
     }
-    console.log(inspect(zones));
     callback(undefined, zones);
   }
 
   execFile('/usr/sbin/zoneadm', ['list', '-pi'], onZoneadmList);
 };
 
-
 exports.zoneBootTime = function (zonename, callback) {
-  execFile(
-      '/usr/sbin/zlogin'
-    , [ zonename, '/usr/bin/kstat', '-p', 'unix:0:system_misc:boot_time']
+  execFile
+    ( '/usr/sbin/zlogin'
+    , [zonename, '/usr/bin/kstat', '-p', 'unix:0:system_misc:boot_time']
     , function (error, stdout, stderr) {
         if (error) throw stderr.toString();;
         var kv = stdout.toString().split(/\s+/);
