@@ -1,6 +1,10 @@
 execFile = require('child_process').execFile;
 inspect = require('sys').inspect;
 
+// The agent will emit events as it progresses through the zone creation
+// process.
+var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
+
 exports.provisionZone = function (agent, data, callback) {
   var successCount = 0;
 
@@ -52,9 +56,6 @@ exports.provisionZone = function (agent, data, callback) {
   var times = {};
   var zonesCreated = [];
 
-  // The agent will emit events as it progresses through the zone creation
-  // process. Make sure that the right number and types of events come in.
-  var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
 
   var q;
 
@@ -78,7 +79,7 @@ exports.provisionZone = function (agent, data, callback) {
       });
   }
 
-  q = agent.connection.queue(data.zonename + '_events', queueCreated);
+  q = agent.connection.queue(data.zonename + '_provision_events', queueCreated);
 };
 
 exports.teardownZone = function (agent, data, callback) {
@@ -86,31 +87,17 @@ exports.teardownZone = function (agent, data, callback) {
 
   function eventReceived(msg) {
     console.log("EVENT -->");
-    // Check that the zone is not in list
+    var zone_event = eventRE.exec(msg._routingKey);
 
-//     execFile
-//       ( '/usr/sbin/zoneadm'
-//       , ['list', '-p']
-//       , function (error, stdout, stderr) {
-//           if (error) throw error;
-//           console.log("Listed -->" + stdout);
-//           var lines = stdout.split("\n");
-//           assert.ok(
-//             !lines.some(function (line) {
-//               var parts = line.split(':');
-//               return parts[1] == testZoneName;
-//             })
-//             , "Our zone should not be in the list, but it was.");
-//           console.log("Everyone was ok!");
-          q.destroy();
-          callback(undefined);
-//         }
-//       );
+    if (zone_event[1] == "zone_destroyed") {
+      q.destroy();
+      callback(undefined);
+    }
   };
 
   function queueCreated() {
     // provisioner.event.zone_created.sagan.orlandozone0
-    var routing = 'provisioner.event.*.' + agent.hostname + '.*.*';
+    var routing = 'provisioner.event.zone_destroyed.' + agent.hostname + '.*.*';
     console.log("Routing was %s", routing);
 
     q.bind(routing);
@@ -130,35 +117,7 @@ exports.teardownZone = function (agent, data, callback) {
       );
   }
 
-  q = agent.connection.queue(data.zonename + '_xevents', queueCreated);
-
-//   var q = this.agent.connection.queue(testZoneName + '_xevents',
-//     function () {
-//       var routing = 'provisioner.event.zone_destroyed.*.*.*';
-//       console.log("Teardown Routing was %s", routing);
-//       q.bind(routing);
-//       q.subscribeJSON(function (msg) {
-//         console.log("EVENT -->");
-//         // Check that the zone is not in list
-// 
-//         execFile('/usr/sbin/zoneadm'
-//           , ['list', '-p']
-//           , function (error, stdout, stderr) {
-//               if (error) throw error;
-//               console.log("Listed -->" + stdout);
-//               var lines = stdout.split("\n");
-//               assert.ok(
-//                 !lines.some(function (line) {
-//                   var parts = line.split(':');
-//                   return parts[1] == testZoneName;
-//                 })
-//                 , "Our zone should not be in the list, but it was.");
-//               console.log("Everyone was ok!");
-//               q.destroy();
-//               finished();
-//             });
-//       });
-
+  q = agent.connection.queue(data.zonename + '_teardown_events', queueCreated);
 }
 
 // exports.teardownZone = function (agent, data, callback) { 
