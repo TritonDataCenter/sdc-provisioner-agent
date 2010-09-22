@@ -13,6 +13,11 @@ set_resource_control() {
   ZONENAME=$1
   RESOURCE=$2
   VALUE=$3
+  ACTION=$4
+
+  if [ -z "$ACTION" ]; then
+    ACTION=deny
+  fi
 
   # change the live value
   /usr/bin/prctl -n $RESOURCE -v "$VALUE" -r -i zone "$ZONENAME"
@@ -22,7 +27,7 @@ set_resource_control() {
   remove rctl name=$RESOURCE
   add rctl
   set name=$RESOURCE
-  add value (priv=privileged,limit=${VALUE},action=deny)
+  add value (priv=privileged,limit=${VALUE},action=${ACTION})
   end
   commit
 __EOF__
@@ -43,7 +48,7 @@ fi
 
 # cpu shares
 if [ ! -z "$CPU_SHARES" ]; then
-  set_resource_control $ZONENAME zone.cpu-shares $CPU_SHARES
+  set_resource_control $ZONENAME zone.cpu-shares $CPU_SHARES none
 fi
 
 # cpu cap
