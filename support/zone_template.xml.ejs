@@ -7,6 +7,9 @@
   <inherited-pkg-dir directory="/platform"/>
   <inherited-pkg-dir directory="/sbin"/>
   <inherited-pkg-dir directory="/usr"/>
+  <% for (var i=0; i < inherited_directories.length; i++) { %>
+  <inherited-pkg-dir directory="<%= inherited_directories[i] %>"/>
+  <% } %>
 
   <rctl name="zone.cpu-shares">
     <rctl-value priv="privileged" limit="<%= cpu_shares %>" action="none"/>

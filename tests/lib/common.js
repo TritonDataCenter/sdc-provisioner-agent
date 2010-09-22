@@ -9,7 +9,7 @@ exports.provisionZone = function (agent, data, callback) {
   var successCount = 0;
 
   function eventReceived(msg) {
-    console.log("Event --> %j", msg);
+    console.log("Event --> " + inspect(msg));
 
     var zone_event = eventRE.exec(msg._routingKey);
 
@@ -21,6 +21,10 @@ exports.provisionZone = function (agent, data, callback) {
 
     if (zone_event[1] == "zone_created") {
       zonesCreated.push(zone_event[3]);
+    }
+
+    if (zone_event[1] == 'error') {
+      return callback(new Error(msg.data));
     }
 
     if (zone_event[1] == "zone_ready") {

@@ -55,8 +55,10 @@ var tests = [
                       , 'tmpfs': '200m'
                       , 'template_version': '4.2.0'
                       , 'authorized_keys': authorized_keys
+                      , 'inherited_directories': '/opt/nodejs:/opt'
                       }
       provisionZone(self.agent, data, function (error) {
+        if (error) console.log(error.toString());
         assert.ok(!error);
         finished();
       });
@@ -119,7 +121,7 @@ var tests = [
           });
         });
     }
-}
+  }
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
