@@ -42,7 +42,7 @@ f none provisioner/support/zone_template.xml.ejs=../support/zone_template.xml.ej
 f none provisioner/provisioner.xml=../.pkg/provisioner.xml 0644 root root
 
 # Config file
-f none provisioner/etc/provisioner.ini=../etc/provisioner.ini 0600 joyprvsn staff
+f none provisioner/etc/provisioner.ini-sample=../etc/provisioner.ini 0600 joyprvsn staff
 
 # Node
 f none provisioner/local/bin/node=../.pkg/local/bin/node 0755 root root
