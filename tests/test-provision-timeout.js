@@ -56,72 +56,14 @@ var tests = [
                       , 'template_version': '4.2.0'
                       , 'authorized_keys': authorized_keys
                       , 'inherited_directories': '/opt/nodejs:/opt'
+                      , '__test_zoneinit_timeout_error': true
                       }
       provisionZone(self.agent, data, function (error) {
-        if (error) {
-          console.log(error.toString());
-          assert.ok(!error, "Error encountered: " + error.toString());
-        }
+        assert.ok(error);
+        assert.ok(/Timed out after waiting/.exec(error.toString()));
+
         finished();
       });
-    }
-  }
-, { 'Test adding to .authorized_keys after provisioning':
-    function (assert, finished) {
-      var self = this;
-      var msg = { data: { zonename: testZoneName } };
-
-      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== carl@mjollnir.local\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== meatwad@mjollnir.local\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== frylock@mjollnir.local\n"
-
-      self.agent.sendCommand('add_authorized_keys', msg,
-        function (reply) {
-          assert.ok(!reply.error
-            , "Shouldn't be an error but it was " + reply.error);
-          console.log("added an authorized key");
-
-          var authorizedKeysPath
-            = path.join(
-                "/zones/"
-              , testZoneName
-              , 'root/home/node/.ssh/authorized_keys');
-
-
-          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
-            assert.ok(!error, "Error reading authorized_keys file: "+error);
-            assert.ok(data.indexOf("frylock@mjollnir.local") !== -1
-              , "We should have found our key in the authorized keys file");
-            assert.ok(data.indexOf("meatwad@mjollnir.local") !== -1
-              , "We should have found our key in the authorized keys file");
-            finished();
-          });
-        });
-    }
-}
-, { 'Test overwriting .authorized_keys after provisioning':
-    function (assert, finished) {
-      var self = this;
-      var msg = { data: { zonename: testZoneName, overwrite: true } };
-
-      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== ignignokt@moon.local"
-
-      self.agent.sendCommand('add_authorized_keys', msg,
-        function (reply) {
-          assert.ok(!reply.error
-            , "Shouldn't be an error but it was " + reply.error)
-          console.log("added an authorized key");
-
-          var authorizedKeysPath
-            = path.join(
-                "/zones/"
-              , testZoneName
-              , 'root/home/node/.ssh/authorized_keys');
-
-          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
-            assert.ok(!error, "Error reading authorized_keys file: "+error);
-            assert.equal(data.toString(), msg.data.authorized_keys, "Authorized keys should match");
-            finished();
-          });
-        });
     }
   }
 , { 'Test tearing down one zone':
@@ -129,6 +71,7 @@ var tests = [
       var self = this;
       var data = { zonename: testZoneName };
       teardownZone(self.agent, data, function (error) {
+        // this might error if the zone doesn't exist, but that's ok
         assert.ok(!error);
 
         zoneadmList(function (error, zones) {
