@@ -55,7 +55,7 @@ var tests = [
                       , 'tmpfs': '200m'
                       , 'template_version': '4.2.0'
                       , 'authorized_keys': authorized_keys
-                      , 'inherited_directories': '/opt/nodejs:/opt'
+                      , 'inherited_directories': '/opt'
                       }
       provisionZone(self.agent, data, function (error) {
         if (error) {
