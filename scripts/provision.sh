@@ -1,26 +1,37 @@
 #!/bin/bash
 
 # This script is responsible for the zone configuration that needs to happen
-# at the global zone level. The provisioner agent appends to the zone index
+# at the global zone level. The provisioner agent sets up the zone's xml
 # file and then calls this script. At that point, the provisiner agent will
 # continue handling AMQP requests, while this script "runs in the background"
 # and eventually boots the new zone.
 
 set -e
 
+PATH=/usr/bin:/sbin:/usr/sbin
+export PATH
+
 ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 # --- node
 # 0. recv amqp provision command
-
-
 # 1. Write /etc/zones/zonename.xml
 
-# --- node
-# 2. Append to /etc/zones/index
-# 3. zfs snapshot template_dataset
-# 4. zfs clone
-# 5. zfs set quota
+if [ $BASEOS_VERS -lt 147 ]; then
+  # pre b147 systems
+  #   2. Append to /etc/zones/index
+  echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >>/etc/zones/index
+
+  #   3. zfs snapshot template_dataset
+  #   4. zfs clone
+  #   5. zfs set quota
+  zfs snapshot "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME"
+  zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
+  zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
+else
+  # b147 & later; install the zone now.
+  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES}g -t $ZONE_TEMPLATE
+fi
 
 # 8. write to /etc/nodename
 
