@@ -17,12 +17,14 @@ ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 # 0. recv amqp provision command
 # 1. Write /etc/zones/zonename.xml
 
-# check if dataset exists
+# # check if dataset exists
+if zfs list "$ZPOOL_NAME/$ZONENAME" 2>&1 >/dev/null; then
+  echo "Dataset for $ZONENAME exists." >&2;
+  exit 1
+fi
 
-DATASETEXISTS=`zfs list "$ZPOOL_NAME/$ZONENAME" 2>&1; echo $?`
-
-if [ "$DATASETEXISTS" == 0 ]; then
-  echo "Dataset $ZPOOL_NAME/$ZONENAME exists." >&2;
+if zfs list "$ZPOOL_NAME/$ZONENAME" 2>&1 >/dev/null; then
+  echo "Snapshot for $ZONENAME exists." >&2;
   exit 1
 fi
 

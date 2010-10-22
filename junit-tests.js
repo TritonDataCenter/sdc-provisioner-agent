@@ -12,6 +12,7 @@ var suiteFiles = [ './tests/test-activate-deactivate-zone'
                  , './tests/test-provision-timeout'
                  , './tests/test-reboot-zone'
                  , './tests/test-resize-zone'
+                 , './tests/test-duplicate-zone-name'
                  ];
 
 var suites = {};

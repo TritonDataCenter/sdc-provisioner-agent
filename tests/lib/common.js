@@ -83,7 +83,7 @@ exports.provisionZone = function (agent, data, callback) {
       });
   }
 
-  q = agent.connection.queue(data.zonename + '_provision_events', queueCreated);
+  q = agent.connection.queue(data.zonename + '_provision_events'+Math.random(), queueCreated);
 };
 
 exports.teardownZone = function (agent, data, callback) {
