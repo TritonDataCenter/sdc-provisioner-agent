@@ -17,13 +17,13 @@ ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 # 0. recv amqp provision command
 # 1. Write /etc/zones/zonename.xml
 
-# # check if dataset exists
-if zfs list "$ZPOOL_NAME/$ZONENAME" 2>&1 >/dev/null; then
+# check if dataset exists
+if zfs list "$ZPOOL_NAME/$ZONENAME" 2>/dev/null 1>&2; then
   echo "Dataset for $ZONENAME exists." >&2;
   exit 1
 fi
 
-if zfs list "$ZPOOL_NAME/$ZONENAME" 2>&1 >/dev/null; then
+if zfs list "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" 2>/dev/null 1>&2; then
   echo "Snapshot for $ZONENAME exists." >&2;
   exit 1
 fi
@@ -43,6 +43,9 @@ else
   # b147 & later; install the zone now.
   zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES}g -t $ZONE_TEMPLATE
 fi
+
+# Set customer-related properties on the ZFS dataset
+source ./scripts/zone_properties.sh
 
 # 8. write to /etc/nodename
 
