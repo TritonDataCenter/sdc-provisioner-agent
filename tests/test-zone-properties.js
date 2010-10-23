@@ -22,7 +22,7 @@ ProvisionerClient = require('amqp_agent/client').Client;
 
 TestSuite = require('async-testing/async_testing').TestSuite;
 
-var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
+var suite = exports.suite = new TestSuite("Test zone properties");
 var hostname;
 
 var testZoneName = 'orlandozone';
@@ -43,9 +43,11 @@ var tests = [
                       , 'hostname': testZoneName
                       , 'zone_template': 'nodejs'
                       , 'root_pw': 'therootpw'
-                      , 'customer_uuid': 'this-is-my-uuid'
+
+                      , 'customer_uuid': 'old-uuid'
                       , 'zone_type': 'node'
                       , 'charge_after': (new Date()).toISOString()
+
                       , 'admin_pw': 'theadminpw'
                       , 'vs_pw': 'xxxtheadminpw'
                       , 'cpu_shares': 15
@@ -71,58 +73,40 @@ var tests = [
     function (assert, finished) {
       var self = this;
       var successCount = 0;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { zonename: testZoneName
+                        , customer_uuid: 'the-new-uuid'
+                        , charge_after: (new Date(100)).toISOString()
+                        , zone_type: 'mysql'
+                        }
+                };
 
-      self.agent.sendCommand('deactivate', msg,
+      self.agent.sendCommand('zone_properties', msg,
         function (reply) {
-          assert.ok(!reply.error, "Error should be unset, but was '" + inspect(reply.error) + "'.");
-          execFile('/usr/sbin/zoneadm'
-          , ['list', '-pi']
-          , function (error, stdout, stderr) {
-            if (error) throw error;
-            console.log("Listed -->" + stdout);
-            var lines = stdout.split("\n");
-            assert.ok(
-              !lines.some(function (line) {
-                var parts = line.split(':');
-                return  (    parts[1] == testZoneName
-                          && parts[2] == 'running' );
-              })
-              , "Our zone should not be in the list, but it was.");
-              console.log("Everyone was ok!");
-              finished();
-            });
-          });
-    }
-  }
-, { 'Test activating one zone':
-    function (assert, finished) {
-      var self = this;
-      var successCount = 0;
-      var msg = { data: { zonename: testZoneName } };
+          if (reply.error) {
+            assert.ok(!error, "There was an error" + error.toString());
+            finished();
+            return;
+          }
 
-      self.agent.sendCommand('activate', msg,
-        function (reply) {
-          assert.ok(!reply.error, "Error should be unset, but was '" + inspect(reply.error) + "'.");
-          setTimeout(function () {
-            execFile('/usr/sbin/zoneadm'
-            , ['list', '-pi']
-            , function (error, stdout, stderr) {
-              if (error) throw error;
-              console.log("Listed -->" + stdout);
-              var lines = stdout.split("\n");
-              assert.ok(
-                lines.some(function (line) {
-                  var parts = line.split(':');
-                  return  (    parts[1] == testZoneName
-                            && parts[2] == 'running' );
-                })
-                , "Our zone should be in the list, but it was not.");
-              console.log("Everyone was ok!");
-              finished();
-            });
-          }, 5000);
-        });
+        console.dir(reply);
+          zfsProperties
+            ( [ 'com.joyent:customer_uuid'
+              , 'com.joyent:charge_after'
+              , 'com.joyent:zone_type'
+              ]
+            , 'zones/orlandozone'
+            , function (error, properties) {
+                if (error) throw error;
+
+                assert.equal( properties['zones/orlandozone']['com.joyent:customer_uuid']
+                            , 'the-new-uuid');
+                assert.equal( properties['zones/orlandozone']['com.joyent:zone_type']
+                            , 'mysql');
+                assert.equal( properties['zones/orlandozone']['com.joyent:charge_after']
+                            , (new Date(100)).toISOString());
+                finished();
+              });
+      });
     }
   }
 , { 'Test tearing down one zone':
@@ -141,6 +125,38 @@ var tests = [
   }
 ];
 
+function parseZFSUsage (fields, data) {
+  var results = {};
+  var fieldsLength = fields.length;
+  var lines = data.trim().split("\n");
+  var i = lines.length;
+  while (i--) {
+    var line = lines[i].split(/\s+/);
+    if (!results[line[0]]) results[line[0]] = {};
+    results[line[0]][line[1]] = line[2];
+  }
+
+  return results;
+}
+
+function zfsProperties (propertyNames, datasets, callback) {
+  var fields = ['name','property','value'];
+  var args = ['get', '-H', '-o', fields.join(','),
+              propertyNames.join(',')];
+
+  // extend the args array with the passed in datasets
+  args.splice.apply(
+    args,
+    [args.length, datasets.length].concat(datasets));
+
+  execFile(
+    '/usr/sbin/zfs',
+    args,
+    function (error, stdout, stderr) {
+      if (error) return callback(error);
+      callback(null, parseZFSUsage(fields, stdout));
+    });
+}
 // order matters in our tests
 for (i in tests) {
   suite.addTests(tests[i]);
