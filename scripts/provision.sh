@@ -45,7 +45,8 @@ else
 fi
 
 # Set customer-related properties on the ZFS dataset
-source ./scripts/zone_properties.sh
+DIR=`dirname $0`
+source $DIR/zone_properties.sh
 
 # 8. write to /etc/nodename
 
