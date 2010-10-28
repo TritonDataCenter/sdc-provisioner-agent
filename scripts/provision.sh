@@ -31,7 +31,7 @@ fi
 if [ $BASEOS_VERS -lt 147 ]; then
   # pre b147 systems
   #   2. Append to /etc/zones/index
-  echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:" >>/etc/zones/index
+  echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
 
   #   3. zfs snapshot template_dataset
   #   4. zfs clone
@@ -41,7 +41,10 @@ if [ $BASEOS_VERS -lt 147 ]; then
   zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 else
   # b147 & later; install the zone now.
-  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES}g -t $ZONE_TEMPLATE
+  if [ ! -z "$UUID" ]; then
+    UUID_PARAM="-U $UUID"
+  fi
+  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES}g -t $ZONE_TEMPLATE $UUID_PARAM
 fi
 
 # Set customer-related properties on the ZFS dataset

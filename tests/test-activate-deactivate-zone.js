@@ -44,6 +44,7 @@ var tests = [
                       , 'zone_template': 'nodejs'
                       , 'root_pw': 'therootpw'
                       , 'customer_uuid': 'this-is-my-uuid'
+                      , 'uuid': '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
                       , 'zone_type': 'node'
                       , 'charge_after': (new Date()).toISOString()
                       , 'admin_pw': 'theadminpw'
@@ -85,8 +86,11 @@ var tests = [
             assert.ok(
               !lines.some(function (line) {
                 var parts = line.split(':');
-                return  (    parts[1] == testZoneName
-                          && parts[2] == 'running' );
+                return (
+                     parts[1] == testZoneName
+                  && parts[2] == 'running'
+                  && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
+                );
               })
               , "Our zone should not be in the list, but it was.");
               console.log("Everyone was ok!");
@@ -111,13 +115,17 @@ var tests = [
               if (error) throw error;
               console.log("Listed -->" + stdout);
               var lines = stdout.split("\n");
-              assert.ok(
-                lines.some(function (line) {
-                  var parts = line.split(':');
-                  return  (    parts[1] == testZoneName
-                            && parts[2] == 'running' );
-                })
-                , "Our zone should be in the list, but it was not.");
+              assert.ok
+                ( lines.some(function (line) {
+                    var parts = line.split(':');
+                    return (
+                         parts[1] == testZoneName
+                      && parts[2] == 'running'
+                      && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
+                    )
+                  })
+                , "Our zone should be in the list, but it was not."
+                );
               console.log("Everyone was ok!");
               finished();
             });
