@@ -8,8 +8,9 @@ assert = require('assert');
 common = require('common');
 
 provisionZone = common.provisionZone;
-teardownZone = common.teardownZone;
-zoneadmList = common.zoneadmList;
+teardownZone  = common.teardownZone;
+zfsProperties = common.zfsProperties;
+zoneadmList   = common.zoneadmList;
 
 sys = require('sys');
 exec = require('child_process').exec;
@@ -43,7 +44,7 @@ var tests = [
                       , 'hostname': testZoneName
                       , 'zone_template': 'nodejs'
                       , 'root_pw': 'therootpw'
-                      , 'customer_uuid': 'this-is-my-uuid'
+                      , 'owner_uuid': 'this-is-my-uuid'
                       , 'uuid': '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
                       , 'zone_type': 'node'
                       , 'charge_after': (new Date()).toISOString()
@@ -77,26 +78,46 @@ var tests = [
       self.agent.sendCommand('deactivate', msg,
         function (reply) {
           assert.ok(!reply.error, "Error should be unset, but was '" + inspect(reply.error) + "'.");
-          execFile('/usr/sbin/zoneadm'
-          , ['list', '-pi']
-          , function (error, stdout, stderr) {
-            if (error) throw error;
-            console.log("Listed -->" + stdout);
-            var lines = stdout.split("\n");
-            assert.ok(
-              !lines.some(function (line) {
-                var parts = line.split(':');
-                return (
-                     parts[1] == testZoneName
-                  && parts[2] == 'running'
-                  && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
-                );
-              })
-              , "Our zone should not be in the list, but it was.");
-              console.log("Everyone was ok!");
-              finished();
-            });
-          });
+          execFile
+            ( '/usr/sbin/zoneadm'
+            , ['list', '-pi']
+            , function (error, stdout, stderr) {
+                if (error) throw error;
+                console.log("Listed -->" + stdout);
+                var lines = stdout.split("\n");
+                assert.ok(
+                  !lines.some(function (line) {
+                    var parts = line.split(':');
+                    return (
+                         parts[1] == testZoneName
+                      && parts[2] == 'running'
+                      && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
+                    );
+                  })
+                  , "Our zone should not be in the list, but it was.");
+                  console.log("Everyone was ok!");
+
+                zfsProperties
+                  ( [ 'com.joyent:deleted_at' ]
+                  , 'zones/orlandozone'
+                  , function (error, properties) {
+                      console.log("DEACTIVATO");
+                      console.dir(properties);
+                      assert.ok
+                        ( properties['zones/orlandozone']['com.joyent:deleted_at']
+                        , 'deleted_at property should be set'
+                        );
+                      assert.ok
+                        ( /^\d{4}-\d{2}-\d{2}T.*Z$/
+                          .exec(properties['zones/orlandozone']['com.joyent:deleted_at'])
+                        , 'deleted_at property should match regex'
+                        );
+                      finished();
+                    }
+                  );
+              }
+            );
+        });
     }
   }
 , { 'Test activating one zone':

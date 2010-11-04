@@ -185,3 +185,36 @@ exports.prctl = function (zonename, resourceControlName, callback) {
       }
     );
 }
+
+exports.zfsProperties = function (propertyNames, datasets, callback) {
+  var fields = ['name','property','value'];
+  var args = ['get', '-H', '-o', fields.join(','),
+              propertyNames.join(',')];
+
+  // extend the args array with the passed in datasets
+  args.splice.apply(
+    args,
+    [args.length, datasets.length].concat(datasets));
+
+  execFile(
+    '/usr/sbin/zfs',
+    args,
+    function (error, stdout, stderr) {
+      if (error) return callback(error);
+      callback(null, parseZFSUsage(fields, stdout));
+    });
+}
+
+function parseZFSUsage (fields, data) {
+  var results = {};
+  var fieldsLength = fields.length;
+  var lines = data.trim().split("\n");
+  var i = lines.length;
+  while (i--) {
+    var line = lines[i].split(/\s+/);
+    if (!results[line[0]]) results[line[0]] = {};
+    results[line[0]][line[1]] = line[2];
+  }
+
+  return results;
+}

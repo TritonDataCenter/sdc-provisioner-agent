@@ -8,8 +8,9 @@ assert = require('assert');
 common = require('common');
 
 provisionZone = common.provisionZone;
-teardownZone = common.teardownZone;
-zoneadmList = common.zoneadmList;
+teardownZone  = common.teardownZone;
+zfsProperties = common.zfsProperties;
+zoneadmList   = common.zoneadmList;
 
 sys = require('sys');
 exec = require('child_process').exec;
@@ -28,7 +29,7 @@ var hostname;
 var testZoneName = 'orlandozone';
 
 var tests = [
- { 'Test provisioning one zone':
+ { 'Provision one zone':
     function (assert, finished) {
       var self = this;
       var authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== mastershake@mjollnir.local\n";
@@ -44,7 +45,7 @@ var tests = [
                       , 'zone_template': 'nodejs'
                       , 'root_pw': 'therootpw'
 
-                      , 'customer_uuid': 'old-uuid'
+                      , 'owner_uuid': 'old-uuid'
                       , 'zone_type': 'node'
                       , 'charge_after': (new Date()).toISOString()
 
@@ -65,16 +66,35 @@ var tests = [
         if (error) {
           assert.ok(!error, "Expected no errors but found: " + error.toString());
         }
+        zfsProperties
+          ( [ 'com.joyent:owner_uuid'
+            , 'com.joyent:charge_after'
+            , 'com.joyent:zone_type'
+            , 'com.joyent:za_version'
+            ]
+          , 'zones/orlandozone'
+          , function (error, properties) {
+              if (error) throw error;
+              console.log(properties);
+
+              assert.equal( properties['zones/orlandozone']['com.joyent:owner_uuid']
+                          , 'old-uuid');
+              assert.equal( properties['zones/orlandozone']['com.joyent:zone_type']
+                          , 'node');
+              assert.equal( properties['zones/orlandozone']['com.joyent:za_version']
+                          , '1.0');
+              finished();
+            });
         finished();
       });
     }
   }
-, { 'Test deactivating one zone':
+, { 'Test changing the zone\'s properties':
     function (assert, finished) {
       var self = this;
       var successCount = 0;
       var msg = { data: { zonename: testZoneName
-                        , customer_uuid: 'the-new-uuid'
+                        , owner_uuid: 'the-new-uuid'
                         , charge_after: (new Date(100)).toISOString()
                         , zone_type: 'mysql'
                         }
@@ -90,18 +110,21 @@ var tests = [
 
         console.dir(reply);
           zfsProperties
-            ( [ 'com.joyent:customer_uuid'
+            ( [ 'com.joyent:owner_uuid'
               , 'com.joyent:charge_after'
               , 'com.joyent:zone_type'
+              , 'com.joyent:za_version'
               ]
             , 'zones/orlandozone'
             , function (error, properties) {
                 if (error) throw error;
 
-                assert.equal( properties['zones/orlandozone']['com.joyent:customer_uuid']
+                assert.equal( properties['zones/orlandozone']['com.joyent:owner_uuid']
                             , 'the-new-uuid');
                 assert.equal( properties['zones/orlandozone']['com.joyent:zone_type']
                             , 'mysql');
+                assert.equal( properties['zones/orlandozone']['com.joyent:za_version']
+                            , '1.0');
                 assert.equal( properties['zones/orlandozone']['com.joyent:charge_after']
                             , (new Date(100)).toISOString());
                 finished();
@@ -109,7 +132,7 @@ var tests = [
       });
     }
   }
-, { 'Test tearing down one zone':
+, { 'Tear down zone':
     function (assert, finished) {
       var self = this;
       var data = { zonename: testZoneName };
@@ -125,38 +148,6 @@ var tests = [
   }
 ];
 
-function parseZFSUsage (fields, data) {
-  var results = {};
-  var fieldsLength = fields.length;
-  var lines = data.trim().split("\n");
-  var i = lines.length;
-  while (i--) {
-    var line = lines[i].split(/\s+/);
-    if (!results[line[0]]) results[line[0]] = {};
-    results[line[0]][line[1]] = line[2];
-  }
-
-  return results;
-}
-
-function zfsProperties (propertyNames, datasets, callback) {
-  var fields = ['name','property','value'];
-  var args = ['get', '-H', '-o', fields.join(','),
-              propertyNames.join(',')];
-
-  // extend the args array with the passed in datasets
-  args.splice.apply(
-    args,
-    [args.length, datasets.length].concat(datasets));
-
-  execFile(
-    '/usr/sbin/zfs',
-    args,
-    function (error, stdout, stderr) {
-      if (error) return callback(error);
-      callback(null, parseZFSUsage(fields, stdout));
-    });
-}
 // order matters in our tests
 for (i in tests) {
   suite.addTests(tests[i]);

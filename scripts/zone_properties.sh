@@ -8,10 +8,8 @@ if [ -z "$ZONENAME" -o -z "$ZPOOL_NAME" ]; then
   exit 1
 fi
 
-# set +e
-# test ! -z "$CUSTOMER_UUID" && zfs set "com.joyent:customer_uuid"="$CUSTOMER_UUID" "$ZPOOL_NAME/$ZONENAME"
-if [ ! -z "$CUSTOMER_UUID" ]; then
-  zfs set "com.joyent:customer_uuid"="$CUSTOMER_UUID" "$ZPOOL_NAME/$ZONENAME"
+if [ ! -z "$OWNER_UUID" ]; then
+  zfs set "com.joyent:owner_uuid"="$OWNER_UUID" "$ZPOOL_NAME/$ZONENAME"
 fi
 
 if [ ! -z "$CHARGE_AFTER" ]; then
@@ -22,4 +20,6 @@ if [ ! -z "$ZONE_TYPE" ]; then
   zfs set "com.joyent:zone_type"="$ZONE_TYPE" "$ZPOOL_NAME/$ZONENAME"
 fi
 
-# set -e
+if [ ! -z "$ZA_VERSION" ]; then
+  zfs set "com.joyent:za_version"="$ZA_VERSION" "$ZPOOL_NAME/$ZONENAME"
+fi
