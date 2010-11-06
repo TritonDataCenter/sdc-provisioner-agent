@@ -101,8 +101,6 @@ var tests = [
                   ( [ 'com.joyent:deleted_at' ]
                   , 'zones/orlandozone'
                   , function (error, properties) {
-                      console.log("DEACTIVATO");
-                      console.dir(properties);
                       assert.ok
                         ( properties['zones/orlandozone']['com.joyent:deleted_at']
                         , 'deleted_at property should be set'

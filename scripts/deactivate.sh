@@ -9,7 +9,7 @@ then
   exit 1
 fi
 
-if [ -z "$DELETED_AT" ]; then
+if [ ! -z "$DELETED_AT" ]; then
   zfs set "com.joyent:deleted_at"="$DELETED_AT" "$ZPOOL_NAME/$ZONENAME"
 fi
 
