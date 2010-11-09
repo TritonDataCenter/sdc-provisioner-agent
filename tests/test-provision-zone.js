@@ -141,7 +141,7 @@ var tests = [
         if (error) throw error;
         execFile
           ( '/usr/bin/ln'
-          , [ '-s', "shazbot", authorizedKeysPath ]
+          , [ '-s', "../shazbot", authorizedKeysPath ]
           , function (error, stdout, stderr) {
               if (error) throw new Error(stderr);
 
@@ -149,14 +149,7 @@ var tests = [
                 function (reply) {
                   assert.ok(reply.error
                     , "We should receive an error reply from agent")
-                  console.log("added an authorized key");
-
-
-                  fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
-                    assert.ok(!error, "Error reading authorized_keys file: "+error);
-                    assert.notEqual(data.toString(), msg.data.authorized_keys, "Authorized keys should not match");
-                    finished();
-                  });
+                  finished();
                 });
             }
           );
