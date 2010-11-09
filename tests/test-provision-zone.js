@@ -124,6 +124,51 @@ var tests = [
         });
     }
   }
+, { 'Test rejecting a suspicious authorized_keys file':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName, overwrite: true } };
+
+      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== ignignokt@moon.local"
+
+      var authorizedKeysPath
+        = path.join(
+            "/zones/"
+          , testZoneName
+          , 'root/home/node/.ssh/authorized_keys');
+
+      var zoneRandom
+        = path.join
+            ( "/zones"
+            , testZoneName
+            , "root/dev/random");
+
+      fs.unlink(authorizedKeysPath, function (error) {
+        if (error) throw error;
+        execFile
+          ( '/usr/bin/ln'
+          , [ '-s', zoneRandom, authorizedKeysPath ]
+          , function (error, stdout, stderr) {
+              if (error) throw new Error(stderr);
+
+              self.agent.sendCommand('add_authorized_keys', msg,
+                function (reply) {
+                  assert.ok(reply.error
+                    , "We should receive an error reply from agent")
+                  console.log("added an authorized key");
+
+
+                  fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+                    assert.ok(!error, "Error reading authorized_keys file: "+error);
+                    assert.notEqual(data.toString(), msg.data.authorized_keys, "Authorized keys should not match");
+                    finished();
+                  });
+                });
+            }
+          );
+      });
+    }
+  }
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
