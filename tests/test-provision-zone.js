@@ -137,17 +137,11 @@ var tests = [
           , testZoneName
           , 'root/home/node/.ssh/authorized_keys');
 
-      var zoneRandom
-        = path.join
-            ( "/zones"
-            , testZoneName
-            , "root/dev/random");
-
       fs.unlink(authorizedKeysPath, function (error) {
         if (error) throw error;
         execFile
           ( '/usr/bin/ln'
-          , [ '-s', zoneRandom, authorizedKeysPath ]
+          , [ '-s', "shazbot", authorizedKeysPath ]
           , function (error, stdout, stderr) {
               if (error) throw new Error(stderr);
 
