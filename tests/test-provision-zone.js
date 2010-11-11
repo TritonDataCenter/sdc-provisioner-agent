@@ -141,7 +141,7 @@ var tests = [
         if (error) throw error;
         execFile
           ( '/usr/bin/ln'
-          , [ '-s', "../shazbot", authorizedKeysPath ]
+          , [ '-s', ".", authorizedKeysPath ]
           , function (error, stdout, stderr) {
               if (error) throw new Error(stderr);
 
