@@ -3,20 +3,16 @@ require.paths.push(path.join(__dirname, '/lib'));
 require.paths.push(path.join(__dirname, '/../lib'));
 require.paths.push(path.join(__dirname, '/..'));
 
-assert = require('assert');
-
-common = require('common');
-zoneadmList = common.zoneadmList;
-teardownZone = common.teardownZone;
-
-provisionZone = common.provisionZone;
 
 sys = require('sys');
 exec = require('child_process').exec;
 fs = require('fs');
+fakekeys = require('fakekeys');
 
-
-inspect = sys.inspect;
+common = require('common');
+provisionZone = common.provisionZone;
+zoneadmList   = common.zoneadmList;
+teardownZone  = common.teardownZone;
 
 ProvisionerAgent = require('provisioner').ProvisionerAgent;
 ProvisionerClient = require('amqp_agent/client').Client;
@@ -32,7 +28,6 @@ var tests = [
  { 'Test provisioning one zone':
     function (assert, finished) {
       var self = this;
-      var authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== mastershake@mjollnir.local\n";
       var data = { zonename: testZoneName
 //                             , 'new_ip': '8.19.35.119'
 //                             , 'public_ip': '8.19.35.119'
@@ -54,7 +49,7 @@ var tests = [
                       , 'disk_in_gigabytes': 2
                       , 'tmpfs': '200m'
                       , 'template_version': '4.2.0'
-                      , 'authorized_keys': authorized_keys
+                      , 'authorized_keys': fakekeys.keys.mastershake
                       , 'inherited_directories': '/opt'
                       }
       provisionZone(self.agent, data, function (error) {
@@ -71,7 +66,165 @@ var tests = [
       var self = this;
       var msg = { data: { zonename: testZoneName } };
 
-      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== carl@mjollnir.local\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== meatwad@mjollnir.local\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== frylock@mjollnir.local\n"
+      msg.data.authorized_keys = [ fakekeys.keys.mastershake
+                                 , fakekeys.keys.frylock
+                                 , fakekeys.keys.meatwad
+                                 ].join("\n");
+
+      self.agent.sendCommand('add_authorized_keys', msg,
+        function (reply) {
+          assert.ok(!reply.error
+            , "Shouldn't be an error but it was " + reply.error);
+          console.log("added an authorized key");
+
+          var authorizedKeysPath
+            = path.join(
+                "/zones/"
+              , testZoneName
+              , 'root/home/node/.ssh/authorized_keys');
+
+
+          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+            assert.ok(!error, "Error reading authorized_keys file: "+error);
+            assert.ok(data.indexOf("frylock@mjollnir.local") !== -1
+              , "We should have found frylock key in the authorized keys file");
+            assert.ok(data.indexOf("meatwad@mjollnir.local") !== -1
+              , "We should have found meatwad key in the authorized keys file");
+            finished();
+          });
+        });
+    }
+  }
+, { 'Test adding an array to .authorized_keys after provisioning':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName } };
+
+      msg.data.authorized_keys
+        = [ fakekeys.keys.pickles
+          , fakekeys.keys.nathan
+          , fakekeys.keys.murderface
+          ];
+      self.agent.sendCommand('add_authorized_keys', msg,
+        function (reply) {
+          assert.ok(!reply.error
+            , "Shouldn't be an error but it was " + reply.error);
+          console.log("added an authorized key");
+
+          var authorizedKeysPath
+            = path.join(
+                "/zones/"
+              , testZoneName
+              , 'root/home/node/.ssh/authorized_keys');
+
+
+          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+            assert.ok(!error, "Error reading authorized_keys file: "+error);
+            assert.ok(data.indexOf(fakekeys.keys.pickles) !== -1
+              , "We should have found our key in the authorized keys file");
+            assert.ok(data.indexOf(fakekeys.keys.nathan) !== -1
+              , "We should have found our key in the authorized keys file");
+            assert.ok(data.indexOf(fakekeys.keys.murderface) !== -1
+              , "We should have found our key in the authorized keys file");
+            finished();
+          });
+        });
+    }
+}
+, { 'Test adding an array of duplicates to .authorized_keys after provisioning':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName } };
+
+      msg.data.authorized_keys
+        = [ fakekeys.keys.pickles
+          , fakekeys.keys.nathan
+          , fakekeys.keys.murderface
+          ].join("\n");
+      self.agent.sendCommand('add_authorized_keys', msg,
+        function (reply) {
+          assert.ok(!reply.error
+            , "Shouldn't be an error but it was " + reply.error);
+          console.log("added an authorized key");
+
+          var authorizedKeysPath
+            = path.join(
+                "/zones/"
+              , testZoneName
+              , 'root/home/node/.ssh/authorized_keys');
+
+
+          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+            data = data.toString();
+            console.log("THEKEYS");
+            console.dir(data);
+            assert.ok(!error, "Error reading authorized_keys file: "+error);
+
+            var occ1 = countOccourances(fakekeys.keys.pickles, data);
+            var occ2 = countOccourances(fakekeys.keys.nathan, data);
+            var occ3 = countOccourances(fakekeys.keys.murderface, data);
+
+            assert.equal
+              ( occ1
+              , 1
+              , "Pickles Occurances should be 1 but was " + occ1);
+            assert.equal
+              ( occ2
+              , 1
+              , "Nathan Occurances should be 1 but was " + occ2);
+            assert.equal
+              ( occ3
+              , 1
+              , "Murderface Occurances hsould be 1 but was " + occ3);
+            finished();
+          });
+        });
+    }
+}
+, { 'Test overwriting .authorized_keys after provisioning':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName, overwrite: true } };
+
+      msg.data.authorized_keys = fakekeys.keys.ignignokt;
+
+      self.agent.sendCommand('add_authorized_keys', msg,
+        function (reply) {
+          assert.ok(!reply.error
+            , "Shouldn't be an error but it was " + reply.error)
+          console.log("added an authorized key");
+
+          var authorizedKeysPath
+            = path.join(
+                "/zones/"
+              , testZoneName
+              , 'root/home/node/.ssh/authorized_keys');
+
+          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+            assert.ok(!error, "Error reading authorized_keys file: "+error);
+            assert.equal
+              ( data.toString().trim()
+              , msg.data.authorized_keys
+              , "Authorized keys should match"
+              );
+            finished();
+          });
+        });
+    }
+  }
+, { 'Test overwriting .authorized_keys with an array after provisioning':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { zonename: testZoneName
+                        , overwrite: true
+                        }
+                };
+
+      msg.data.authorized_keys 
+        = [ fakekeys.keys.carl
+          , fakekeys.keys.meatwad
+          , fakekeys.keys.frylock
+          ];
 
       self.agent.sendCommand('add_authorized_keys', msg,
         function (reply) {
@@ -96,40 +249,13 @@ var tests = [
           });
         });
     }
-}
-, { 'Test overwriting .authorized_keys after provisioning':
-    function (assert, finished) {
-      var self = this;
-      var msg = { data: { zonename: testZoneName, overwrite: true } };
-
-      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== ignignokt@moon.local"
-
-      self.agent.sendCommand('add_authorized_keys', msg,
-        function (reply) {
-          assert.ok(!reply.error
-            , "Shouldn't be an error but it was " + reply.error)
-          console.log("added an authorized key");
-
-          var authorizedKeysPath
-            = path.join(
-                "/zones/"
-              , testZoneName
-              , 'root/home/node/.ssh/authorized_keys');
-
-          fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
-            assert.ok(!error, "Error reading authorized_keys file: "+error);
-            assert.equal(data.toString(), msg.data.authorized_keys, "Authorized keys should match");
-            finished();
-          });
-        });
-    }
   }
 , { 'Test rejecting a suspicious authorized_keys file':
     function (assert, finished) {
       var self = this;
       var msg = { data: { zonename: testZoneName, overwrite: true } };
 
-      msg.data.authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== ignignokt@moon.local"
+      msg.data.authorized_keys = fakekeys.keys.ignignokt;
 
       var authorizedKeysPath
         = path.join(
@@ -171,6 +297,20 @@ var tests = [
     }
   }
 ];
+
+function countOccourances(needle, haystack) {
+  var count = 0;
+  var str = haystack;
+
+  while (true) {
+    var idx = str.indexOf(needle);
+    if (idx === -1)
+      return count;
+
+    count++;
+    str = str.slice(idx+1);
+  }
+}
 
 // order matters in our tests
 for (i in tests) {

@@ -1,6 +1,8 @@
 execFile = require('child_process').execFile;
 inspect = require('sys').inspect;
 
+assert = require('assert');
+
 // The agent will emit events as it progresses through the zone creation
 // process.
 var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
