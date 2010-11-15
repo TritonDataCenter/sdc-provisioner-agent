@@ -8,8 +8,11 @@ assert = require('assert');
 var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
 
 exports.provisionZone = function (agent, data, callback) {
-  var successCount = 0;
+  var times = {};
 
+  var q;
+
+  q = agent.connection.queue(data.zonename + '_provision_events'+Math.random(), queueCreated);
   function eventReceived(msg) {
     console.log("Event --> " + inspect(msg));
 
@@ -20,10 +23,6 @@ exports.provisionZone = function (agent, data, callback) {
       , zone_event[3]
       , '/root/home/node/.ssh/authorized_keys'
     );
-
-    if (zone_event[1] == "zone_created") {
-      zonesCreated.push(zone_event[3]);
-    }
 
     if (zone_event[1] == 'error') {
       return callback(new Error(msg.data));
@@ -59,15 +58,15 @@ exports.provisionZone = function (agent, data, callback) {
     }
   }
 
-  var times = {};
-  var zonesCreated = [];
-
-
-  var q;
-
   function queueCreated() {
     // provisioner.event.zone_created.sagan.orlandozone0
-    var routing = 'provisioner.event.*.' + agent.hostname + '.*.*';
+    var routing
+      = [ 'provisioner.event.*'
+        , agent.hostname
+        , data.zonename
+        , '*'
+        ].join('.');
+
     console.log("Routing was %s", routing);
 
     q.bind(routing);
@@ -85,7 +84,6 @@ exports.provisionZone = function (agent, data, callback) {
       });
   }
 
-  q = agent.connection.queue(data.zonename + '_provision_events'+Math.random(), queueCreated);
 };
 
 exports.teardownZone = function (agent, data, callback) {
@@ -93,6 +91,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function eventReceived(msg) {
     console.log("EVENT -->");
+    console.dir(msg);
     var zone_event = eventRE.exec(msg._routingKey);
 
     if (zone_event[1] == "zone_destroyed") {
@@ -103,7 +102,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function queueCreated() {
     // provisioner.event.zone_created.sagan.orlandozone0
-    var routing = 'provisioner.event.zone_destroyed.' + agent.hostname + '.*.*';
+    var routing = 'provisioner.event.zone_destroyed.' + agent.hostname + '.'+data.zonename+'.*';
     console.log("Routing was %s", routing);
 
     q.bind(routing);

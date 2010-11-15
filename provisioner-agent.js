@@ -58,6 +58,7 @@ function main() {
           'zone_template2.xml.ejs');
 
       agent.connect(function () {
+        agent.setupProvisionQueue();
         puts("Ready to rock.");
       });
     });
