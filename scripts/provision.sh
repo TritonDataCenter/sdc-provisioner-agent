@@ -85,7 +85,7 @@ __EOF__
 
 if [ ! -z "$AUTHORIZED_KEYS" ]
 then
-  cat << __EOF__ | cat >> $ZONE_ROOT/home/node/.ssh/authorized_keys
+  cat << __EOF__ | cat >> $ZONE_ROOT/home/$ADMIN_USER/.ssh/authorized_keys
 $AUTHORIZED_KEYS
 __EOF__
 fi

@@ -64,7 +64,7 @@ var tests = [
 , { 'Test adding to .authorized_keys after provisioning':
     function (assert, finished) {
       var self = this;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { user: 'node', zonename: testZoneName } };
 
       msg.data.authorized_keys = [ fakekeys.keys.mastershake
                                  , fakekeys.keys.frylock
@@ -98,7 +98,7 @@ var tests = [
 , { 'Test adding an array to .authorized_keys after provisioning':
     function (assert, finished) {
       var self = this;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { user: 'node', zonename: testZoneName } };
 
       msg.data.authorized_keys
         = [ fakekeys.keys.pickles
@@ -134,7 +134,7 @@ var tests = [
 , { 'Test adding an array of duplicates to .authorized_keys after provisioning':
     function (assert, finished) {
       var self = this;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { user: 'node', zonename: testZoneName } };
 
       msg.data.authorized_keys
         = [ fakekeys.keys.pickles
@@ -184,7 +184,7 @@ var tests = [
 , { 'Test overwriting .authorized_keys after provisioning':
     function (assert, finished) {
       var self = this;
-      var msg = { data: { zonename: testZoneName, overwrite: true } };
+      var msg = { data: { user: 'node', zonename: testZoneName, overwrite: true } };
 
       msg.data.authorized_keys = fakekeys.keys.ignignokt;
 
@@ -217,6 +217,7 @@ var tests = [
       var self = this;
       var msg = { data: { zonename: testZoneName
                         , overwrite: true
+                        , user: 'node'
                         }
                 };
 
@@ -253,7 +254,11 @@ var tests = [
 , { 'Test rejecting a suspicious authorized_keys file':
     function (assert, finished) {
       var self = this;
-      var msg = { data: { zonename: testZoneName, overwrite: true } };
+      var msg = { data: { user: 'node'
+                        , zonename: testZoneName
+                        , overwrite: true
+                        }
+                };
 
       msg.data.authorized_keys = fakekeys.keys.ignignokt;
 
