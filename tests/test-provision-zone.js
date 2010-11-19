@@ -51,6 +51,7 @@ var tests = [
                       , 'template_version': '4.2.0'
                       , 'authorized_keys': fakekeys.keys.mastershake
                       , 'inherited_directories': '/opt'
+                      , 'admin_user': 'node'
                       }
       provisionZone(self.agent, data, function (error) {
         if (error) {
@@ -95,6 +96,34 @@ var tests = [
         });
     }
   }
+, { 'Test adding to a non-existent user after provisioning':
+    function (assert, finished) {
+      var self = this;
+      var msg = { data: { user: 'mistershake', zonename: testZoneName } };
+
+      msg.data.authorized_keys
+        = [ fakekeys.keys.pickles
+          , fakekeys.keys.nathan
+          , fakekeys.keys.murderface
+          ];
+      self.agent.sendCommand('add_authorized_keys', msg,
+        function (reply) {
+          assert.ok(reply.error
+            , "There should have been an error");
+
+          var authorizedKeysPath
+            = path.join(
+                "/zones/"
+              , testZoneName
+              , 'root/home/mistershake/.ssh/authorized_keys');
+
+          path.exists(authorizedKeysPath, function (exists) {
+            assert.ok(!exists, "authorized_keys file should not exist");
+            finished();
+          });
+        });
+    }
+}
 , { 'Test adding an array to .authorized_keys after provisioning':
     function (assert, finished) {
       var self = this;
@@ -201,6 +230,7 @@ var tests = [
               , 'root/home/node/.ssh/authorized_keys');
 
           fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
+            if (error) throw error;
             assert.ok(!error, "Error reading authorized_keys file: "+error);
             assert.equal
               ( data.toString().trim()

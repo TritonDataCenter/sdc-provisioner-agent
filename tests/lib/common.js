@@ -10,6 +10,7 @@ var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
 exports.provisionZone = function (agent, data, callback) {
   var times = {};
 
+  var admin_user = data.admin_user || 'node';
   var q;
 
   q = agent.connection.queue(data.zonename + '_provision_events'+Math.random(), queueCreated);
@@ -21,7 +22,7 @@ exports.provisionZone = function (agent, data, callback) {
     var authorizedKeysPath = path.join(
       "/zones/"
       , zone_event[3]
-      , '/root/home/node/.ssh/authorized_keys'
+      , '/root/home/'+admin_user+'/.ssh/authorized_keys'
     );
 
     if (zone_event[1] == 'error') {

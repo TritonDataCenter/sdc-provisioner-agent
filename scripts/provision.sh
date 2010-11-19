@@ -83,11 +83,16 @@ cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
 $ZONECONFIG
 __EOF__
 
+ADMIN_HOME="$ZONE_ROOT/home/$ADMIN_USER"
+ADMIN_PERMS=`perl -e 'open(my $fh, $ARGV[0]) or die; print join ":", (stat $fh)[4,5]' "$ADMIN_HOME/.ssh"`
+
 if [ ! -z "$AUTHORIZED_KEYS" ]
 then
-  cat << __EOF__ | cat >> $ZONE_ROOT/home/$ADMIN_USER/.ssh/authorized_keys
+  cat << __EOF__ | cat >> "$ADMIN_HOME/.ssh/authorized_keys"
 $AUTHORIZED_KEYS
 __EOF__
+
+  chown $ADMIN_PERMS "$ADMIN_HOME/.ssh/authorized_keys"
 fi
 
 # touch log file path so we can start tailing immediately
