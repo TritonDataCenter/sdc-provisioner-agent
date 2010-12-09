@@ -1,10 +1,13 @@
+#!/usr/bin/env node
+
+// Joyent Provisioner: The Zone Provisioning Agent
+// vim:ft=javascript
+
 path = require('path');
-require.paths.unshift(path.join(__dirname, 'lib'));
-require.paths.unshift(path.join(__dirname));
+require.paths.unshift(path.join(__dirname, 'node_modules'));
 
-ini = require('ini');
-
-ProvisionerAgent = require('provisioner').ProvisionerAgent;
+ini = require('./lib/ini');
+ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
 function readConfig(cfgPath, callback) {
   puts("Config path:", cfgPath);
@@ -27,26 +30,33 @@ function readConfig(cfgPath, callback) {
 }
 
 _getvers = function (callback) {
-    var baseOS = "snv";
-    var baseOS_vers = 121;
+  var baseOS = "snv";
+  var baseOS_vers = 121;
 
-    execFile('/bin/uname'
-  , ['-v']
-  , []
-  , function (error, stdout, stderr) {
-      if (stdout) {
-        var v = stdout.toString().trim().split("_");
-        if (v.length == 2) {
-          baseOS = v[0];
-          baseOS_vers = v[1].replace(/\D+$/, '');
+  execFile
+    ( '/bin/uname'
+    , ['-v']
+    , []
+    , function (error, stdout, stderr) {
+        if (stdout) {
+          var v = stdout.toString().trim().split("_");
+          if (v.length == 2) {
+            baseOS = v[0];
+            baseOS_vers = v[1].replace(/\D+$/, '');
+          }
         }
-      }
-      callback(baseOS, baseOS_vers);
-    });
+        callback(baseOS, baseOS_vers);
+      });
 }
 
 function main() {
-  readConfig(path.join(__dirname, 'etc/provisioner.ini'), function (config) {
+  var configFilename = path.join(__dirname, 'etc/provisioner.ini');
+
+  if (process.env.PROVISIONER_CONFIG) {
+    configFilename = process.env.PROVISIONER_CONFIG;
+  }
+
+  readConfig(configFilename, function (config) {
     var agent = new ProvisionerAgent(config);
 
     _getvers(function (baseOS, baseOS_vers) {

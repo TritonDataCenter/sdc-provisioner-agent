@@ -15,9 +15,6 @@ d none provisioner/scripts 0755 root root
 d none provisioner/etc 0755 root root
 d none provisioner/local 0755 root root
 d none provisioner/local/bin 0755 root root
-d none provisioner/amqp_agent 0755 root root
-d none provisioner/amqp_agent/amqp 0755 root root
-d none provisioner/amqp_agent/mDNS 0755 root root
 
 # The actual code
 f none provisioner/provisioner-agent.js=../provisioner-agent.js 0644 root root
@@ -49,16 +46,4 @@ f none provisioner/etc/provisioner.ini-sample=../etc/provisioner.ini 0600 joyprv
 f none provisioner/local/bin/node=../.pkg/local/bin/node 0755 root root
 f none provisioner/local/bin/node-repl=../.pkg/local/bin/node-repl 0755 root root
 
-# AMQP-Agent
-f none provisioner/amqp_agent/agent.js=../amqp_agent/agent.js 0644 root root
-s none provisioner/amqp_agent/index.js=../amqp_agent/agent.js 0644 root root
-
-# Node-AMQP
-f none provisioner/amqp_agent/amqp/README.md=../amqp_agent/amqp/README.md 0644 root root
-f none provisioner/amqp_agent/amqp/amqp-definitions-0-8.js=../amqp_agent/amqp/amqp-definitions-0-8.js 0644 root root
-f none provisioner/amqp_agent/amqp/promise.js=../amqp_agent/amqp/promise.js 0644 root root
-f none provisioner/amqp_agent/amqp/index.js=../amqp_agent/amqp/amqp.js 0644 root root
-
-# Node-mDNS
-f none provisioner/amqp_agent/mDNS/binding.node=../amqp_agent/mDNS/build/default/binding.node 0644 root root
-f none provisioner/amqp_agent/mDNS/mDNS.js=../amqp_agent/mDNS/mDNS.js 0644 root root
+!include node_modules_prototype

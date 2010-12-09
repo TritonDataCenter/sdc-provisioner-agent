@@ -3,6 +3,9 @@ puts = sys.puts;
 inspect = sys.inspect;
 path = require('path');
 
+path = require('path');
+require.paths.unshift(path.join(__dirname, 'node_modules'));
+
 AsyncTest = require('./async-testing/async_testing');
 formatSuite = require('./async-testing-junit').convertSuiteToJUnit;
 
