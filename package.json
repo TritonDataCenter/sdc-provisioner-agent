@@ -1,0 +1,19 @@
+{
+  "name": "provisioner",
+  "description": "Joyent Zone Provisioning Agent",
+  "version": "0.0.1-63-gf76ad81",
+  "homepage": "https://hub.joyent.com/wiki/display/dev/Provisioner+Agent",
+  "author": "Joyent (joyent.com)",
+  "main": "lib/provisioner",
+  "directories": {
+    "lib": "lib"
+  },
+  "bin": { "provisioner-agent": "./provisioner-agent" },
+  "scripts": {
+    "test": "./run-tests",
+    "postactivate":  "npm-scripts/postactivate.sh",
+  },
+  "engines": {
+    "node": ">=0.2.5"
+  }
+}
