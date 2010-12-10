@@ -26,10 +26,15 @@ NPM_FILES =                      \
 	    provisioner-agent.js \
 	    scripts              \
 
-
 npm: $(NAME).tgz
 
-$(NAME).tgz: $(NPM_FILES)
+MDNS_DIR=node_modules/.npm/mdns/active/package
+MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
+
+$(MDNS_BINDING):
+	cd $(MDNS_DIR) && $(NODE_WAF) configure build
+
+$(NAME).tgz: $(MDNS_BINDING) $(NPM_FILES)
 	rm -fr .npm && mkdir .npm
 	mkdir .npm/provisioner .npm/provisioner/local
 	cd node && python tools/waf-light configure --prefix=$(shell pwd)/.npm/provisioner/local
@@ -37,7 +42,7 @@ $(NAME).tgz: $(NPM_FILES)
 	cp -Pr $(NPM_FILES) .npm/provisioner
 	cd .npm && gtar zcvf ../$(NAME).tgz provisioner
 
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js
+$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js $(MDNS_BINDING)
 	pkgmk -o -d /tmp -f build/prototype
 	touch $(PKGFILE)
 	pkgtrans -s /tmp $(PKGFILE) $(PKG)
@@ -65,11 +70,6 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && make install
 
-MDNS_DIR=node_modules/.npm/mdns/active/package/
-MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
-
-node_modules: $(MDNS_BINDING)
-	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
 distclean:
 	-cd node; make distclean
