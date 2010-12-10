@@ -1,4 +1,5 @@
-PKG=JOYprovisioner
+NAME=provisioner
+PKG=JOY$(NAME)
 
 VERSION=$(shell git describe)
 # The package will be installed into $(BASEDIR)/provisioner
@@ -16,7 +17,27 @@ NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 
 all: $(PKGFILE)
 
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js .pkg/amqp_agent/mDNS/binding.node
+NPM_FILES =                      \
+	    lib                  \
+	    etc                  \
+	    node_modules         \
+	    npm-scripts          \
+	    package.json         \
+	    provisioner-agent.js \
+	    scripts              \
+
+
+npm: $(NAME).tgz
+
+$(NAME).tgz: lib scripts etc npm-scripts node_modules package.json
+	rm -fr .npm && mkdir .npm
+	mkdir .npm/provisioner .npm/provisioner/local
+	cd node && python tools/waf-light configure --prefix=$(shell pwd)/.npm/provisioner/local
+	cd node && make install
+	cp -Pr $(NPM_FILES) .npm/provisioner
+	cd .npm && gtar zcvf $(NAME).tgz provisioner
+
+$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js
 	pkgmk -o -d /tmp -f build/prototype
 	touch $(PKGFILE)
 	pkgtrans -s /tmp $(PKGFILE) $(PKG)
@@ -40,8 +61,6 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 		-e "s/@@VERSION@@/$(VERSION)/" \
 		build/pkginfo.in > .pkg/pkginfo
 
-.pkg/amqp_agent/mDNS/binding.node: .pkg
-	cd amqp_agent/mDNS && $(NODE_WAF) configure build
 
 .pkg/local: .pkg
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
@@ -56,4 +75,4 @@ clean:
 	-rm -rf .pkg/
 	-rm $(PKG)-*.pkg
 
-.PHONY: clean distclean
+.PHONY: clean distclean npm
