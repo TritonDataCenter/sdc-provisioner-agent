@@ -23,8 +23,6 @@
       <method_credential user="root" group="staff"/>
       <method_environment>
         <envvar name="PATH" value="@@BASEDIR@@/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
-        <envvar name="NODE_PATH" value="@@NODE_MODULES@@"/>
-        <envvar name="NPM_CONFIG_USERCONFIG" value="@@ETC_DIR@@/npm.conf"/>
         <envvar name="PROVISIONER_CONFIG" value="@@ETC_DIR@@/provisioner.ini"/>
       </method_environment>
     </method_context>

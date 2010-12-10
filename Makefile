@@ -29,13 +29,13 @@ NPM_FILES =                      \
 
 npm: $(NAME).tgz
 
-$(NAME).tgz: lib scripts etc npm-scripts node_modules package.json
+$(NAME).tgz: $(NPM_FILES)
 	rm -fr .npm && mkdir .npm
 	mkdir .npm/provisioner .npm/provisioner/local
 	cd node && python tools/waf-light configure --prefix=$(shell pwd)/.npm/provisioner/local
 	cd node && make install
 	cp -Pr $(NPM_FILES) .npm/provisioner
-	cd .npm && gtar zcvf $(NAME).tgz provisioner
+	cd .npm && gtar zcvf ../$(NAME).tgz provisioner
 
 $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js
 	pkgmk -o -d /tmp -f build/prototype
@@ -61,10 +61,15 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 		-e "s/@@VERSION@@/$(VERSION)/" \
 		build/pkginfo.in > .pkg/pkginfo
 
-
 .pkg/local: .pkg
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && make install
+
+MDNS_DIR=node_modules/.npm/mdns/active/package/
+MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
+
+node_modules: $(MDNS_BINDING)
+	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
 distclean:
 	-cd node; make distclean
