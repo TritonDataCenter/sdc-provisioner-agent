@@ -40,11 +40,15 @@ if [ $BASEOS_VERS -lt 147 ]; then
   zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
   zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 else
+  # XXX fix this!  We should be using zonecfg instead in which case we don't
+  # need to manually muck with the index.
+  echo "$ZONENAME:configured:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
+
   # b147 & later; install the zone now.
   if [ ! -z "$UUID" ]; then
     UUID_PARAM="-U $UUID"
   fi
-  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES}g -t $ZONE_TEMPLATE $UUID_PARAM
+  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
 fi
 
 # Set customer-related properties on the ZFS dataset
@@ -84,7 +88,7 @@ $ZONECONFIG
 __EOF__
 
 ADMIN_HOME="$ZONE_ROOT/home/$ADMIN_USER"
-ADMIN_PERMS=`perl -e 'open(my $fh, $ARGV[0]) or die; print join ":", (stat $fh)[4,5]' "$ADMIN_HOME/.ssh"`
+ADMIN_PERMS=$(ls -l -d "${ADMIN_HOME}/.ssh" | awk '{ print $3 ":" $4 }')
 
 if [ ! -z "$AUTHORIZED_KEYS" ]
 then
