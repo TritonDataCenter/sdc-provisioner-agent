@@ -21,6 +21,7 @@ NPM_FILES =                      \
 	    lib                  \
 	    etc                  \
 	    node_modules         \
+	    support              \
 	    npm-scripts          \
 	    package.json         \
 	    provisioner-agent.js \
