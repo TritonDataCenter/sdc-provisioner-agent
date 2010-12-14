@@ -58,6 +58,25 @@ function main() {
 
   readConfig(configFilename, function (config) {
     var agent = new ProvisionerAgent(config);
+    var signal = 'SIGWINCH';
+
+    process.on(signal, function () {
+      console.log("Received "+signal+". Attempting to stop processing requests and shut down.");
+      agent.stopShifting();
+
+      // Wait until agent indicates it is done.
+      var interval = setInterval(function () {
+        if (agent.isDone()) {
+          clearInterval(interval);
+          agent.end();
+          console.log("All done...");
+          return;
+        }
+        else {
+          console.log("Agent not yet done");
+        }
+      }, 1000);
+    });
 
     _getvers(function (baseOS, baseOS_vers) {
       agent.baseOS = baseOS;
