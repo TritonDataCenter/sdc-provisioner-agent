@@ -63,13 +63,23 @@ echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 if [ ! -z "$PUBLIC_IP" ];
 then
-  /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
+
+  if [ "$PUBLIC_VLAN_ID" -eq "0" ]; then
+    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} ${PUBLIC_INTERFACE}
+  else
+    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
+  fi
+
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
 
 if [ ! -z "$PRIVATE_IP" ];
 then
-  /usr/sbin/dladm create-vnic -l ${INTERNAL_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
+  if [ "$PRIVATE_VLAN_ID" -eq "0" ]; then
+    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} ${PRIVATE_INTERFACE}
+  else
+    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
+  fi
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
 
