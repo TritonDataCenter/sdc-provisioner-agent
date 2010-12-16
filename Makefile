@@ -18,16 +18,17 @@ NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 all: $(PKGFILE)
 
 NPM_FILES =                      \
-	    lib                  \
 	    etc                  \
+	    lib                  \
 	    node_modules         \
-	    support              \
 	    npm-scripts          \
 	    package.json         \
 	    provisioner-agent.js \
 	    scripts              \
+	    support              \
 
-npm: $(NAME).tgz
+TARBALL=$(NAME).tgz
+npm: $(TARBALL)
 
 MDNS_DIR=node_modules/.npm/mdns/active/package
 MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
@@ -35,13 +36,20 @@ MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
 $(MDNS_BINDING):
 	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
-$(NAME).tgz: $(MDNS_BINDING) $(NPM_FILES)
-	rm -fr .npm && mkdir .npm
-	mkdir .npm/provisioner .npm/provisioner/local
-	cd node && python tools/waf-light configure --prefix=$(shell pwd)/.npm/provisioner/local
+.npm/local/bin/node:
+	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && make install
-	cp -Pr $(NPM_FILES) .npm/provisioner
-	cd .npm && gtar zcvf ../$(NAME).tgz provisioner
+
+$(TARBALL): Makefile .npm .npm/local/bin/node $(MDNS_BINDING) $(NPM_FILES)
+	git submodule update --init
+	rm -fr .npm && mkdir .npm
+	cd node && make install
+	mkdir -p .npm/$(NAME)/local
+	cp -Pr $(NPM_FILES) .npm/$(NAME)/
+	cd .npm && gtar zcvf ../$(TARBALL) $(NAME)
+
+.npm:
+	mkdir -p $(NODE_PREFIX)
 
 $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js $(MDNS_BINDING)
 	pkgmk -o -d /tmp -f build/prototype
