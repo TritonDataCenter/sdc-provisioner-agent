@@ -82,11 +82,11 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 
 distclean:
 	-cd node; make distclean
-	-rm -rf .pkg/
+	-rm -rf .pkg/ .npm $(TARBALL)
 	-rm $(PKG)-*.pkg
 
 clean:
-	-rm -rf .pkg/
+	-rm -rf .pkg/ .npm $(TARBALL)
 	-rm $(PKG)-*.pkg
 
 .PHONY: clean distclean npm
