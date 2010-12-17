@@ -6,6 +6,7 @@ export BASEDIR=$npm_config_agent_root
 export MODULES=$npm_config_root
 export NODE_MODULES=$npm_config_root/node_modules
 export ETC_DIR=$npm_config_etc
+export SMF_DIR=$npm_config_smfdir
 export VERSION=$npm_package_version
 
 if [ ! -f "$ETC_DIR/provisioner.ini" ]; then
@@ -19,14 +20,14 @@ subfile () {
       -e "s/@@VERSION@@/$VERSION/g" \
       -e "s#@@MODULES@@#$MODULES#g" \
       -e "s#@@ETC_DIR@@#$ETC_DIR#g" \
-      -e "s#@@SMF_DIR@@#$SMF_DIR#g" \
+      -e "s#@@SMFDIR@@#$SMFDIR#g" \
       -e "s#@@NODE_MODULES@@#$NODE_MODULES#g" \
       $IN > $OUT
 }
 
-subfile "$DIR/../etc/provisioner.xml.in" "$ETC_DIR/provisioner.xml"
+subfile "$DIR/../etc/provisioner.xml.in" "$SMF_DIR/provisioner.xml"
 
-svccfg import $ETC_DIR/provisioner.xml
+svccfg import $SMF_DIR/provisioner.xml
 
 PROVISIONER_STATUS=`svcs -H provisioner | awk '{ print $1 }'`
 

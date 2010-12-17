@@ -12,7 +12,7 @@ endif
 
 
 PKGFILE=$(PKG)-$(VERSION).pkg
-NODE_PREFIX=$(shell pwd)/.pkg/local
+NODE_PREFIX=$(shell pwd)/local
 NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 
 all: $(PKGFILE)
@@ -36,16 +36,19 @@ MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
 $(MDNS_BINDING):
 	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
-.npm/local/bin/node:
+submodules:
+	git submodule update --init
+
+$(NODE_PREFIX)/bin/node:
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && make install
 
-$(TARBALL): Makefile .npm .npm/local/bin/node $(MDNS_BINDING) $(NPM_FILES)
+$(TARBALL): Makefile .npm $(NODE_PREFIX)/bin/node $(MDNS_BINDING) $(NPM_FILES)
 	git submodule update --init
-	rm -fr .npm && mkdir .npm
+	rm -fr .npm
+	mkdir -p .npm/$(NAME)/
 	cd node && make install
-	mkdir -p .npm/$(NAME)/local
-	cp -Pr $(NPM_FILES) .npm/$(NAME)/
+	cp -Pr $(NPM_FILES) $(NODE_PREFIX) .npm/$(NAME)/
 	cd .npm && gtar zcvf ../$(TARBALL) $(NAME)
 
 .npm:
@@ -82,11 +85,11 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 
 distclean:
 	-cd node; make distclean
-	-rm -rf .pkg/ .npm $(TARBALL)
+	-rm -rf .pkg/ .npm/ $(TARBALL)
 	-rm $(PKG)-*.pkg
 
 clean:
-	-rm -rf .pkg/ .npm $(TARBALL)
+	-rm -rf .pkg/ .npm/ $(TARBALL)
 	-rm $(PKG)-*.pkg
 
 .PHONY: clean distclean npm
