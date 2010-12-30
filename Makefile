@@ -39,15 +39,14 @@ $(MDNS_BINDING):
 submodules:
 	git submodule update --init
 
-$(NODE_PREFIX)/bin/node: submodules
+$(NODE_PREFIX)/bin/node:
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
-	cd node && make install
+	cd node && CC=gcc make install
 
 $(TARBALL): Makefile .npm $(NODE_PREFIX)/bin/node $(MDNS_BINDING) $(NPM_FILES)
-	git submodule update --init
 	rm -fr .npm
 	mkdir -p .npm/$(NAME)/
-	cd node && make install
+	cd node && CC=gcc gmake install
 	cp -Pr $(NPM_FILES) $(NODE_PREFIX) .npm/$(NAME)/
 	cd .npm && gtar zcvf ../$(TARBALL) $(NAME)
 
