@@ -98,16 +98,16 @@ var tests = [
                   console.log("Everyone was ok!");
 
                 zfsProperties
-                  ( [ 'com.joyent:deleted_at' ]
+                  ( [ 'smartdc:deleted_at' ]
                   , 'zones/orlandozone'
                   , function (error, properties) {
                       assert.ok
-                        ( properties['zones/orlandozone']['com.joyent:deleted_at']
+                        ( properties['zones/orlandozone']['smartdc:deleted_at']
                         , 'deleted_at property should be set'
                         );
                       assert.ok
                         ( /^\d{4}-\d{2}-\d{2}T.*Z$/
-                          .exec(properties['zones/orlandozone']['com.joyent:deleted_at'])
+                          .exec(properties['zones/orlandozone']['smartdc:deleted_at'])
                         , 'deleted_at property should match regex'
                         );
                       finished();
