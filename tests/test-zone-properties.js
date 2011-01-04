@@ -67,21 +67,21 @@ var tests = [
           assert.ok(!error, "Expected no errors but found: " + error.toString());
         }
         zfsProperties
-          ( [ 'smartdc:owner_uuid'
-            , 'smartdc:charge_after'
-            , 'smartdc:zone_type'
-            , 'smartdc:za_version'
+          ( [ 'smartdc.zone:owner_uuid'
+            , 'smartdc.zone:charge_after'
+            , 'smartdc.zone:zone_type'
+            , 'smartdc.zone:property_version'
             ]
           , 'zones/orlandozone'
           , function (error, properties) {
               if (error) throw error;
               console.log(properties);
 
-              assert.equal( properties['zones/orlandozone']['smartdc:owner_uuid']
+              assert.equal( properties['zones/orlandozone']['smartdc.zone:owner_uuid']
                           , 'old-uuid');
-              assert.equal( properties['zones/orlandozone']['smartdc:zone_type']
+              assert.equal( properties['zones/orlandozone']['smartdc.zone:zone_type']
                           , 'node');
-              assert.equal( properties['zones/orlandozone']['smartdc:za_version']
+              assert.equal( properties['zones/orlandozone']['smartdc.zone:property_version']
                           , '1.0');
               finished();
             });
@@ -110,22 +110,22 @@ var tests = [
 
         console.dir(reply);
           zfsProperties
-            ( [ 'smartdc:owner_uuid'
-              , 'smartdc:charge_after'
-              , 'smartdc:zone_type'
-              , 'smartdc:za_version'
+            ( [ 'smartdc.zone:owner_uuid'
+              , 'smartdc.zone:charge_after'
+              , 'smartdc.zone:zone_type'
+              , 'smartdc.zone:property_version'
               ]
             , 'zones/orlandozone'
             , function (error, properties) {
                 if (error) throw error;
 
-                assert.equal( properties['zones/orlandozone']['smartdc:owner_uuid']
+                assert.equal( properties['zones/orlandozone']['smartdc.zone:owner_uuid']
                             , 'the-new-uuid');
-                assert.equal( properties['zones/orlandozone']['smartdc:zone_type']
+                assert.equal( properties['zones/orlandozone']['smartdc.zone:zone_type']
                             , 'mysql');
-                assert.equal( properties['zones/orlandozone']['smartdc:za_version']
+                assert.equal( properties['zones/orlandozone']['smartdc.zone:property_version']
                             , '1.0');
-                assert.equal( properties['zones/orlandozone']['smartdc:charge_after']
+                assert.equal( properties['zones/orlandozone']['smartdc.zone:charge_after']
                             , (new Date(100)).toISOString());
                 finished();
               });
