@@ -4,7 +4,6 @@ DIR=`dirname $0`
 
 export BASEDIR=$npm_config_agent_root
 export MODULES=$npm_config_root
-export NODE_MODULES=$npm_config_root/node_modules
 export ETC_DIR=$npm_config_etc
 export SMF_DIR=$npm_config_smfdir
 export VERSION=$npm_package_version
@@ -20,8 +19,7 @@ subfile () {
       -e "s/@@VERSION@@/$VERSION/g" \
       -e "s#@@MODULES@@#$MODULES#g" \
       -e "s#@@ETC_DIR@@#$ETC_DIR#g" \
-      -e "s#@@SMFDIR@@#$SMFDIR#g" \
-      -e "s#@@NODE_MODULES@@#$NODE_MODULES#g" \
+      -e "s#@@SMFDIR@@#$SMFDIR#g"   \
       $IN > $OUT
 }
 
