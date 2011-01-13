@@ -3,6 +3,12 @@
 
 <zone name="<%= zonename %>" zonepath="<%= zpool_path %>/<%= zonename %>" autoboot="true" brand="joyent" limitpriv="default,dtrace_proc,dtrace_user" ip-type="exclusive">
 
+  <% for (var i=0; i < inherited_directories.length; i++) { %>
+  <filesystem special="<%= inherited_directories[i] %>" directory="<%= inherited_directories[i] %>" type="lofs">
+    <fsoption name="ro"/>
+  </filesystem>
+  <% } %>
+
   <rctl name="zone.cpu-shares">
     <rctl-value priv="privileged" limit="<%= cpu_shares %>" action="none"/>
   </rctl>

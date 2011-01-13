@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <service_bundle type="manifest" name="provisioner">
-  <service name="site/provisioner" type="service" version="@@VERSION@@">
+  <service name="smartdc/agent/provisioner" type="service" version="@@VERSION@@">
 
     <create_default_instance enabled="true"/>
     <single_instance/>
@@ -17,18 +17,18 @@
     <exec_method
       type="method"
       name="start"
-      exec="@@MODULES@@/.npm/atropos/active/package/local/bin/node @@BASEDIR@@/bin/provisioner-agent"
-      timeout_seconds="60">
-    <method_context>
-      <method_credential user="root" group="staff"/>
-      <method_environment>
-        <envvar name="PATH" value="@@BASEDIR@@/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
-        <envvar name="PROVISIONER_CONFIG" value="@@ETC_DIR@@/provisioner.ini"/>
-      </method_environment>
-    </method_context>
+      exec="@@MODULES@@/.npm/provisioner/active/package/local/bin/node @@BASEDIR@@/bin/provisioner-agent &amp;"
+      timeout_seconds="10">
+      <method_context>
+        <method_credential user="root" group="staff"/>
+        <method_environment>
+          <envvar name="PATH" value="@@BASEDIR@@/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
+          <envvar name="PROVISIONER_CONFIG" value="@@ETC_DIR@@/provisioner.ini"/>
+        </method_environment>
+      </method_context>
     </exec_method>
 
-    <exec_method type="method" name="restart" exec=":kill" timeout_seconds="60">
+    <exec_method type="method" name="restart" exec=":kill -20" timeout_seconds="60">
       <method_context>
         <method_credential user="root" group="staff"/>
       </method_context>
@@ -41,12 +41,10 @@
     </exec_method>
 
     <property_group name="startd" type="framework">
-      <propval name="duration" type="astring" value="child"/>
       <propval name="ignore_error" type="astring" value="core,signal"/>
     </property_group>
 
     <property_group name="application" type="application">
-
     </property_group>
 
 
