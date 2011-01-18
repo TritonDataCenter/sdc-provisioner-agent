@@ -70,6 +70,10 @@ then
     /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
   fi
 
+  # Set the network settings
+  /usr/sbin/zfs set "smartdc.network.${PUBLIC_INTERFACE}.vlan_id" "$PUBLIC_VLAN_ID" $ZPOOL_NAME/$ZONENAME
+  /usr/sbin/zfs set "smartdc.network.${PUBLIC_INTERFACE}.nic"     "external"        $ZPOOL_NAME/$ZONENAME
+
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
 
@@ -80,6 +84,11 @@ then
   else
     /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
   fi
+
+  # Set the network settings
+  /usr/sbin/zfs set "smartdc.network.${PRIVATE_INTERFACE}.vlan_id" "$PRIVATE_VLAN_ID" $ZPOOL_NAME/$ZONENAME
+  /usr/sbin/zfs set "smartdc.network.${PRIVATE_INTERFACE}.nic"     "internal"         $ZPOOL_NAME/$ZONENAME
+
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
 
