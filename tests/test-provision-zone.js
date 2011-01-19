@@ -8,12 +8,12 @@ sys = require('sys');
 exec = require('child_process').exec;
 fs = require('fs');
 fakekeys = require('fakekeys');
-
 common = require('common');
-provisionZone = common.provisionZone;
-zoneadmList   = common.zoneadmList;
-teardownZone  = common.teardownZone;
-setupSuiteAgentHandle  = common.setupSuiteAgentHandle;
+
+provisionZone         = common.provisionZone;
+zoneadmList           = common.zoneadmList;
+teardownZone          = common.teardownZone;
+setupSuiteAgentHandle = common.setupSuiteAgentHandle;
 
 ProvisionerAgent = require('provisioner').ProvisionerAgent;
 

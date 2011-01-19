@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 // Joyent Provisioner: The Zone Provisioning Agent
-// vim:ft=javascript
 
 path = require('path');
 require.paths.unshift(path.join(__dirname, 'node_modules'));

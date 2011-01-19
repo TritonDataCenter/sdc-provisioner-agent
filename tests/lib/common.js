@@ -27,7 +27,7 @@ exports.provisionZone = function (agent, data, callback) {
     );
 
     if (zone_event[1] == 'error') {
-      return callback(new Error(msg.data));
+      return callback(new Error(msg.error));
     }
 
     if (zone_event[1] == "zone_ready") {
@@ -222,29 +222,36 @@ function parseZFSUsage (fields, data) {
   return results;
 }
 
+exports.uuid = '550e8400-e29b-41d4-a716-446655440000';
 exports.setupSuiteAgentHandle = function (suite, callback) {
+  // Store our agent handle in this object from the closure so that we can
+  // access the handle accross test-methods. We cannot use `this` to
+  // persist values from one setup-test-teardown to another.
   var store = {};
-  suite.setup(function(finished, test) {
+  suite.setup(function (finished, test) {
     var self = this;
 
-    var uuid = '550e8400-e29b-41d4-a716-446655440000';
-    var client = self.client;
+    var uuid = exports.uuid;
+    self.client = store.client;
 
-    if (store.client) {
-      store.client.getAgentHandle(uuid, 'provisioner', function (agentHandle) {
-        self.agent = agentHandle;
-        finished();
-      });
+    if (self.client) {
+      self.client.getAgentHandle
+        ( uuid
+        , 'provisioner'
+        , getAgentHandleCallback
+        );
     }
     else {
       var config = { timeout: 40000, reconnect: false };
-      var client = store.client = new ProvisionerClient(config);
-      client.connect(function () {
-        client.getAgentHandle(uuid, 'provisioner', function (agentHandle) {
-          self.agent = agentHandle;
-          finished();
-        });
+      self.client = store.client = new ProvisionerClient(config);
+      self.client.connect(function () {
+        self.client.getAgentHandle(uuid, 'provisioner', getAgentHandleCallback);
       });
+    }
+
+    function getAgentHandleCallback (agentHandle) {
+      self.agent = agentHandle;
+      finished();
     }
   })
 
