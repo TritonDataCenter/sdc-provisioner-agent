@@ -10,7 +10,7 @@ ini = require('./lib/ini');
 ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
 function readConfig(cfgPath, callback) {
-  puts("Config path:", cfgPath);
+  console.log("Config path:", cfgPath);
 
   fs.readFile(cfgPath, function (err, s) {
     var parsed = ini.parse(s.toString());
@@ -24,7 +24,7 @@ function readConfig(cfgPath, callback) {
     if (config.amqp.port) config.amqp.port = Number(config.amqp.port);
 
 
-    puts("The Config:", inspect(config));
+    console.log("The Config:", inspect(config));
     callback(config);
   });
 }
@@ -88,7 +88,7 @@ function main() {
 
       agent.connect(function () {
         agent.setupProvisionQueue();
-        puts("Ready to rock.");
+        console.log("Ready to rock.");
       });
     });
   });
