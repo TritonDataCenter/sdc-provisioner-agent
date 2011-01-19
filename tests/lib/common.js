@@ -2,6 +2,7 @@ execFile = require('child_process').execFile;
 inspect = require('sys').inspect;
 
 assert = require('assert');
+ProvisionerClient = require('amqp_agent/client').Client;
 
 // The agent will emit events as it progresses through the zone creation
 // process.
@@ -63,7 +64,7 @@ exports.provisionZone = function (agent, data, callback) {
     // provisioner.event.zone_created.sagan.orlandozone0
     var routing
       = [ 'provisioner.event.*'
-        , agent.hostname
+        , agent.uuid
         , data.zonename
         , '*'
         ].join('.');
@@ -103,7 +104,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function queueCreated() {
     // provisioner.event.zone_created.sagan.orlandozone0
-    var routing = 'provisioner.event.zone_destroyed.' + agent.hostname + '.'+data.zonename+'.*';
+    var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
     console.log("Routing was %s", routing);
 
     q.bind(routing);
@@ -219,4 +220,33 @@ function parseZFSUsage (fields, data) {
   }
 
   return results;
+}
+
+exports.setupSuiteAgentHandle = function (suite, callback) {
+  var store = {};
+  suite.setup(function(finished, test) {
+    var self = this;
+
+    var uuid = '550e8400-e29b-41d4-a716-446655440000';
+    var client = self.client;
+
+    if (store.client) {
+      store.client.getAgentHandle(uuid, 'provisioner', function (agentHandle) {
+        self.agent = agentHandle;
+        finished();
+      });
+    }
+    else {
+      var config = { timeout: 40000, reconnect: false };
+      var client = store.client = new ProvisionerClient(config);
+      client.connect(function () {
+        client.getAgentHandle(uuid, 'provisioner', function (agentHandle) {
+          self.agent = agentHandle;
+          finished();
+        });
+      });
+    }
+  })
+
+  callback && callback();
 }
