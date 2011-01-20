@@ -8,19 +8,18 @@ sys = require('sys');
 exec = require('child_process').exec;
 fs = require('fs');
 fakekeys = require('fakekeys');
-
 common = require('common');
-provisionZone = common.provisionZone;
-zoneadmList   = common.zoneadmList;
-teardownZone  = common.teardownZone;
+
+provisionZone         = common.provisionZone;
+zoneadmList           = common.zoneadmList;
+teardownZone          = common.teardownZone;
+setupSuiteAgentHandle = common.setupSuiteAgentHandle;
 
 ProvisionerAgent = require('provisioner').ProvisionerAgent;
-ProvisionerClient = require('amqp_agent/client').Client;
 
 TestSuite = require('async-testing/async_testing').TestSuite;
 
 var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
-var hostname;
 
 var testZoneName = 'orlandozone';
 
@@ -352,47 +351,15 @@ for (i in tests) {
   suite.addTests(tests[i]);
 }
 
-var client;
-var agent;
-
-function startAgent(callback) {
-  callback && callback();
-}
-
-suite.setup(function(finished, test) {
-  var self = this;
-  if (client) {
-    client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
-      self.agent = agentHandle;
-      finished();
-    });
-  }
-  else {
-    exec('hostname', function (err, stdout, stderr) {
-      hostname = stdout.trim();
-      var dot = hostname.indexOf('.');
-      if (dot !== -1) hostname = hostname.slice(0, dot);
-
-      startAgent(function () {
-        config = { timeout: 500000, reconnect: false };
-        client = new ProvisionerClient(config);
-        client.connect(function () {
-          client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
-            self.agent = agentHandle;
-            finished();
-          });
-        });
-      });
-    });
-  }
-})
+setupSuiteAgentHandle(suite);
 
 var currentTest = 0;
 var testCount = tests.length;
 
-suite.teardown(function() {
+suite.teardown(function () {
+  var self = this;
   if (++currentTest == testCount) {
-    client.end();
+    self.agent.connection.end();
   }
 });
 

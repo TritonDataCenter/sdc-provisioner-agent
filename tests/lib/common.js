@@ -2,6 +2,7 @@ execFile = require('child_process').execFile;
 inspect = require('sys').inspect;
 
 assert = require('assert');
+ProvisionerClient = require('amqp_agent/client').Client;
 
 // The agent will emit events as it progresses through the zone creation
 // process.
@@ -26,7 +27,7 @@ exports.provisionZone = function (agent, data, callback) {
     );
 
     if (zone_event[1] == 'error') {
-      return callback(new Error(msg.data));
+      return callback(new Error(msg.error));
     }
 
     if (zone_event[1] == "zone_ready") {
@@ -63,7 +64,7 @@ exports.provisionZone = function (agent, data, callback) {
     // provisioner.event.zone_created.sagan.orlandozone0
     var routing
       = [ 'provisioner.event.*'
-        , agent.hostname
+        , agent.uuid
         , data.zonename
         , '*'
         ].join('.');
@@ -103,7 +104,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function queueCreated() {
     // provisioner.event.zone_created.sagan.orlandozone0
-    var routing = 'provisioner.event.zone_destroyed.' + agent.hostname + '.'+data.zonename+'.*';
+    var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
     console.log("Routing was %s", routing);
 
     q.bind(routing);
@@ -219,4 +220,40 @@ function parseZFSUsage (fields, data) {
   }
 
   return results;
+}
+
+exports.uuid = '550e8400-e29b-41d4-a716-446655440000';
+exports.setupSuiteAgentHandle = function (suite, callback) {
+  // Store our agent handle in this object from the closure so that we can
+  // access the handle accross test-methods. We cannot use `this` to
+  // persist values from one setup-test-teardown to another.
+  var store = {};
+  suite.setup(function (finished, test) {
+    var self = this;
+
+    var uuid = exports.uuid;
+    self.client = store.client;
+
+    if (self.client) {
+      self.client.getAgentHandle
+        ( uuid
+        , 'provisioner'
+        , getAgentHandleCallback
+        );
+    }
+    else {
+      var config = { timeout: 40000, reconnect: false };
+      self.client = store.client = new ProvisionerClient(config);
+      self.client.connect(function () {
+        self.client.getAgentHandle(uuid, 'provisioner', getAgentHandleCallback);
+      });
+    }
+
+    function getAgentHandleCallback (agentHandle) {
+      self.agent = agentHandle;
+      finished();
+    }
+  })
+
+  callback && callback();
 }

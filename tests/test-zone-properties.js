@@ -7,10 +7,11 @@ require.paths.push(path.join(__dirname, '/..'));
 assert = require('assert');
 common = require('common');
 
-provisionZone = common.provisionZone;
-teardownZone  = common.teardownZone;
-zfsProperties = common.zfsProperties;
-zoneadmList   = common.zoneadmList;
+provisionZone         = common.provisionZone;
+teardownZone          = common.teardownZone;
+zfsProperties         = common.zfsProperties;
+zoneadmList           = common.zoneadmList;
+setupSuiteAgentHandle = common.setupSuiteAgentHandle;
 
 sys = require('sys');
 exec = require('child_process').exec;
@@ -153,47 +154,15 @@ for (i in tests) {
   suite.addTests(tests[i]);
 }
 
-var client;
-var agent;
-
-function startAgent(callback) {
-  callback && callback();
-}
-
-suite.setup(function(finished, test) {
-  var self = this;
-  if (client) {
-    client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
-      self.agent = agentHandle;
-      finished();
-    });
-  }
-  else {
-    exec('hostname', function (err, stdout, stderr) {
-      hostname = stdout.trim();
-      var dot = hostname.indexOf('.');
-      if (dot !== -1) hostname = hostname.slice(0, dot);
-
-      startAgent(function () {
-        config = { timeout: 500000, reconnect: false };
-        client = new ProvisionerClient(config);
-        client.connect(function () {
-          client.getAgentHandle(hostname, 'provisioner', function (agentHandle) {
-            self.agent = agentHandle;
-            finished();
-          });
-        });
-      });
-    });
-  }
-})
+setupSuiteAgentHandle(suite);
 
 var currentTest = 0;
 var testCount = tests.length;
 
-suite.teardown(function() {
+suite.teardown(function () {
+  var self = this;
   if (++currentTest == testCount) {
-    client.end();
+    self.client.end();
   }
 });
 
