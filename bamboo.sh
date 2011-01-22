@@ -32,8 +32,7 @@ install() {
 ; parameter in the "amqp" section.
 ; mdns = amqp-broker
 
-; Hostname. If unset will use output of "hostname" command.
-;hostname = foo
+uuid = 550e8400-e29b-41d4-a716-446655440000
 
 [amqp]
 host = mq1-bamboo.staging.joyent.us
