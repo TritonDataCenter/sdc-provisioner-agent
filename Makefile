@@ -53,7 +53,7 @@ $(TARBALL): Makefile .npm $(NODE_PREFIX)/bin/node $(MDNS_BINDING) $(NPM_FILES)
 .npm:
 	mkdir -p $(NODE_PREFIX)
 
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisioner-agent.js $(MDNS_BINDING)
+$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PREFIX)/bin/node build/ provisioner-agent.js $(MDNS_BINDING)
 	pkgmk -o -d /tmp -f build/prototype
 	touch $(PKGFILE)
 	pkgtrans -s /tmp $(PKGFILE) $(PKG)
@@ -76,11 +76,6 @@ $(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo .pkg/local build/ provisi
 	gsed -e "s#@@BASEDIR@@#$(BASEDIR)#g" \
 		-e "s/@@VERSION@@/$(VERSION)/" \
 		build/pkginfo.in > .pkg/pkginfo
-
-.pkg/local: .pkg
-	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
-	cd node && make install
-
 
 distclean:
 	-cd node; make distclean
