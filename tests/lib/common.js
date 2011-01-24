@@ -2,6 +2,8 @@ execFile = require('child_process').execFile;
 inspect = require('sys').inspect;
 
 assert = require('assert');
+// Use to test on 147 in the GZ:
+// require.paths.unshift('/opt/smartdc/agents/modules/.npm/provisioner/active/package/node_modules');
 ProvisionerClient = require('amqp_agent/client').Client;
 
 // The agent will emit events as it progresses through the zone creation
@@ -182,8 +184,8 @@ exports.prctl = function (zonename, resourceControlName, callback) {
       , '-i', 'zone', zonename
       ]
     , function (error, stdout, stderr) { 
-        var parts = stdout.split("\n");
-        var zone = parts[1].split(/\s+/);
+        var parts = stdout.toString().trim().split("\n");
+        var zone = parts[parts.length -1].split(/\s+/);
         callback(null, zone);
       }
     );

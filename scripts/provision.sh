@@ -67,7 +67,6 @@ load_sdc_sysinfo
 if [ ! -z "$PUBLIC_IP" ];
 then
   eval "PUBLIC_LINK=\${SYSINFO_NIC_${PUBLIC_NIC}}"
-  echo "PUBLIC_LINK=${PUBLIC_LINK}"
   if [ -z "$PUBLIC_LINK" ] ; then
       echo "Public IP requested, but nic \"${PUBLIC_NIC}\" does not exist in sysinfo." >&2;
       exit 1
