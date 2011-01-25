@@ -8,6 +8,8 @@
 
 set -e
 
+source /lib/sdc/config.sh
+
 PATH=/usr/bin:/sbin:/usr/sbin
 export PATH
 
@@ -59,20 +61,41 @@ source $DIR/zone_properties.sh
 
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
+# load env vars from sysinfo with SYSINFO_ prefix
+load_sdc_sysinfo
+
+if [ ! -z "$PUBLIC_IP" ];
+then
+  eval "PUBLIC_LINK=\${SYSINFO_NIC_${PUBLIC_NIC}}"
+  if [ -z "$PUBLIC_LINK" ] ; then
+      echo "Public IP requested, but nic \"${PUBLIC_NIC}\" does not exist in sysinfo." >&2;
+      exit 1
+  fi
+fi
+
+if [ ! -z "$PRIVATE_IP" ];
+then
+  eval "PRIVATE_LINK=\${SYSINFO_NIC_${PRIVATE_NIC}}"
+  echo "PRIVATE_LINK=${PRIVATE_LINK}"
+  if [ -z "$PRIVATE_LINK" ] ; then
+      echo "Public IP requested, but nic \"${PRIVATE_NIC}\" does not exist in sysinfo." >&2;
+      exit 1
+  fi
+fi
+
 # vnics
 
 if [ ! -z "$PUBLIC_IP" ];
 then
-
   if [ "$PUBLIC_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} ${PUBLIC_INTERFACE}
+    /usr/sbin/dladm create-vnic -l ${PUBLIC_LINK} ${PUBLIC_INTERFACE}
   else
-    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
+    /usr/sbin/dladm create-vnic -l ${PUBLIC_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
   fi
 
   # Set the network settings
   /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.vlan_id"="$PUBLIC_VLAN_ID" $ZPOOL_NAME/$ZONENAME
-  /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.nic"="external" $ZPOOL_NAME/$ZONENAME
+  /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.nic"="$PUBLIC_NIC" $ZPOOL_NAME/$ZONENAME
   vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PUBLIC_INTERFACE})
   [[ -n ${vnic_mac} ]] && /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.mac"="${vnic_mac}" $ZPOOL_NAME/$ZONENAME
 
@@ -82,14 +105,14 @@ fi
 if [ ! -z "$PRIVATE_IP" ];
 then
   if [ "$PRIVATE_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} ${PRIVATE_INTERFACE}
+    /usr/sbin/dladm create-vnic -l ${PRIVATE_LINK} ${PRIVATE_INTERFACE}
   else
-    /usr/sbin/dladm create-vnic -l ${EXTERNAL_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
+    /usr/sbin/dladm create-vnic -l ${PRIVATE_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
   fi
 
   # Set the network settings
   /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.vlan_id"="$PRIVATE_VLAN_ID" $ZPOOL_NAME/$ZONENAME
-  /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.nic"="internal"         $ZPOOL_NAME/$ZONENAME
+  /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.nic"="$PRIVATE_NIC"         $ZPOOL_NAME/$ZONENAME
 
   vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PRIVATE_INTERFACE})
   [[ -n ${vnic_mac} ]] && /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.mac"="${vnic_mac}" $ZPOOL_NAME/$ZONENAME

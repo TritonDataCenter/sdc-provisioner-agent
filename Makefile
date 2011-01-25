@@ -33,8 +33,13 @@ npm: $(TARBALL)
 MDNS_DIR=node_modules/.npm/mdns/active/package
 MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
 
+mdns: $(MDNS_BINDING)
+
 $(MDNS_BINDING):
 	cd $(MDNS_DIR) && $(NODE_WAF) configure build
+
+test:
+	AMQP_HOST=10.99.99.5 AMQP_LOGIN=guest AMQP_PASSWORD=guest node junit-tests.js
 
 submodules:
 	git submodule update --init
