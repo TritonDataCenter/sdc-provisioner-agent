@@ -42,6 +42,7 @@ _getvers = function (callback) {
           if (v.length == 2) {
             baseOS = v[0];
             baseOS_vers = v[1].replace(/\D+$/, '');
+            baseOS_vers = baseOS_vers.replace(/T.*$/, '');
           }
         }
         callback(baseOS, baseOS_vers);
