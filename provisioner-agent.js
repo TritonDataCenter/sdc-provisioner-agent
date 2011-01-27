@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 // Joyent Provisioner: The Zone Provisioning Agent
-// vim:ft=javascript
 
 path = require('path');
 require.paths.unshift(path.join(__dirname, 'node_modules'));
@@ -10,7 +9,7 @@ ini = require('./lib/ini');
 ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
 function readConfig(cfgPath, callback) {
-  puts("Config path:", cfgPath);
+  console.log("Config path:", cfgPath);
 
   fs.readFile(cfgPath, function (err, s) {
     var parsed = ini.parse(s.toString());
@@ -24,7 +23,7 @@ function readConfig(cfgPath, callback) {
     if (config.amqp.port) config.amqp.port = Number(config.amqp.port);
 
 
-    puts("The Config:", inspect(config));
+    console.log("The Config:", inspect(config));
     callback(config);
   });
 }
@@ -43,6 +42,7 @@ _getvers = function (callback) {
           if (v.length == 2) {
             baseOS = v[0];
             baseOS_vers = v[1].replace(/\D+$/, '');
+            baseOS_vers = baseOS_vers.replace(/T.*$/, '');
           }
         }
         callback(baseOS, baseOS_vers);
@@ -88,7 +88,7 @@ function main() {
 
       agent.connect(function () {
         agent.setupProvisionQueue();
-        puts("Ready to rock.");
+        console.log("Ready to rock.");
       });
     });
   });
