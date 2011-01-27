@@ -19,6 +19,7 @@
       <method_environment>
         <envvar name="PATH" value="@@BASEDIR@@/provisioner/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
         <envvar name="NODE_PATH" value="@@BASEDIR@@/provisioner/modules"/>
+        <envvar name="SERVER_UUID" value="550e8400-e29b-41d4-a716-446655440000"/>
       </method_environment>
     </method_context>
 

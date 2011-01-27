@@ -157,7 +157,6 @@ exports.teardownZone = function (agent, data, callback) {
   };
 
   function queueCreated() {
-    // provisioner.event.zone_created.sagan.orlandozone0
     var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
     console.log("Routing was %s", routing);
 
@@ -276,8 +275,9 @@ function parseZFSUsage (fields, data) {
   return results;
 }
 
-exports.uuid = '550e8400-e29b-41d4-a716-446655440000';
+exports.uuid = process.env['SERVER_UUID'];
 exports.setupSuiteAgentHandle = function (suite, callback) {
+  console.log("Using " + exports.uuid + " as the server UUID.");
   // Store our agent handle in this object from the closure so that we can
   // access the handle accross test-methods. We cannot use `this` to
   // persist values from one setup-test-teardown to another.

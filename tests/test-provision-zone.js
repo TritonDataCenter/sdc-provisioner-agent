@@ -21,39 +21,14 @@ TestSuite = require('async-testing/async_testing').TestSuite;
 
 var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 
-var testZoneName = 'orlandozone';
-// XXX: detect if we have node or bare zones and set this accordingly
-var adminUser = 'admin';
+var testZoneName = exports.testZoneName;
+var testZoneDataset = exports.testZoneDataset;
 
 var tests = [
  { 'Test provisioning one zone':
     function (assert, finished) {
       var self = this;
-      var data = { zonename: testZoneName
-//                             , 'new_ip': '8.19.35.119'
-//                             , 'public_ip': '8.19.35.119'
-//                             , 'private_ip': '10.19.35.119'
-//                             , 'default_gateway': '8.19.35.1'
-//                             , 'public_netmask': '255.255.192.0'
-//                             , 'private_netmask': '255.255.192.0'
-//                             ,  'public_vlan_id': 420
-                      , 'hostname': testZoneName
-                      , 'zone_template': 'protemplate-2.5.2'
-                      , 'root_pw': 'therootpw'
-                      , 'admin_pw': 'theadminpw'
-                      , 'vs_pw': 'xxxtheadminpw'
-                      , 'cpu_shares': 15
-                      , 'lightweight_processes': 4000
-                      , 'cpu_cap': 350
-                      , 'swap_in_bytes': 2147483648
-                      , 'ram_in_bytes': 500*1024*1024
-                      , 'disk_in_gigabytes': 2
-                      , 'tmpfs': '200m'
-                      , 'template_version': '4.2.0'
-                      , 'authorized_keys': fakekeys.keys.mastershake
-                      , 'inherited_directories': '/opt'
-                      , 'admin_user': adminUser
-                      }
+      var data = common.provisionRequest();
       provisionZone(self.agent, data, function (error) {
         if (error) {
           console.log(error.toString());
@@ -81,8 +56,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
 
@@ -114,8 +89,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/mistershake/.ssh/authorized_keys');
 
           path.exists(authorizedKeysPath, function (exists) {
@@ -143,8 +118,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
 
@@ -179,8 +154,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
 
@@ -226,8 +201,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
           fs.readFile(authorizedKeysPath, 'utf8', function (error, data) {
@@ -266,8 +241,8 @@ var tests = [
 
           var authorizedKeysPath
             = path.join(
-                "/zones/"
-              , testZoneName
+                "/"
+              , testZoneDataset
               , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
 
@@ -295,8 +270,8 @@ var tests = [
 
       var authorizedKeysPath
         = path.join(
-            "/zones/"
-          , testZoneName
+            "/"
+          , testZoneDataset
           , 'root/home/' + adminUser + '/.ssh/authorized_keys');
 
       fs.unlink(authorizedKeysPath, function (error) {

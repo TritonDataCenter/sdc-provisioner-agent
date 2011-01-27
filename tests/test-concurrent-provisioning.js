@@ -19,7 +19,7 @@ TestSuite = require('async-testing/async_testing').TestSuite;
 
 var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 
-var testZoneName = 'orlandozone';
+var testZoneName = common.testZoneName;
 
 var zoneCount = 5;
 
@@ -33,29 +33,9 @@ var tests = [
 
       while (i--) {
         (function (i) {
-          var data = { zonename: testZoneName + i
-//                          , 'new_ip': '8.19.35.119'
-//                          , 'public_ip': '8.19.35.119'
-//                          , 'private_ip': '10.19.35.119'
-//                          , 'default_gateway': '8.19.35.1'
-//                          , 'public_netmask': '255.255.192.0'
-//                          , 'private_netmask': '255.255.192.0'
-                      , 'hostname': testZoneName + i
-                      , 'zone_template': 'bare-1.2.8'
-                      , 'root_pw': 'therootpw'
-                      , 'admin_pw': 'theadminpw'
-                      , 'vs_pw': 'xxxtheadminpw'
-                      , 'cpu_shares': 15
-                      , 'lightweight_processes': 4000
-                      , 'cpu_cap': 350
-                      , 'swap_in_bytes': 2147483648
-                      , 'ram_in_bytes': 1073741824
-                      , 'disk_in_gigabytes': 2
-                      , 'tmpfs': '200m'
-                      , 'template_version': '4.2.0'
-                      , 'authorized_keys': 'shazbot'
-                      , 'admin_user': 'admin'
-                      };
+          var data = common.provisionRequest({ zonename:   testZoneName + i
+                                             , 'hostname': testZoneName + i
+                                             });
           common.provisionZone(self.agent, data, function (error) {
             if (error) {
               console.log("ERROR:");
