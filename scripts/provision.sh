@@ -88,9 +88,9 @@ fi
 if [ ! -z "$PUBLIC_IP" ];
 then
   if [ "$PUBLIC_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -l ${PUBLIC_LINK} ${PUBLIC_INTERFACE}
+    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} ${PUBLIC_INTERFACE}
   else
-    /usr/sbin/dladm create-vnic -l ${PUBLIC_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
+    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
   fi
 
   # Set the network settings
