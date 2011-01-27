@@ -38,8 +38,11 @@ mdns: $(MDNS_BINDING)
 $(MDNS_BINDING):
 	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
+start:
+	AMQP_HOST=10.99.99.5 NODE_PATH=`pwd`/node_modules node provisioner-agent.js
+
 test:
-	AMQP_HOST=10.99.99.5 AMQP_LOGIN=guest AMQP_PASSWORD=guest node junit-tests.js
+	TEST_DATASET=zones/bare-1.2.8 AMQP_HOST=10.99.99.5 AMQP_LOGIN=guest AMQP_PASSWORD=guest node junit-tests.js
 
 submodules:
 	git submodule update --init

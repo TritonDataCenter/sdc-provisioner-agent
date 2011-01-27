@@ -6,9 +6,61 @@ assert = require('assert');
 // require.paths.unshift('/opt/smartdc/agents/modules/.npm/provisioner/active/package/node_modules');
 ProvisionerClient = require('amqp_agent/client').Client;
 
+fakekeys = require('fakekeys');
 // The agent will emit events as it progresses through the zone creation
 // process.
 var eventRE = /^provisioner\.event\.([^\.]+).([^\.]+).([^\.]+)/;
+
+exports.testZoneName = 'provisioner-test';
+exports.testZoneDataset = 'zones/' + exports.testZoneName;
+
+exports.testDataset = function () {
+  if (process.env['TEST_DATASET']) {
+    return process.env['TEST_DATASET'];
+  }
+}
+
+exports.provisionRequest = function (vars) {
+  var testDataset = common.testDataset();
+  vars = vars || {};
+  var defaults = { 'zonename': exports.testZoneName
+                 , 'admin_user': 'admin'
+//                  , 'new_ip': '8.19.35.119'
+//                  , 'public_ip': '8.19.35.119'
+//                  , 'private_ip': '10.19.35.119'
+//                  , 'default_gateway': '8.19.35.1'
+//                  , 'public_netmask': '255.255.192.0'
+//                  , 'private_netmask': '255.255.192.0'
+//                  , 'public_vlan_id': 420
+                 , 'hostname': exports.testZoneName
+                 , 'zone_template': testDataset
+                 , 'root_pw': 'therootpw'
+                 , 'owner_uuid': 'this-is-my-uuid'
+                 , 'uuid': '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
+                 , 'zone_type': 'node'
+                 , 'charge_after': (new Date()).toISOString()
+                 , 'admin_pw': 'theadminpw'
+                 , 'vs_pw': 'xxxtheadminpw'
+                 , 'cpu_shares': 15
+                 , 'lightweight_processes': 4000
+                 , 'cpu_cap': 350
+                 , 'swap_in_bytes': 2147483648
+                 , 'ram_in_bytes': 1073741824
+                 , 'disk_in_gigabytes': 2
+                 , 'tmpfs': '200m'
+                 , 'template_version': '4.2.0'
+                 , 'authorized_keys': fakekeys.keys.mastershake
+                 };
+
+  var keys = Object.keys(defaults);
+  for (var i=0; i<keys.length; i++) {
+    if (vars[keys[i]] === undefined) {
+      vars[keys[i]] = defaults[keys[i]];
+    }
+  }
+
+  return vars;
+}
 
 exports.provisionZone = function (agent, data, callback) {
   var times = {};

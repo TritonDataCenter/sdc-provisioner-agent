@@ -21,7 +21,7 @@ var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 
 var testZoneName = 'orlandozone';
 
-var zoneCount = 3;
+var zoneCount = 5;
 
 var tests = [
   { 'Test provisioning a zone':
@@ -41,7 +41,7 @@ var tests = [
 //                          , 'public_netmask': '255.255.192.0'
 //                          , 'private_netmask': '255.255.192.0'
                       , 'hostname': testZoneName + i
-                      , 'zone_template': 'nodejs'
+                      , 'zone_template': 'bare-1.2.8'
                       , 'root_pw': 'therootpw'
                       , 'admin_pw': 'theadminpw'
                       , 'vs_pw': 'xxxtheadminpw'
@@ -54,6 +54,7 @@ var tests = [
                       , 'tmpfs': '200m'
                       , 'template_version': '4.2.0'
                       , 'authorized_keys': 'shazbot'
+                      , 'admin_user': 'admin'
                       };
           common.provisionZone(self.agent, data, function (error) {
             if (error) {

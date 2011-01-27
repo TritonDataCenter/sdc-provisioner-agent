@@ -38,7 +38,7 @@ var tests = [
 //                             , 'private_netmask': '255.255.192.0'
 //                             ,  'public_vlan_id': 420
                       , 'hostname': testZoneName
-                      , 'zone_template': 'nodejs'
+                      , 'zone_template': 'protemplate-2.5.2'
                       , 'root_pw': 'therootpw'
                       , 'admin_pw': 'theadminpw'
                       , 'vs_pw': 'xxxtheadminpw'
@@ -46,7 +46,7 @@ var tests = [
                       , 'lightweight_processes': 4000
                       , 'cpu_cap': 350
                       , 'swap_in_bytes': 2147483648
-                      , 'ram_in_bytes': 1073741824
+                      , 'ram_in_bytes': 500*1024*1024
                       , 'disk_in_gigabytes': 2
                       , 'tmpfs': '200m'
                       , 'template_version': '4.2.0'
