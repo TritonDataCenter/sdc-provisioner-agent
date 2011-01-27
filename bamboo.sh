@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -32,8 +32,6 @@ install() {
 ; parameter in the "amqp" section.
 ; mdns = amqp-broker
 
-uuid = 550e8400-e29b-41d4-a716-446655440000
-
 [amqp]
 host = mq1-bamboo.staging.joyent.us
 login = joyent
@@ -55,12 +53,16 @@ __EOF__
 run_test() {
   # remove old test result files
   rm -f tests/results/*.xml
-  # needs some test reporting
-  sudo sh -c "AMQP_HOST=mq1-bamboo.staging.joyent.us \
-              AMQP_LOGIN=joyent \
-              AMQP_PASSWORD=joytastic \
-              AMQP_VHOST=/ \
-              node junit-tests.js"
+  export AMQP_HOST=mq1-bamboo.staging.joyent.us
+  export AMQP_LOGIN=joyent
+  export AMQP_PASSWORD=joytastic
+  export AMQP_VHOST=/
+  export TEST_DATASET=nodejs-0.0.3
+  export TEST_ADMIN_USER=node
+  export NO_SYSINFO=1
+
+  sudo -E sh -c "cd $PWD && gmake test"
+  #sudo -E sh -c "cd $PWD && bash ./test-env.sh local/bin/node tests/test-concurrent-provisioning.js"
 }
 
 checkout

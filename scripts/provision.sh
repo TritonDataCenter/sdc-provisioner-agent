@@ -8,7 +8,14 @@
 
 set -e
 
-source /lib/sdc/config.sh
+# Load env vars from sysinfo with SYSINFO_ prefix or use test values if we are
+# passed the NO_SYSINFO env variable.
+if [ ! -z "$NO_SYSINFO" ]; then
+    PUBLIC_LINK=e1000g0
+    PRIVATE_LINK=e1000g2
+    source /lib/sdc/config.sh
+    load_sdc_sysinfo
+fi
 
 PATH=/usr/bin:/sbin:/usr/sbin
 export PATH
@@ -60,9 +67,6 @@ source $DIR/zone_properties.sh
 # 8. write to /etc/nodename
 
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
-
-# load env vars from sysinfo with SYSINFO_ prefix
-load_sdc_sysinfo
 
 if [ ! -z "$PUBLIC_IP" ];
 then

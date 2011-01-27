@@ -26,7 +26,7 @@ TestSuite = require('async-testing/async_testing').TestSuite;
 var suite = exports.suite = new TestSuite("Duplicate zonename provision");
 var hostname;
 
-var testZoneName = 'orlandozone';
+var testZoneName = common.testZoneName;
 
 var tests = [
  { 'Test provisioning one zone':

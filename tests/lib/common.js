@@ -18,13 +18,23 @@ exports.testDataset = function () {
   if (process.env['TEST_DATASET']) {
     return process.env['TEST_DATASET'];
   }
+  return 'bare';
+}
+
+exports.testAdminUser = function () {
+  if (process.env['TEST_ADMIN_USER']) {
+    return process.env['TEST_ADMIN_USER'];
+  }
+  return 'admin';
 }
 
 exports.provisionRequest = function (vars) {
-  var testDataset = common.testDataset();
+  var testDataset   = exports.testDataset();
+  var testAdminUser = exports.testAdminUser();
+  console.log("ADMIN_USER WAS " + testAdminUser);
   vars = vars || {};
   var defaults = { 'zonename': exports.testZoneName
-                 , 'admin_user': 'admin'
+                 , 'admin_user': testAdminUser
 //                  , 'new_ip': '8.19.35.119'
 //                  , 'public_ip': '8.19.35.119'
 //                  , 'private_ip': '10.19.35.119'
@@ -157,7 +167,6 @@ exports.teardownZone = function (agent, data, callback) {
   };
 
   function queueCreated() {
-    // provisioner.event.zone_created.sagan.orlandozone0
     var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
     console.log("Routing was %s", routing);
 
@@ -276,8 +285,9 @@ function parseZFSUsage (fields, data) {
   return results;
 }
 
-exports.uuid = '550e8400-e29b-41d4-a716-446655440000';
+exports.uuid = process.env['SERVER_UUID'];
 exports.setupSuiteAgentHandle = function (suite, callback) {
+  console.log("Using " + exports.uuid + " as the server UUID.");
   // Store our agent handle in this object from the closure so that we can
   // access the handle accross test-methods. We cannot use `this` to
   // persist values from one setup-test-teardown to another.
