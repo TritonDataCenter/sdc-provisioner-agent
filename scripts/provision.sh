@@ -13,6 +13,7 @@ set -e
 if [ ! -z "$NO_SYSINFO" ]; then
     PUBLIC_LINK=e1000g0
     PRIVATE_LINK=e1000g2
+else
     source /lib/sdc/config.sh
     load_sdc_sysinfo
 fi
