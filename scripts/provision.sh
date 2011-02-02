@@ -7,6 +7,10 @@
 # and eventually boots the new zone.
 
 set -e
+set -o xtrace
+
+PATH=/usr/bin:/sbin:/usr/sbin
+export PATH
 
 # Load env vars from sysinfo with SYSINFO_ prefix or use test values if we are
 # passed the NO_SYSINFO env variable.
@@ -17,9 +21,6 @@ else
     source /lib/sdc/config.sh
     load_sdc_sysinfo
 fi
-
-PATH=/usr/bin:/sbin:/usr/sbin
-export PATH
 
 ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
