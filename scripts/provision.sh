@@ -111,9 +111,9 @@ fi
 if [ ! -z "$PRIVATE_IP" ];
 then
   if [ "$PRIVATE_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -l ${PRIVATE_LINK} ${PRIVATE_INTERFACE}
+    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} ${PRIVATE_INTERFACE}
   else
-    /usr/sbin/dladm create-vnic -l ${PRIVATE_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
+    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
   fi
 
   # Set the network settings
