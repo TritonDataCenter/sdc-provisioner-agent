@@ -42,7 +42,7 @@ $(MDNS_BINDING): $(NODE_PATH)
 submodules:
 	git submodule update --init
 
-$(NODE_PATH):
+$(NODE_PREFIX)/bin/node: submodules
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && CC=gcc make install
 

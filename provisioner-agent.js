@@ -19,10 +19,6 @@ function readConfig(cfgPath, callback) {
       config[prop] = parsed[prop];
     }
 
-    // deal with some values specially
-    if (config.amqp.port) config.amqp.port = Number(config.amqp.port);
-
-
     console.log("The Config:", inspect(config));
     callback(config);
   });
