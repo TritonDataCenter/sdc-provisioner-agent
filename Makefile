@@ -30,14 +30,7 @@ NPM_FILES =                      \
 TARBALL=$(NAME).tgz
 npm: $(TARBALL)
 
-MDNS_DIR=node_modules/.npm/mdns/active/package
-MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
-
-mdns: $(MDNS_BINDING)
 node: $(NODE_PATH)
-
-$(MDNS_BINDING): $(NODE_PATH)
-	cd $(MDNS_DIR) && $(NODE_WAF) configure build
 
 submodules:
 	git submodule update --init
@@ -46,7 +39,7 @@ $(NODE_PREFIX)/bin/node: submodules
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && CC=gcc make install
 
-$(TARBALL): Makefile .npm $(NODE_PATH) $(MDNS_BINDING) $(NPM_FILES)
+$(TARBALL): Makefile .npm $(NODE_PATH) $(NPM_FILES)
 	rm -fr .npm
 	mkdir -p .npm/$(NAME)/
 	cd node && CC=gcc gmake install
@@ -59,7 +52,7 @@ $(TARBALL): Makefile .npm $(NODE_PATH) $(MDNS_BINDING) $(NPM_FILES)
 prototype:
 	./build/update_node_modules_prototype.sh
 
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PATH) build/ provisioner-agent.js $(MDNS_BINDING) prototype
+$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PATH) build/ provisioner-agent.js prototype
 	pkgmk -o -d /tmp -f build/prototype
 	touch $(PKGFILE)
 	pkgtrans -s /tmp $(PKGFILE) $(PKG)
