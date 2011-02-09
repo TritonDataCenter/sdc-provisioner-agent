@@ -39,7 +39,7 @@ if zfs list "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" 2>/dev/null 1>&2; then
   exit 1
 fi
 
-if [ $BASEOS_VERS -lt 147 ]; then
+if [ $BASEOS_VERS -lt 147 -o ! -z "$NO_SYSINFO" ]; then
   # pre b147 systems
   #   2. Append to /etc/zones/index
   echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
