@@ -8,7 +8,8 @@ gmake npm
 NAME=provisioner
 BRANCH=$(git symbolic-ref HEAD | cut -d'/' -f3)
 DESCRIBE=$(git describe)
-PKG=${NAME}-${BRANCH}-${DESCRIBE}.tgz
+BUILDSTAMP=`TZ=UTC date "+%Y%m%dT%H%M%SZ"`; export BUILDSTAMP 
+PKG=${NAME}-${BRANCH}-${BUILDSTAMP}-${DESCRIBE}.tgz
 PUBLISH_LOCATION=/rpool/data/coal/live_147/agents/provisioner/${BRANCH}/
 
 #pfexec ./run-tests.sh
