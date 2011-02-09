@@ -12,6 +12,6 @@ PKG=${NAME}-${BRANCH}-${DESCRIBE}.tgz
 PUBLISH_LOCATION=/rpool/data/coal/live_147/agents/provisioner/${BRANCH}/
 
 cd ..
-../run-tests.sh
+./run-tests.sh
 
 source $DIRNAME/publish.sh
