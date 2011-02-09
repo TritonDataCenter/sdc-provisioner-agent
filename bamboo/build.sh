@@ -11,6 +11,6 @@ DESCRIBE=$(git describe)
 PKG=${NAME}-${BRANCH}-${DESCRIBE}.tgz
 PUBLISH_LOCATION=/rpool/data/coal/live_147/agents/provisioner/${BRANCH}/
 
-./run-tests.sh
+pfexec ./run-tests.sh
 
 source $DIRNAME/publish.sh
