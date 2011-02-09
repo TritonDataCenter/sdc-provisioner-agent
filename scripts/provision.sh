@@ -100,10 +100,11 @@ then
   fi
 
   # Set the network settings
-  /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.vlan_id"="$PUBLIC_VLAN_ID" $ZPOOL_NAME/$ZONENAME
-  /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.nic"="$PUBLIC_NIC" $ZPOOL_NAME/$ZONENAME
+
   vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PUBLIC_INTERFACE})
-  [[ -n ${vnic_mac} ]] && /usr/sbin/zfs set "smartdc.network:${PUBLIC_INTERFACE}.mac"="${vnic_mac}" $ZPOOL_NAME/$ZONENAME
+  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
+
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; ${set_mac}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
@@ -117,11 +118,12 @@ then
   fi
 
   # Set the network settings
-  /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.vlan_id"="$PRIVATE_VLAN_ID" $ZPOOL_NAME/$ZONENAME
-  /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.nic"="$PRIVATE_NIC"         $ZPOOL_NAME/$ZONENAME
 
+  set_mac=""
   vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PRIVATE_INTERFACE})
-  [[ -n ${vnic_mac} ]] && /usr/sbin/zfs set "smartdc.network:${PRIVATE_INTERFACE}.mac"="${vnic_mac}" $ZPOOL_NAME/$ZONENAME
+  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
+
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; ${set_mac}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
 
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
