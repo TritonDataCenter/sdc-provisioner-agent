@@ -10,9 +10,9 @@ ifeq ($(VERSION), "")
 	@echo "Use gmake"
 endif
 
-
 PKGFILE=$(PKG)-$(VERSION).pkg
 NODE_PREFIX=$(shell pwd)/local
+NODE_PATH=$(shell pwd)/local/bin/node
 NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 
 all: $(PKGFILE)
@@ -30,25 +30,16 @@ NPM_FILES =                      \
 TARBALL=$(NAME).tgz
 npm: $(TARBALL)
 
-MDNS_DIR=node_modules/.npm/mdns/active/package
-MDNS_BINDING=$(MDNS_DIR)/lib/binding.node
-
-mdns: $(MDNS_BINDING)
-
-$(MDNS_BINDING):
-	cd $(MDNS_DIR) && $(NODE_WAF) configure build
-
-test:
-	AMQP_HOST=10.99.99.5 AMQP_LOGIN=guest AMQP_PASSWORD=guest node junit-tests.js
+node: $(NODE_PATH)
 
 submodules:
 	git submodule update --init
 
-$(NODE_PREFIX)/bin/node:
+$(NODE_PREFIX)/bin/node: submodules
 	cd node && python tools/waf-light configure --prefix=$(NODE_PREFIX)
 	cd node && CC=gcc make install
 
-$(TARBALL): Makefile .npm $(NODE_PREFIX)/bin/node $(MDNS_BINDING) $(NPM_FILES)
+$(TARBALL): Makefile .npm $(NODE_PATH) $(NPM_FILES)
 	rm -fr .npm
 	mkdir -p .npm/$(NAME)/
 	cd node && CC=gcc gmake install
@@ -58,7 +49,10 @@ $(TARBALL): Makefile .npm $(NODE_PREFIX)/bin/node $(MDNS_BINDING) $(NPM_FILES)
 .npm:
 	mkdir -p $(NODE_PREFIX)
 
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PREFIX)/bin/node build/ provisioner-agent.js $(MDNS_BINDING)
+prototype:
+	./build/update_node_modules_prototype.sh
+
+$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PATH) build/ provisioner-agent.js prototype
 	pkgmk -o -d /tmp -f build/prototype
 	touch $(PKGFILE)
 	pkgtrans -s /tmp $(PKGFILE) $(PKG)
@@ -90,5 +84,13 @@ distclean:
 clean:
 	-rm -rf .pkg/ .npm/ $(TARBALL)
 	-rm $(PKG)-*.pkg
+
+# Test-related targets
+
+start:
+	./test-env.sh $(NODE_PATH) provisioner-agent.js
+
+test:
+	./test-env.sh $(NODE_PATH) junit-tests.js
 
 .PHONY: clean distclean npm

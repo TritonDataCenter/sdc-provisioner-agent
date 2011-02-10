@@ -18,12 +18,13 @@
       type="method"
       name="start"
       exec="@@MODULES@@/.npm/provisioner/active/package/local/bin/node @@BASEDIR@@/bin/provisioner-agent &amp;"
-      timeout_seconds="10">
+      timeout_seconds="60">
       <method_context>
         <method_credential user="root" group="staff"/>
         <method_environment>
           <envvar name="PATH" value="@@BASEDIR@@/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
           <envvar name="PROVISIONER_CONFIG" value="@@ETC_DIR@@/provisioner.ini"/>
+          <envvar name="AMQP_USE_SYSTEM_CONFIG" value="1"/>
         </method_environment>
       </method_context>
     </exec_method>

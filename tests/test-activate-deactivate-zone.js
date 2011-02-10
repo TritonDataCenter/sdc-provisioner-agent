@@ -26,40 +26,11 @@ TestSuite = require('async-testing/async_testing').TestSuite;
 
 var suite = exports.suite = new TestSuite("Provisioner Agent Tests");
 
-var testZoneName = 'orlandozone';
-
 var tests = [
  { 'Test provisioning one zone':
     function (assert, finished) {
       var self = this;
-      var authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAs5xKh88/HuL+lr+i3DRUzcpkx5Ebbfq7NZVbjVZiICkhn6oCV60OGFmT5qsC2KTVyilakjU5tFlLSSNLQPbYs+hA2Q5tsrXx9JEUg/pfDQdfFjD2Rqhi3hMg7JUWxr9W3HaUtmnMCyrnJhgjA3RKfiZzY/Fkt8zEmRd8SZio0ypAI1IBTxpeaBQ217YqthKzhYlMh7pj9PIwRh7V0G1yDOCOoOR6SYCdOYYwiAosfFSMA2eMST4pjhnJTvrHMBOSn77lJ1hYPesjfjx/VpWIMYCzcP6mBLWaNGuJAIJMAk2EdNwO6tNoicQOH07ZJ4SbJcw6pv54EICxsaFnv0NZMQ== mastershake@mjollnir.local\n";
-      var data = { zonename: testZoneName
-//                             , 'new_ip': '8.19.35.119'
-//                             , 'public_ip': '8.19.35.119'
-//                             , 'private_ip': '10.19.35.119'
-//                             , 'default_gateway': '8.19.35.1'
-//                             , 'public_netmask': '255.255.192.0'
-//                             , 'private_netmask': '255.255.192.0'
-//                             ,  'public_vlan_id': 420
-                      , 'hostname': testZoneName
-                      , 'zone_template': 'nodejs'
-                      , 'root_pw': 'therootpw'
-                      , 'owner_uuid': 'this-is-my-uuid'
-                      , 'uuid': '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
-                      , 'zone_type': 'node'
-                      , 'charge_after': (new Date()).toISOString()
-                      , 'admin_pw': 'theadminpw'
-                      , 'vs_pw': 'xxxtheadminpw'
-                      , 'cpu_shares': 15
-                      , 'lightweight_processes': 4000
-                      , 'cpu_cap': 350
-                      , 'swap_in_bytes': 2147483648
-                      , 'ram_in_bytes': 1073741824
-                      , 'disk_in_gigabytes': 2
-                      , 'tmpfs': '200m'
-                      , 'template_version': '4.2.0'
-                      , 'authorized_keys': authorized_keys
-                      }
+      var data = common.provisionRequest();
       provisionZone(self.agent, data, function (error) {
         puts(inspect(arguments));
         if (error) {
@@ -73,7 +44,7 @@ var tests = [
     function (assert, finished) {
       var self = this;
       var successCount = 0;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { zonename: common.testZoneName } };
 
       self.agent.sendCommand('deactivate', msg,
         function (reply) {
@@ -89,7 +60,7 @@ var tests = [
                   !lines.some(function (line) {
                     var parts = line.split(':');
                     return (
-                         parts[1] == testZoneName
+                         parts[1] == common.testZoneName
                       && parts[2] == 'running'
                       && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
                     );
@@ -97,18 +68,19 @@ var tests = [
                   , "Our zone should not be in the list, but it was.");
                   console.log("Everyone was ok!");
 
+                var dataset = 'zones/'+common.testZoneName;
                 zfsProperties
                   ( [ 'smartdc.zone:deleted_at' ]
-                  , 'zones/orlandozone'
+                  , dataset
                   , function (error, properties) {
                       console.dir(properties);
                       assert.ok
-                        ( properties['zones/orlandozone']['smartdc.zone:deleted_at']
+                        ( properties[dataset]['smartdc.zone:deleted_at']
                         , 'deleted_at property should be set'
                         );
                       assert.ok
                         ( /^\d{4}-\d{2}-\d{2}T.*Z$/
-                          .exec(properties['zones/orlandozone']['smartdc.zone:deleted_at'])
+                          .exec(properties[dataset]['smartdc.zone:deleted_at'])
                         , 'deleted_at property should match regex'
                         );
                       finished();
@@ -123,7 +95,7 @@ var tests = [
     function (assert, finished) {
       var self = this;
       var successCount = 0;
-      var msg = { data: { zonename: testZoneName } };
+      var msg = { data: { zonename: common.testZoneName } };
 
       self.agent.sendCommand('activate', msg,
         function (reply) {
@@ -139,7 +111,7 @@ var tests = [
                 ( lines.some(function (line) {
                     var parts = line.split(':');
                     return (
-                         parts[1] == testZoneName
+                         parts[1] == common.testZoneName
                       && parts[2] == 'running'
                       && parts[4] == '2e4a24af-97a2-4cb1-a2a4-1edb209fb311'
                     )
@@ -156,12 +128,12 @@ var tests = [
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
-      var data = { zonename: testZoneName };
+      var data = { zonename: common.testZoneName };
       teardownZone(self.agent, data, function (error) {
         assert.ok(!error);
 
         zoneadmList(function (error, zones) {
-          assert.ok(!zones[testZoneName], "zone should be gone");
+          assert.ok(!zones[common.testZoneName], "zone should be gone");
           finished();
         });
       });
