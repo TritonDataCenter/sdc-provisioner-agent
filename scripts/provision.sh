@@ -51,9 +51,8 @@ if [ $BASEOS_VERS -lt 147 -o ! -z "$NO_SYSINFO" ]; then
   zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
   zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 else
-  # XXX fix this!  We should be using zonecfg instead in which case we don't
-  # need to manually muck with the index.
-  echo "$ZONENAME:configured:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
+  #   2. Append to /etc/zones/index
+  zonecfg -z $ZONENAME create -X
 
   # b147 & later; install the zone now.
   if [ ! -z "$UUID" ]; then
