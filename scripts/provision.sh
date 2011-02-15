@@ -107,6 +107,10 @@ then
   /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; ${set_mac}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
+
+  # Set antispoof
+  /usr/sbin/dladm set-linkprop -p "protection=ip-nospoof,mac-nospoof,restricted,dhcp-nospoof" ${PUBLIC_INTERFACE}
+  /usr/sbin/dladm set-linkprop -p "allowed-ips=${PUBLIC_IP}" ${PUBLIC_INTERFACE}
 fi
 
 if [ ! -z "$PRIVATE_IP" ];
@@ -126,6 +130,10 @@ then
   /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; ${set_mac}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
 
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
+
+  # Set antispoof
+  /usr/sbin/dladm set-linkprop -p "protection=ip-nospoof,mac-nospoof,restricted,dhcp-nospoof" ${PRIVATE_INTERFACE}
+  /usr/sbin/dladm set-linkprop -p "allowed-ips=${PRIVATE_IP}" ${PRIVATE_INTERFACE}
 fi
 
 # 9. append to /etc/hostname.zonename
