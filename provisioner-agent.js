@@ -84,7 +84,7 @@ function main() {
 
       agent.connect(function () {
         agent.setupProvisionQueue();
-//         console.log("Ready to rock.");
+        console.log("Ready to rock.");
       });
     });
   });
