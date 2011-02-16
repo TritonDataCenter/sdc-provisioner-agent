@@ -88,51 +88,22 @@ then
   fi
 fi
 
-# vnics
+# network
 
 if [ ! -z "$PUBLIC_IP" ];
 then
-  if [ "$PUBLIC_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} ${PUBLIC_INTERFACE}
-  else
-    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
-  fi
-
   # Set the network settings
-
-  vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PUBLIC_INTERFACE})
-  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
-
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; ${set_mac}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
-
-  # Set antispoof
-  /usr/sbin/dladm set-linkprop -p "protection=ip-nospoof,mac-nospoof,restricted,dhcp-nospoof" ${PUBLIC_INTERFACE}
-  /usr/sbin/dladm set-linkprop -p "allowed-ips=${PUBLIC_IP}" ${PUBLIC_INTERFACE}
 fi
 
 if [ ! -z "$PRIVATE_IP" ];
 then
-  if [ "$PRIVATE_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} ${PRIVATE_INTERFACE}
-  else
-    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
-  fi
-
   # Set the network settings
-
-  set_mac=""
-  vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PRIVATE_INTERFACE})
-  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
-
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; ${set_mac}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
 
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
-
-  # Set antispoof
-  /usr/sbin/dladm set-linkprop -p "protection=ip-nospoof,mac-nospoof,restricted,dhcp-nospoof" ${PRIVATE_INTERFACE}
-  /usr/sbin/dladm set-linkprop -p "allowed-ips=${PRIVATE_IP}" ${PRIVATE_INTERFACE}
 fi
 
 # 9. append to /etc/hostname.zonename
