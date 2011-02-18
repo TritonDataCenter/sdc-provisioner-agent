@@ -92,16 +92,25 @@ fi
 
 if [ ! -z "$PUBLIC_IP" ];
 then
+  PUBLIC_BLOCKED_PORTS_OPT=""
+  echo "public blocked outgoing ports: $PUBLIC_BLOCKED_OUTGOING_PORTS"
+  if [ ! -z "$PUBLIC_BLOCKED_OUTGOING_PORTS" ] ; then
+    PUBLIC_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PUBLIC_BLOCKED_OUTGOING_PORTS\");"
+  fi
   # Set the network settings
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; ${PUBLIC_BLOCKED_PORTS_OPT} end; exit"
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
 
 if [ ! -z "$PRIVATE_IP" ];
 then
+  PRIVATE_BLOCKED_PORTS_OPT=""
+  if [ ! -z "$PRIVATE_BLOCKED_OUTGOING_PORTS" ] ; then
+    PRIVATE_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PRIVATE_BLOCKED_OUTGOING_PORTS\");"
+  fi
   # Set the network settings
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; ${PRIVATE_BLOCKED_PORTS_OPT} end; exit"
 
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
