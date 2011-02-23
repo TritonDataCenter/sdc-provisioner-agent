@@ -133,7 +133,7 @@ exports.provisionZone = function (agent, data, callback) {
         , '*'
         ].join('.');
 
-    console.log("Routing was %s", routing);
+    console.log("Routing was " + routing);
 
     q.bind(routing);
     q.subscribeJSON(eventReceived);
@@ -168,7 +168,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function queueCreated() {
     var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
-    console.log("Routing was %s", routing);
+    console.log("Routing was " + routing);
 
     q.bind(routing);
     q.subscribeJSON(eventReceived);

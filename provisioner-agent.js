@@ -82,9 +82,11 @@ function main() {
           'zone_template.xml.ejs' :
           'zone_template2.xml.ejs');
 
-      agent.connect(function () {
-        agent.setupProvisionQueue();
-        console.log("Ready to rock.");
+      agent.configureAMQP(function () {
+        agent.connect(function () {
+          agent.setupProvisionQueue();
+          console.log("Ready to rock.");
+        });
       });
     });
   });
