@@ -4,7 +4,7 @@ svcadm disable -s provisioner
 export AMQP_HOST=10.99.99.5
 # export AMQP_LOGIN=guest
 # export AMQP_PASSWORD=guest
-#export NO_SYSINFO=1
+# export NO_SYSINFO=1
 
 source /lib/sdc/config.sh
 load_sdc_sysinfo
