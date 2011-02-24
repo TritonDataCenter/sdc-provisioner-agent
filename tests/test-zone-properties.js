@@ -12,6 +12,7 @@ teardownZone          = common.teardownZone;
 zfsProperties         = common.zfsProperties;
 zoneadmList           = common.zoneadmList;
 setupSuiteAgentHandle = common.setupSuiteAgentHandle;
+zoneAttrs             = common.zoneAttrs;
 
 sys = require('sys');
 exec = require('child_process').exec;
@@ -40,26 +41,14 @@ var tests = [
         if (error) {
           assert.ok(!error, "Expected no errors but found: " + error.toString());
         }
-        zfsProperties
-          ( [ 'smartdc.zone:owner_uuid'
-            , 'smartdc.zone:charge_after'
-            , 'smartdc.zone:zone_type'
-            , 'smartdc.zone:property_version'
-            ]
-          , testZoneDataset
-          , function (error, properties) {
-              if (error) throw error;
-              console.log(properties);
 
-              assert.equal( properties[testZoneDataset]['smartdc.zone:owner_uuid']
-                          , 'this-is-my-uuid');
-              assert.equal( properties[testZoneDataset]['smartdc.zone:zone_type']
-                          , 'node');
-              assert.equal( properties[testZoneDataset]['smartdc.zone:property_version']
-                          , '1.0');
-              finished();
-            });
-        finished();
+        zoneAttrs(testZoneName, function (error, attrs) {
+          if (error) throw error;
+          assert.equal(attrs['owner-uuid'], 'this-is-my-uuid');
+          assert.equal(attrs['zone-type'], 'node');
+          assert.equal(attrs['property-version'], '1.0');
+          finished();
+        });
       });
     }
   }
@@ -83,26 +72,13 @@ var tests = [
           }
 
         console.dir(reply);
-          zfsProperties
-            ( [ 'smartdc.zone:owner_uuid'
-              , 'smartdc.zone:charge_after'
-              , 'smartdc.zone:zone_type'
-              , 'smartdc.zone:property_version'
-              ]
-            , testZoneDataset
-            , function (error, properties) {
-                if (error) throw error;
-
-                assert.equal( properties[testZoneDataset]['smartdc.zone:owner_uuid']
-                            , 'the-new-uuid');
-                assert.equal( properties[testZoneDataset]['smartdc.zone:zone_type']
-                            , 'mysql');
-                assert.equal( properties[testZoneDataset]['smartdc.zone:property_version']
-                            , '1.0');
-                assert.equal( properties[testZoneDataset]['smartdc.zone:charge_after']
-                            , (new Date(100)).toISOString());
-                finished();
-              });
+        zoneAttrs(testZoneName, function (error, attrs) {
+          assert.equal(attrs['owner-uuid'], 'the-new-uuid');
+          assert.equal(attrs['charge-after'], (new Date(100)).toISOString());
+          assert.equal(attrs['zone-type'], 'mysql');
+          assert.equal(attrs['property-version'], '1.0');
+          finished();
+        });
       });
     }
   }

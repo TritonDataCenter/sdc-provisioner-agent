@@ -10,6 +10,8 @@ set -e
 set -o xtrace
 
 PATH=/usr/bin:/sbin:/usr/sbin
+DIR=`dirname $0`
+
 export PATH
 
 # Load env vars from sysinfo with SYSINFO_ prefix or use test values if we are
@@ -61,10 +63,6 @@ else
   zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
 fi
 
-# Set customer-related properties on the ZFS dataset
-DIR=`dirname $0`
-source $DIR/zone_properties.sh
-
 # 8. write to /etc/nodename
 
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
@@ -101,6 +99,9 @@ then
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
+
+# Add zone metadata
+source $DIR/zone_properties.sh
 
 if [ ! -z "$PRIVATE_IP" ];
 then
