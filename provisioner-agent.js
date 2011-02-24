@@ -8,6 +8,14 @@ require.paths.unshift(path.join(__dirname, 'node_modules'));
 ini = require('./lib/ini');
 ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
+
+/**
+ * readConfig
+ *
+ * @param {String} cfgPath Document me!
+ * @param {Function} callback Document me!
+ */
+
 function readConfig(cfgPath, callback) {
   console.log("Config path: " + cfgPath);
 
@@ -23,6 +31,13 @@ function readConfig(cfgPath, callback) {
     callback(config);
   });
 }
+
+
+/**
+ * _getvers
+ *
+ * @param {Function} callback Document me!
+ */
 
 _getvers = function (callback) {
   var baseOS = "snv";
@@ -44,6 +59,11 @@ _getvers = function (callback) {
         callback(baseOS, baseOS_vers);
       });
 }
+
+
+/**
+ * main
+ */
 
 function main() {
   var configFilename = path.join(__dirname, 'etc/provisioner.ini');
@@ -82,9 +102,11 @@ function main() {
           'zone_template.xml.ejs' :
           'zone_template2.xml.ejs');
 
-      agent.connect(function () {
-        agent.setupProvisionQueue();
-//         console.log("Ready to rock.");
+      agent.configureAMQP(function () {
+        agent.connect(function () {
+          agent.setupProvisionQueue();
+          console.log("Ready to rock.");
+        });
       });
     });
   });

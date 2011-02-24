@@ -51,9 +51,8 @@ if [ $BASEOS_VERS -lt 147 -o ! -z "$NO_SYSINFO" ]; then
   zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
   zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
 else
-  # XXX fix this!  We should be using zonecfg instead in which case we don't
-  # need to manually muck with the index.
-  echo "$ZONENAME:configured:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
+  #   2. Append to /etc/zones/index
+  zonecfg -z $ZONENAME create -X
 
   # b147 & later; install the zone now.
   if [ ! -z "$UUID" ]; then
@@ -89,22 +88,16 @@ then
   fi
 fi
 
-# vnics
+# network
 
 if [ ! -z "$PUBLIC_IP" ];
 then
-  if [ "$PUBLIC_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} ${PUBLIC_INTERFACE}
-  else
-    /usr/sbin/dladm create-vnic -m "${PUBLIC_MAC}" -l ${PUBLIC_LINK} -v ${PUBLIC_VLAN_ID} ${PUBLIC_INTERFACE}
+  PUBLIC_BLOCKED_PORTS_OPT=""
+  if [ ! -z "$PUBLIC_BLOCKED_OUTGOING_PORTS" ] ; then
+    PUBLIC_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PUBLIC_BLOCKED_OUTGOING_PORTS\");"
   fi
-
   # Set the network settings
-
-  vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PUBLIC_INTERFACE})
-  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
-
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; ${set_mac}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; set mac-addr=${PUBLIC_MAC}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; ${PUBLIC_BLOCKED_PORTS_OPT} end; exit"
 
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 
@@ -115,19 +108,12 @@ fi
 
 if [ ! -z "$PRIVATE_IP" ];
 then
-  if [ "$PRIVATE_VLAN_ID" -eq "0" ]; then
-    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} ${PRIVATE_INTERFACE}
-  else
-    /usr/sbin/dladm create-vnic -m "${PRIVATE_MAC}" -l ${PRIVATE_LINK} -v ${PRIVATE_VLAN_ID} ${PRIVATE_INTERFACE}
+  PRIVATE_BLOCKED_PORTS_OPT=""
+  if [ ! -z "$PRIVATE_BLOCKED_OUTGOING_PORTS" ] ; then
+    PRIVATE_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PRIVATE_BLOCKED_OUTGOING_PORTS\");"
   fi
-
   # Set the network settings
-
-  set_mac=""
-  vnic_mac=$(dladm show-vnic -p -o MACADDRESS ${PRIVATE_INTERFACE})
-  [[ -n ${vnic_mac} ]] && set_mac="set mac-addr=${vnic_mac}"
-
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; ${set_mac}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; end; exit"
+  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; set mac-addr=${PRIVATE_MAC}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; ${PRIVATE_BLOCKED_PORTS_OPT} end; exit"
 
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 
