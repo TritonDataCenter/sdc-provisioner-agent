@@ -15,7 +15,3 @@ fi
 /usr/sbin/zonecfg -z "$ZONENAME" delete -F
 
 /usr/sbin/zfs destroy -rf "zones/$ZONENAME"
-
-# destroy vnic
-/usr/sbin/dladm delete-vnic "${ZONENAME}0" || true
-/usr/sbin/dladm delete-vnic "${ZONENAME}2" || true
