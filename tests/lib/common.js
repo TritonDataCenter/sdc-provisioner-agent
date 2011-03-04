@@ -60,6 +60,8 @@ exports.provisionRequest = function (vars) {
                  , 'tmpfs': '200m'
                  , 'template_version': '4.2.0'
                  , 'authorized_keys': fakekeys.keys.mastershake
+                 , 'networks': []
+                 , 'no_networks': true
                  };
 
   var keys = Object.keys(defaults);
