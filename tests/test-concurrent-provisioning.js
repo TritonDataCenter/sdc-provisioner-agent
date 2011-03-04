@@ -8,7 +8,7 @@ sys    = require('sys');
 exec   = require('child_process').exec;
 fs     = require('fs');
 path   = require('path');
-common = require('common');
+common = require('./lib/common');
 
 setupSuiteAgentHandle = common.setupSuiteAgentHandle;
 
