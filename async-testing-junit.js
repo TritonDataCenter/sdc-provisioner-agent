@@ -2,6 +2,7 @@ sys = require('sys');
 
 puts = sys.puts;
 inspect = sys.inspect;
+ejs = require('./lib/ejs');
 
 function escape(str) {
   return str.replace(/&/gmi, '&amp;')

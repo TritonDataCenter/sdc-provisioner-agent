@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Cleaning up zone $ZONENAME"
 
 if [ -z "$ZONENAME" ];
@@ -16,6 +18,4 @@ fi
 
 /usr/sbin/zfs destroy -rf "zones/$ZONENAME"
 
-# destroy vnic
-/usr/sbin/dladm delete-vnic "${ZONENAME}0" || true
-/usr/sbin/dladm delete-vnic "${ZONENAME}2" || true
+exit 0
