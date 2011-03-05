@@ -19,6 +19,7 @@ all: $(PKGFILE)
 
 NPM_FILES =                      \
 	    etc                  \
+	    bin                  \
 	    lib                  \
 	    node_modules         \
 	    npm-scripts          \
