@@ -1,6 +1,6 @@
 [submodule "async-testing"]
 	path = async-testing
-	url = http://github.com/bentomas/node-async-testing.git
+	url = git://github.com/bentomas/node-async-testing.git
 [submodule "node"]
 	path = node
-	url = http://github.com/ry/node.git
+	url = git://github.com/joyent/node.git

@@ -133,7 +133,7 @@ exports.provisionZone = function (agent, data, callback) {
         , '*'
         ].join('.');
 
-    console.log("Routing was %s", routing);
+    console.log("Routing was " + routing);
 
     q.bind(routing);
     q.subscribeJSON(eventReceived);
@@ -168,7 +168,7 @@ exports.teardownZone = function (agent, data, callback) {
 
   function queueCreated() {
     var routing = 'provisioner.event.zone_destroyed.' + agent.uuid + '.'+data.zonename+'.*';
-    console.log("Routing was %s", routing);
+    console.log("Routing was " + routing);
 
     q.bind(routing);
     q.subscribeJSON(eventReceived);
@@ -320,4 +320,29 @@ exports.setupSuiteAgentHandle = function (suite, callback) {
   })
 
   callback && callback();
+}
+
+exports.zoneAttrs = function (zone, callback) {
+  var attrs = {};
+  var filename = '/etc/zones/' + zone + '.xml';
+  fs.readFile(filename, 'utf8', function (error, data) {
+    if (error)
+      return callback(error);
+
+    console.log(data);
+    data = data || '';
+    var lines = data.split("\n");
+    var i = lines.length;
+
+    while (i--) {
+      var line = lines.shift();
+      if (line.match(/<attr/)) {
+        var name = line.match(/name="([^"]*)"/)[1];
+        var value = line.match(/value="([^"]*)"/)[1];
+        attrs[name] = value;
+      }
+    }
+    console.dir(attrs);
+    callback(null, attrs);
+  });
 }
