@@ -54,10 +54,36 @@ var tests = [
  { 'Test provisioning one zone':
     function (assert, finished) {
       var self = this;
-      var data = common.provisionRequest();
+      var data = common.provisionRequest({ zfs_io_priority: 75 });
+      var resource = 'zone.zfs-io-priority';
       provisionZone(self.agent, data, function (error) {
         assert.ok(!error);
-        finished();
+        // check that the value has taken effect in the running system
+        prctl
+          ( testZoneName
+          , resource
+          , function (error, zone) {
+              assert.equal
+                ( zone[2]
+                , 75
+                , "zfs_io_priority value should've been set"
+                );
+
+              // check that the configuarion has been recorded in zonecfg
+              prctlValue
+                ( testZoneName
+                , resource
+                , function (error, value) {
+                    assert.equal
+                      ( value
+                      , 75
+                      , "zfs_io_priority should report the right value. was " + value
+                      );
+                    finished();
+                  }
+                );
+            }
+          );
       });
     }
   }
@@ -65,10 +91,10 @@ var tests = [
     function (assert, finished) {
       var self = this;
       var msg = { data: { zonename: testZoneName
-                        , lightweight_processes: 5000 } };
+                        , zfs_io_priority: 50 } };
 
       function onResize(reply) {
-        var resource = 'zone.max-lwps';
+        var resource = 'zone.zfs-io-priority';
         assert.ok(!reply.error);
         if (reply.error) finished();
 
@@ -79,8 +105,8 @@ var tests = [
           , function (error, zone) {
               assert.equal
                 ( zone[2]
-                , 5000
-                , "lightweight_processes value should've been set"
+                , 50
+                , "zfs_io_priority value should've been set"
                 );
 
               // check that the configuarion has been recorded in zonecfg
@@ -90,8 +116,8 @@ var tests = [
                 , function (error, value) {
                     assert.equal
                       ( value
-                      , 5000
-                      , "zonecfg should report the right value for lwps"
+                      , 50
+                      , "zfs_io_priority should report the right value. was " + value
                       );
                     finished();
                   }

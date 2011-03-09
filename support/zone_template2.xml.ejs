@@ -24,6 +24,9 @@
   <rctl name="zone.max-locked-memory">
     <rctl-value priv="privileged" limit="<%= ram_in_bytes %>" action="deny"/>
   </rctl>
+  <rctl name="zone.zfs-io-priority">
+    <rctl-value priv="privileged" limit="<%= zfs_io_priority %>" action="none"/>
+  </rctl>
   <mcap physcap="<%= ram_in_bytes %>"/>
 
   <% if (public_ip) { %>
