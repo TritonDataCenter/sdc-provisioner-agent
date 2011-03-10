@@ -1,7 +1,7 @@
 {
   "name": "provisioner",
   "description": "Joyent Zone Provisioning Agent",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "homepage": "https://hub.joyent.com/wiki/display/dev/Provisioner+Agent",
   "author": "Joyent (joyent.com)",
   "main": "lib/provisioner",
