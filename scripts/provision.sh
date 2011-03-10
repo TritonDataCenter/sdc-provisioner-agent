@@ -144,6 +144,13 @@ fi
 # touch log file path so we can start tailing immediately
 cat /dev/null > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
 
+# Remove once zoneinit does this for us
+cat > ${ZONE_ROOT}/root/zoneinit.d/01-reboot-file.sh <<EOF
+if [[ ! -f /tmp/.FIRST_REBOOT_NOT_YET_COMPLETE ]]; then
+    touch /tmp/.FIRST_REBOOT_NOT_YET_COMPLETE
+fi
+EOF
+
 # 12. boot
 
 /usr/sbin/zoneadm -z $ZONENAME boot
