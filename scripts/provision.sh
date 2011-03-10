@@ -10,6 +10,8 @@ set -e
 set -o xtrace
 
 PATH=/usr/bin:/sbin:/usr/sbin
+DIR=`dirname $0`
+
 export PATH
 
 # Load env vars from sysinfo with SYSINFO_ prefix or use test values if we are
@@ -61,10 +63,6 @@ else
   zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
 fi
 
-# Set customer-related properties on the ZFS dataset
-DIR=`dirname $0`
-source $DIR/zone_properties.sh
-
 # 8. write to /etc/nodename
 
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
@@ -105,6 +103,9 @@ then
   /usr/sbin/dladm set-linkprop -p "protection=ip-nospoof,mac-nospoof,restricted,dhcp-nospoof" ${PUBLIC_INTERFACE}
   /usr/sbin/dladm set-linkprop -p "allowed-ips=${PUBLIC_IP}" ${PUBLIC_INTERFACE}
 fi
+
+# Add zone metadata
+source $DIR/zone_properties.sh
 
 if [ ! -z "$PRIVATE_IP" ];
 then
@@ -150,6 +151,13 @@ fi
 
 # touch log file path so we can start tailing immediately
 cat /dev/null > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
+
+# Remove once zoneinit does this for us
+cat > ${ZONE_ROOT}/root/zoneinit.d/01-reboot-file.sh <<EOF
+if [[ ! -f /tmp/.FIRST_REBOOT_NOT_YET_COMPLETE ]]; then
+    touch /tmp/.FIRST_REBOOT_NOT_YET_COMPLETE
+fi
+EOF
 
 # 12. boot
 

@@ -60,6 +60,8 @@ exports.provisionRequest = function (vars) {
                  , 'tmpfs': '200m'
                  , 'template_version': '4.2.0'
                  , 'authorized_keys': fakekeys.keys.mastershake
+                 , 'networks': []
+                 , 'no_networks': true
                  };
 
   var keys = Object.keys(defaults);
@@ -320,4 +322,29 @@ exports.setupSuiteAgentHandle = function (suite, callback) {
   })
 
   callback && callback();
+}
+
+exports.zoneAttrs = function (zone, callback) {
+  var attrs = {};
+  var filename = '/etc/zones/' + zone + '.xml';
+  fs.readFile(filename, 'utf8', function (error, data) {
+    if (error)
+      return callback(error);
+
+    console.log(data);
+    data = data || '';
+    var lines = data.split("\n");
+    var i = lines.length;
+
+    while (i--) {
+      var line = lines.shift();
+      if (line.match(/<attr/)) {
+        var name = line.match(/name="([^"]*)"/)[1];
+        var value = line.match(/value="([^"]*)"/)[1];
+        attrs[name] = value;
+      }
+    }
+    console.dir(attrs);
+    callback(null, attrs);
+  });
 }

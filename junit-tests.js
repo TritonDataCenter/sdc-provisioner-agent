@@ -3,22 +3,20 @@ puts = sys.puts;
 inspect = sys.inspect;
 path = require('path');
 
-path = require('path');
-require.paths.unshift(path.join(__dirname, 'node_modules'));
-
 AsyncTest = require('./async-testing/async_testing');
 formatSuite = require('./async-testing-junit').convertSuiteToJUnit;
 
 var outputDirectory = "tests/results";
-var suiteFiles = [ './tests/test-activate-deactivate-zone'
-                 , './tests/test-provision-zone'
-                 , './tests/test-provision-timeout'
-                 , './tests/test-reboot-zone'
-                 , './tests/test-resize-zone'
-                 , './tests/test-duplicate-zone-name'
-                 , './tests/test-zone-properties'
-                 , './tests/test-concurrent-provisioning'
-                 ];
+var suiteFiles
+  = [ './tests/test-activate-deactivate-zone'
+    , './tests/test-provision-zone'
+    , './tests/test-provision-timeout'
+    , './tests/test-reboot-zone'
+    , './tests/test-resize-zone'
+    , './tests/test-duplicate-zone-name'
+    , './tests/test-zone-properties'
+    , './tests/test-concurrent-provisioning'
+    ];
 
 var suites = {};
 

@@ -23,16 +23,5 @@ subfile () {
       $IN > $OUT
 }
 
-PROVISIONER_STATUS=`svcs -H provisioner | awk '{ print $1 }'`
-
-echo "Provisioner status was $PROVISIONER_STATUS"
-
-# Gracefully restart the agent if it is online.
-if [ "$PROVISIONER_STATUS" = 'online' ]; then
-  svcadm restart provisioner
-else
-  svcadm enable provisioner
-fi
-
 subfile "$DIR/../etc/provisioner.xml.in" "$SMF_DIR/provisioner.xml"
 svccfg import $SMF_DIR/provisioner.xml

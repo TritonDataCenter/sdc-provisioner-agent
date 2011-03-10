@@ -65,3 +65,8 @@ fi
 if [ ! -z "$DISK_IN_GIGABYTES" ]; then
   /usr/sbin/zfs set quota="$DISK_IN_GIGABYTES" "$ZPOOL_NAME/$ZONENAME"
 fi
+
+# zfs io priority
+if [ ! -z "$ZFS_IO_PRIORITY" ]; then
+  set_resource_control $ZONENAME zone.zfs-io-priority $ZFS_IO_PRIORITY none
+fi

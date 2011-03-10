@@ -2,12 +2,10 @@
 
 // Joyent Provisioner: The Zone Provisioning Agent
 
-path = require('path');
-require.paths.unshift(path.join(__dirname, 'node_modules'));
-
-ini = require('./lib/ini');
-ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
-
+var path = require('path')
+  , fs = require('fs')
+  , ini = require('./lib/ini')
+  , ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
 /**
  * readConfig
