@@ -9,8 +9,8 @@ then
 fi
 
 # deactivate
-/usr/sbin/zoneadm -z "$ZONENAME" halt
-/usr/sbin/zonecfg -z "$ZONENAME" set autoboot=false
+# /usr/sbin/zoneadm -z "$ZONENAME" halt
+# /usr/sbin/zonecfg -z "$ZONENAME" set autoboot=false
 
 # destroy
 /usr/sbin/zoneadm -z "$ZONENAME" uninstall -F
