@@ -16,6 +16,4 @@ fi
 /usr/sbin/zoneadm -z "$ZONENAME" uninstall -F
 /usr/sbin/zonecfg -z "$ZONENAME" delete -F
 
-/usr/sbin/zfs destroy -rf "zones/$ZONENAME"
-
 exit 0

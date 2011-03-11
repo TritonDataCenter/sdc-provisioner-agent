@@ -109,6 +109,7 @@ exports.provisionZone = function (agent, data, callback) {
         , ['list', '-p']
         , function (error, stdout, stderr) {
           if (error) throw error;
+          console.log(stdout);
 
           var lines = stdout.split("\n");
           assert.ok(
@@ -308,7 +309,7 @@ exports.setupSuiteAgentHandle = function (suite, callback) {
         );
     }
     else {
-      var config = { timeout: 40000, reconnect: false };
+      var config = { timeout: 120000, reconnect: false };
       self.client = store.client = new ProvisionerClient(config);
       self.client.connect(function () {
         self.client.getAgentHandle(uuid, 'provisioner', getAgentHandleCallback);
