@@ -42,7 +42,7 @@ connection.addListener('ready', function () {
       ( queuenames
       , function (queuename, callback) {
           console.log("Going to delete queue: " + queuename); 
-          var queue = connection.queue(queuename);
+          var queue = connection.queue(queuename, { autoDelete: false, durable: true });
           queue.addListener("open", function () {
             console.log("Destroying " + queuename);
             queue.destroy();
