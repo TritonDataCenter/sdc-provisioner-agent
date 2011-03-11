@@ -116,7 +116,7 @@ exports.provisionZone = function (agent, data, callback) {
             lines.some(function (line) {
               var parts = line.split(':');
               return parts[1] === data.zonename
-              && parts[2] === 'running';
+              && ['running', 'ready'].indexOf(parts[2]) !== -1;
             })
             , "our zone should be in the list");
 

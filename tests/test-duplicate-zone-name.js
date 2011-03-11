@@ -34,7 +34,6 @@ var tests = [
       var self = this;
       var data = common.provisionRequest();
       provisionZone(self.agent, data, function (error) {
-        puts(inspect(arguments));
         if (error) {
           assert.ok(!error, "Expected no errors but found: " + error.toString());
         }
@@ -49,7 +48,6 @@ var tests = [
       provisionZone(self.agent, data, function (error) {
         assert.ok
           (error, "It should be an error to have a duplicate zone name");
-        puts(inspect(arguments));
         finished();
       });
     }
