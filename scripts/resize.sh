@@ -9,6 +9,19 @@ if [ -z "$ZONENAME" ]; then
   exit 1
 fi
 
+set_memory_cap() {
+  ZONENAME=$1
+  VALUE=$2
+
+  # write the change out to the zone xml file
+  /usr/sbin/zonecfg -z "$ZONENAME" << __EOF__
+  select capped-memory
+  set physical=$VALUE
+  end
+  commit
+__EOF__
+}
+
 set_resource_control() {
   ZONENAME=$1
   RESOURCE=$2
@@ -38,6 +51,7 @@ __EOF__
 if [ ! -z "$RAM_IN_BYTES" ]; then
   /usr/sbin/rcapadm -z "$ZONENAME" -m "$RAM_IN_BYTES"
 
+  set_memory_cap $ZONENAME $RAM_IN_BYTES
   set_resource_control $ZONENAME zone.max-locked-memory $RAM_IN_BYTES
 fi
 
