@@ -11,7 +11,8 @@ load_sdc_sysinfo
 
 export AMQP_USE_SYSTEM_CONFIG=1
 export SERVER_UUID=$SYSINFO_UUID
-export TEST_DATASET=$(zfs list | grep smartos- | awk '{ print $1 }' | cut -d/ -f2)
+export DATASET_NAME=smartos-
+export TEST_DATASET=$(zfs list | grep "$DATASET_NAME" | awk '{ print $1 }' | cut -d/ -f2)
 
 ./local/bin/node provisioner-agent.js &
 sleep 5

@@ -39,6 +39,31 @@ var tests = [
       });
     }
   }
+, { "provision zone using name of zone that already exists":
+    function (assert, finished) {
+      var self = this;
+      var data = common.provisionRequest();
+      provisionZone(self.agent, data, function (error) {
+        console.log(error.toString());
+        finished();
+      });
+    }
+  }
+, { "provision zone using template that doesn't exist in assets":
+    function (assert, finished) {
+      var self = this;
+      var data
+        = common.provisionRequest
+            ( { zonename: "slappy"
+              , zone_template: 'idontexist-4.2.0'
+              }
+            );
+      provisionZone(self.agent, data, function (error) {
+        assert.ok(error, "Expected error yet found none");
+        finished();
+      });
+    }
+  }
 , { 'Test tearing down one zone':
     function (assert, finished) {
       var self = this;
