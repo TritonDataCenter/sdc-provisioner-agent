@@ -101,18 +101,6 @@ cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
 $ZONECONFIG
 __EOF__
 
-ADMIN_HOME="$ZONE_ROOT/home/$ADMIN_USER"
-ADMIN_PERMS=$(ls -l -d "${ADMIN_HOME}/.ssh" | awk '{ print $3 ":" $4 }')
-
-if [ ! -z "$AUTHORIZED_KEYS" ]
-then
-  cat << __EOF__ | cat >> "$ADMIN_HOME/.ssh/authorized_keys"
-$AUTHORIZED_KEYS
-__EOF__
-
-  chown $ADMIN_PERMS "$ADMIN_HOME/.ssh/authorized_keys"
-fi
-
 # touch log file path so we can start tailing immediately
 cat /dev/null > $ZONE_ROOT/var/svc/log/system-zoneinit:default.log
 

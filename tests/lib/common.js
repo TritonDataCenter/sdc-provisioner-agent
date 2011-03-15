@@ -59,7 +59,6 @@ exports.provisionRequest = function (vars) {
                  , 'disk_in_gigabytes': 2
                  , 'tmpfs': '200m'
                  , 'template_version': '4.2.0'
-                 , 'authorized_keys': fakekeys.keys.mastershake
                  , 'networks': []
                  , 'no_networks': true
                  };
@@ -86,11 +85,6 @@ exports.provisionZone = function (agent, data, callback) {
 
     var zone_event = eventRE.exec(msg._routingKey);
 
-    var authorizedKeysPath = path.join(
-      "/zones/"
-      , zone_event[3]
-      , '/root/home/'+admin_user+'/.ssh/authorized_keys'
-    );
 
     if (zone_event[1] == 'error') {
       return callback(new Error(msg.error));
@@ -98,12 +92,6 @@ exports.provisionZone = function (agent, data, callback) {
 
     if (zone_event[1] == "zone_ready") {
       console.log("Zone was ready in " + (Date.now() - times[zone_event[3]]) + "ms");
-
-      fs.readFile(authorizedKeysPath, 'utf8', function (error, str) {
-        assert.ok(!error, "Error reading authorized_keys file: "+error);
-        assert.ok(str.indexOf(data.authorized_keys) !== -1
-        , "We should have found our key in the authorized keys file");
-      });
 
       execFile('/usr/sbin/zoneadm'
         , ['list', '-p']
