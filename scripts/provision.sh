@@ -14,65 +14,42 @@ DIR=`dirname $0`
 
 export PATH
 
-# Load env vars from sysinfo with SYSINFO_ prefix or use test values if we are
-# passed the NO_SYSINFO env variable.
-if [ ! -z "$NO_SYSINFO" ]; then
-    PUBLIC_LINK=e1000g0
-    PRIVATE_LINK=e1000g2
-else
-    source /lib/sdc/config.sh
-    load_sdc_sysinfo
-fi
+source /lib/sdc/config.sh
+load_sdc_sysinfo
 
 ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
-# --- node
-# 0. recv amqp provision command
-# 1. Write /etc/zones/zonename.xml
-
-# check if dataset exists
+# Check if dataset exists.
 if zfs list "$ZPOOL_NAME/$ZONENAME" 2>/dev/null 1>&2; then
   echo "Dataset for $ZONENAME exists." >&2;
   exit 1
 fi
 
+# Check if snapshot exists.
 if zfs list "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" 2>/dev/null 1>&2; then
   echo "Snapshot for $ZONENAME exists." >&2;
   exit 1
 fi
 
-if [ $BASEOS_VERS -lt 147 -o ! -z "$NO_SYSINFO" ]; then
-  # pre b147 systems
-  #   2. Append to /etc/zones/index
-  echo "$ZONENAME:installed:$ZPOOL_PATH/$ZONENAME:$UUID" >> /etc/zones/index
+# Instatiate the zone from its XML manifest file.
+zonecfg -z $ZONENAME create -X
 
-  #   3. zfs snapshot template_dataset
-  #   4. zfs clone
-  #   5. zfs set quota
-  zfs snapshot "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME"
-  zfs clone "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" "$ZPOOL_NAME/$ZONENAME"
-  zfs set "quota=${DISK_IN_GIGABYTES}g" "$ZPOOL_NAME/$ZONENAME"
-else
-  #   2. Append to /etc/zones/index
-  zonecfg -z $ZONENAME create -X
-
-  # b147 & later; install the zone now.
-  if [ ! -z "$UUID" ]; then
-    UUID_PARAM="-U $UUID"
-  fi
-  zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
+if [ ! -z "$UUID" ]; then
+  UUID_PARAM="-U $UUID"
 fi
 
-# 8. write to /etc/nodename
+# Install the zone now.
+zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
 
+# Set the hostname.
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
 if [ ! -z "$PUBLIC_IP" ];
 then
   eval "PUBLIC_LINK=\${SYSINFO_NIC_${PUBLIC_NIC}}"
   if [ -z "$PUBLIC_LINK" ] ; then
-      echo "Public IP requested, but nic \"${PUBLIC_NIC}\" does not exist in sysinfo." >&2;
-      exit 1
+    echo "Public IP requested, but nic \"${PUBLIC_NIC}\" does not exist in sysinfo." >&2;
+    exit 1
   fi
 fi
 
@@ -81,8 +58,8 @@ then
   eval "PRIVATE_LINK=\${SYSINFO_NIC_${PRIVATE_NIC}}"
   echo "PRIVATE_LINK=${PRIVATE_LINK}"
   if [ -z "$PRIVATE_LINK" ] ; then
-      echo "Public IP requested, but nic \"${PRIVATE_NIC}\" does not exist in sysinfo." >&2;
-      exit 1
+    echo "Public IP requested, but nic \"${PRIVATE_NIC}\" does not exist in sysinfo." >&2;
+    exit 1
   fi
 fi
 
@@ -100,8 +77,6 @@ then
   echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
 fi
 
-# Add zone metadata
-source $DIR/zone_properties.sh
 
 if [ ! -z "$PRIVATE_IP" ];
 then
@@ -115,16 +90,13 @@ then
   echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
 fi
 
-# 9. append to /etc/hostname.zonename
-
 if [ ! -z "$DEFAULT_GATEWAY" ];
 then
   echo "$DEFAULT_GATEWAY" > $ZONE_ROOT/etc/defaultrouter
 fi
 
-# 10. append to /etc/defaultrouter
-# 11. write /root/zoneconfig
-
+# Write the config settings to zoneconfig where the zone will be able to read
+# them.
 cat << __EOF__ | cat > $ZONE_ROOT/root/zoneconfig
 $ZONECONFIG
 __EOF__
@@ -151,10 +123,7 @@ if [[ ! -f /tmp/.FIRST_REBOOT_NOT_YET_COMPLETE ]]; then
 fi
 EOF
 
-# 12. boot
+# Add zone metadata
+source $DIR/zone_properties.sh
 
 /usr/sbin/zoneadm -z $ZONENAME boot
-
-# --- node
-# 13. tail log file /var/log/zoneinit.log for success symbol
-# 14. ack success to amqp
