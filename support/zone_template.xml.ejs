@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE zone PUBLIC "-//Sun Microsystems Inc//DTD Zones//EN" "file:///usr/share/lib/xml/dtd/zonecfg.dtd.1">
 
-<zone name="<%= zonename %>" zonepath="<%= zpool_path %>/<%= zonename %>" autoboot="true" scheduling-class="FSS" limitpriv="default,dtrace_proc,dtrace_user" ip-type="exclusive">
+<zone name="<%= zonename %>" zonepath="<%= zpool_path %>/<%= zonename %>" autoboot="true" brand="joyent" limitpriv="default,dtrace_proc,dtrace_user" ip-type="exclusive">
 
-  <inherited-pkg-dir directory="/lib"/>
-  <inherited-pkg-dir directory="/platform"/>
-  <inherited-pkg-dir directory="/sbin"/>
-  <inherited-pkg-dir directory="/usr"/>
   <% for (var i=0; i < inherited_directories.length; i++) { %>
-  <inherited-pkg-dir directory="<%= inherited_directories[i] %>"/>
+  <filesystem special="<%= inherited_directories[i] %>" directory="<%= inherited_directories[i] %>" type="lofs">
+    <fsoption name="ro"/>
+  </filesystem>
   <% } %>
 
   <rctl name="zone.cpu-shares">
@@ -25,6 +23,9 @@
   </rctl>
   <rctl name="zone.max-locked-memory">
     <rctl-value priv="privileged" limit="<%= ram_in_bytes %>" action="deny"/>
+  </rctl>
+  <rctl name="zone.zfs-io-priority">
+    <rctl-value priv="privileged" limit="<%= zfs_io_priority %>" action="none"/>
   </rctl>
   <mcap physcap="<%= ram_in_bytes %>"/>
 

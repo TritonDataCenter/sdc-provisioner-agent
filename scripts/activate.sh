@@ -6,6 +6,9 @@ then
   exit 1
 fi
 
+# Remove attr if it exists already.
+zonecfg -z "$ZONENAME" "remove attr name=deleted-at; commit" || true
+
 # activate
 /usr/sbin/zonecfg -z "$ZONENAME" set autoboot=true
 /usr/sbin/zoneadm -z "$ZONENAME" boot
