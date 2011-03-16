@@ -14,9 +14,6 @@ DIR=`dirname $0`
 
 export PATH
 
-source /lib/sdc/config.sh
-load_sdc_sysinfo
-
 ZONE_ROOT=/$ZPOOL_NAME/$ZONENAME/root
 
 # Check if dataset exists.
@@ -44,52 +41,33 @@ zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_P
 # Set the hostname.
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
 
-if [ ! -z "$PUBLIC_IP" ];
-then
-  eval "PUBLIC_LINK=\${SYSINFO_NIC_${PUBLIC_NIC}}"
-  if [ -z "$PUBLIC_LINK" ] ; then
-    echo "Public IP requested, but nic \"${PUBLIC_NIC}\" does not exist in sysinfo." >&2;
-    exit 1
+# Add and configure vnics
+count=0
+while [ $count -lt 32 ]; do
+  echo count=$count
+  eval "IP=\${NET${count}_IP}"
+  if [ -z "${IP}" ]; then
+    break
   fi
-fi
+  eval "NIC=\${NET${count}_NIC} \
+  BLOCKED_OUTGOING_PORTS=\$NET${count}_BLOCKED_OUTGOING_PORTS \
+  INTERFACE=\${NET${count}_INTERFACE} \
+  MAC=\${NET${count}_MAC} \
+  VLAN_ID=\${NET${count}_VLAN_ID} \
+  ZONENAME=\${ZONENAME} \
+  NETMASK=\${NET${count}_NETMASK} \
+  IP=\${NET${count}_IP} \
+  ZONE_ROOT=${ZONE_ROOT} \
+    ${DIR}/add_vnic.sh"
+  ((count++)) || true
+done
 
-if [ ! -z "$PRIVATE_IP" ];
-then
-  eval "PRIVATE_LINK=\${SYSINFO_NIC_${PRIVATE_NIC}}"
-  echo "PRIVATE_LINK=${PRIVATE_LINK}"
-  if [ -z "$PRIVATE_LINK" ] ; then
-    echo "Public IP requested, but nic \"${PRIVATE_NIC}\" does not exist in sysinfo." >&2;
-    exit 1
-  fi
-fi
-
-# network
-
-if [ ! -z "$PUBLIC_IP" ];
-then
-  PUBLIC_BLOCKED_PORTS_OPT=""
-  if [ ! -z "$PUBLIC_BLOCKED_OUTGOING_PORTS" ] ; then
-    PUBLIC_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PUBLIC_BLOCKED_OUTGOING_PORTS\");"
-  fi
-  # Set the network settings
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PUBLIC_INTERFACE}; set mac-addr=${PUBLIC_MAC}; set vlan-id=${PUBLIC_VLAN_ID}; set global-nic=${PUBLIC_NIC}; ${PUBLIC_BLOCKED_PORTS_OPT} end; exit"
-
-  echo "$PUBLIC_IP netmask $PUBLIC_NETMASK up" > $ZONE_ROOT/etc/hostname.${PUBLIC_INTERFACE}
+if [ $count -eq 0 ]; then
+  echo "Warning: creating zone with no networking"
 fi
 
 
-if [ ! -z "$PRIVATE_IP" ];
-then
-  PRIVATE_BLOCKED_PORTS_OPT=""
-  if [ ! -z "$PRIVATE_BLOCKED_OUTGOING_PORTS" ] ; then
-    PRIVATE_BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$PRIVATE_BLOCKED_OUTGOING_PORTS\");"
-  fi
-  # Set the network settings
-  /usr/sbin/zonecfg -z $ZONENAME "select net physical=${PRIVATE_INTERFACE}; set mac-addr=${PRIVATE_MAC}; set vlan-id=${PRIVATE_VLAN_ID}; set global-nic=${PRIVATE_NIC}; ${PRIVATE_BLOCKED_PORTS_OPT} end; exit"
-
-  echo "$PRIVATE_IP netmask $PRIVATE_NETMASK up" > $ZONE_ROOT/etc/hostname.${PRIVATE_INTERFACE}
-fi
-
+# Write the default gateway
 if [ ! -z "$DEFAULT_GATEWAY" ];
 then
   echo "$DEFAULT_GATEWAY" > $ZONE_ROOT/etc/defaultrouter

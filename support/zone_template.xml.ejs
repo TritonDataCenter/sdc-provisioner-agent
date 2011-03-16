@@ -29,11 +29,4 @@
   </rctl>
   <mcap physcap="<%= ram_in_bytes %>"/>
 
-  <% if (public_ip) { %>
-    <network physical="<%= public_interface %>"/>
-  <% } %>
-
-  <% if (private_ip) { %>
-    <network physical="<%= private_interface %>"/>
-  <% } %>
 </zone>
