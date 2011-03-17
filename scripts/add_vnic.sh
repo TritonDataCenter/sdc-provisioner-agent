@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# This script is responsible for the zone configuration that needs to happen
-# at the global zone level. The provisioner agent sets up the zone's xml
-# file and then calls this script. At that point, the provisiner agent will
-# continue handling AMQP requests, while this script "runs in the background"
-# and eventually boots the new zone.
+# This script adds a vnic to the given zone
 
 set -e
 set -o xtrace
