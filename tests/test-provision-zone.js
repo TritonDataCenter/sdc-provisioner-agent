@@ -56,6 +56,7 @@ var tests = [
         = common.provisionRequest
             ( { zonename: "slappy"
               , zone_template: 'idontexist-4.2.0'
+              , dataset_url_path: "foo.zfs.bz2"
               }
             );
       provisionZone(self.agent, data, function (error) {

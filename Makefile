@@ -14,7 +14,7 @@ NODE_PREFIX=$(shell pwd)/local
 NODE_PATH=$(shell pwd)/local/bin/node
 NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 
-all: $(PKGFILE)
+all: npm
 
 NPM_FILES =                      \
 	    etc                  \
@@ -25,6 +25,8 @@ NPM_FILES =                      \
 	    provisioner-agent.js \
 	    scripts              \
 	    support              \
+
+AGENTS_NPM=/opt/smartdc/agents/bin/agents-npm
 
 TARBALL=$(NAME).tgz
 npm: $(TARBALL)
@@ -44,6 +46,9 @@ $(TARBALL): Makefile .npm $(NODE_PATH) $(NPM_FILES)
 	cd node && CC=gcc gmake install
 	cp -Pr $(NPM_FILES) $(NODE_PREFIX) .npm/$(NAME)/
 	cd .npm && gtar zcvf ../$(TARBALL) $(NAME)
+
+install:
+	$(AGENTS_NPM) install ./provisioner.tgz
 
 .npm:
 	mkdir -p $(NODE_PREFIX)
