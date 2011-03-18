@@ -16,4 +16,4 @@ fi
 
 # deactivate
 zonecfg -z "$ZONENAME" set autoboot=false
-zoneadm -z "$ZONENAME" halt
+zoneadm -z "$ZONENAME" halt -X

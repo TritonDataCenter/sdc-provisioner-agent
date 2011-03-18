@@ -104,4 +104,4 @@ EOF
 # Add zone metadata
 source $DIR/zone_properties.sh
 
-/usr/sbin/zoneadm -z $ZONENAME boot
+/usr/sbin/zoneadm -z $ZONENAME boot -X

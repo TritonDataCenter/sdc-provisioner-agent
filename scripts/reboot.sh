@@ -7,4 +7,4 @@ then
 fi
 
 # reboot
-/usr/sbin/zoneadm -z "$ZONENAME" reboot
+/usr/sbin/zoneadm -z "$ZONENAME" reboot -X
