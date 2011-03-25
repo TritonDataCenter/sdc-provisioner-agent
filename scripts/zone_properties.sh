@@ -9,7 +9,7 @@ zone_property() {
   PROP_VALUE=$2
   
   # Remove attr if it exists already.
-  zonecfg -z "$ZONENAME" "remove attr name=${PROP_NAME}; commit"  || true
+  zonecfg -z "$ZONENAME" "remove attr name=${PROP_NAME}; commit" >/dev/null 2>&1 || true
 
   # Add or re-add attr
   zonecfg -z "$ZONENAME" "add attr; set name=\"${PROP_NAME}\"; set type=string; set value=\"${PROP_VALUE}\"; end; commit"

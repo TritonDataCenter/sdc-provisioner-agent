@@ -9,13 +9,11 @@ then
 fi
 
 # deactivate
-/usr/sbin/zoneadm -z "$ZONENAME" halt
+/usr/sbin/zoneadm -z "$ZONENAME" halt -X
 /usr/sbin/zonecfg -z "$ZONENAME" set autoboot=false
 
 # destroy
 /usr/sbin/zoneadm -z "$ZONENAME" uninstall -F
 /usr/sbin/zonecfg -z "$ZONENAME" delete -F
-
-/usr/sbin/zfs destroy -rf "zones/$ZONENAME"
 
 exit 0

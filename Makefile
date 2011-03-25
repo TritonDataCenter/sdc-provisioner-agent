@@ -10,12 +10,11 @@ ifeq ($(VERSION), "")
 	@echo "Use gmake"
 endif
 
-PKGFILE=$(PKG)-$(VERSION).pkg
 NODE_PREFIX=$(shell pwd)/local
 NODE_PATH=$(shell pwd)/local/bin/node
 NODE_WAF=$(NODE_PREFIX)/bin/node-waf
 
-all: $(PKGFILE)
+all: npm
 
 NPM_FILES =                      \
 	    etc                  \
@@ -26,6 +25,8 @@ NPM_FILES =                      \
 	    provisioner-agent.js \
 	    scripts              \
 	    support              \
+
+AGENTS_NPM=/opt/smartdc/agents/bin/agents-npm
 
 TARBALL=$(NAME).tgz
 npm: $(TARBALL)
@@ -46,44 +47,18 @@ $(TARBALL): Makefile .npm $(NODE_PATH) $(NPM_FILES)
 	cp -Pr $(NPM_FILES) $(NODE_PREFIX) .npm/$(NAME)/
 	cd .npm && gtar zcvf ../$(TARBALL) $(NAME)
 
+install:
+	$(AGENTS_NPM) install ./provisioner.tgz
+
 .npm:
 	mkdir -p $(NODE_PREFIX)
 
-prototype:
-	./build/update_node_modules_prototype.sh
-
-$(PKGFILE): Makefile .pkg/provisioner.xml .pkg/pkginfo $(NODE_PATH) build/ provisioner-agent.js prototype
-	pkgmk -o -d /tmp -f build/prototype
-	touch $(PKGFILE)
-	pkgtrans -s /tmp $(PKGFILE) $(PKG)
-	rm -r /tmp/$(PKG)
-	@echo
-	@echo
-	@echo Now install the package: sudo pkgadd -G -d ./$(PKGFILE) all
-	@echo
-	@echo
-
-.pkg:
-	mkdir .pkg
-
-.pkg/provisioner.xml: .pkg build/provisioner.xml.in
-	gsed -e "s#@@BASEDIR@@#$(BASEDIR)#g" \
-		-e "s/@@VERSION@@/$(VERSION)/g" \
-		build/provisioner.xml.in > .pkg/provisioner.xml
-
-.pkg/pkginfo: .pkg build/pkginfo.in
-	gsed -e "s#@@BASEDIR@@#$(BASEDIR)#g" \
-		-e "s/@@VERSION@@/$(VERSION)/" \
-		build/pkginfo.in > .pkg/pkginfo
-
 distclean:
 	-cd node; make distclean
-	-rm -rf .pkg/ .npm/ $(TARBALL)
-	-rm $(PKG)-*.pkg
+	-rm -rf .npm/ $(TARBALL)
 
 clean:
-	-rm -rf .pkg/ .npm/ $(TARBALL)
-	-rm $(PKG)-*.pkg
+	-rm -rf  .npm/ $(TARBALL)
 
 # Test-related targets
 

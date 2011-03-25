@@ -32,34 +32,6 @@ function readConfig(cfgPath, callback) {
 
 
 /**
- * _getvers
- *
- * @param {Function} callback Document me!
- */
-
-_getvers = function (callback) {
-  var baseOS = "snv";
-  var baseOS_vers = 121;
-
-  execFile
-    ( '/bin/uname'
-    , ['-v']
-    , []
-    , function (error, stdout, stderr) {
-        if (stdout) {
-          var v = stdout.toString().trim().split("_");
-          if (v.length == 2) {
-            baseOS = v[0];
-            baseOS_vers = v[1].replace(/\D+$/, '');
-            baseOS_vers = baseOS_vers.replace(/T.*$/, '');
-          }
-        }
-        callback(baseOS, baseOS_vers);
-      });
-}
-
-
-/**
  * main
  */
 
@@ -75,7 +47,11 @@ function main() {
     var signal = 'SIGWINCH';
 
     process.on(signal, function () {
-      console.log("Received "+signal+". Attempting to stop processing requests and shut down.");
+      console.log
+        ( "Received "
+          + signal
+          + ". Attempting to stop processing requests and shut down."
+        );
       agent.stopShifting();
 
       // Wait until agent indicates it is done.
@@ -92,19 +68,13 @@ function main() {
       }, 1000);
     });
 
-    _getvers(function (baseOS, baseOS_vers) {
-      agent.baseOS = baseOS;
-      agent.baseOS_vers = baseOS_vers;
-      agent.zone_template_path = path.join(__dirname, 'support',
-        (agent.baseOS_vers < 147) ?
-          'zone_template.xml.ejs' :
-          'zone_template2.xml.ejs');
+    agent.zone_template_path
+      = path.join(__dirname, 'support', 'zone_template.xml.ejs');
 
-      agent.configureAMQP(function () {
-        agent.connect(function () {
-          agent.setupProvisionQueue();
-          console.log("Ready to rock.");
-        });
+    agent.configureAMQP(function () {
+      agent.connect(function () {
+        agent.setupProvisionQueue();
+        console.log("Ready to rock.");
       });
     });
   });
