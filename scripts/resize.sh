@@ -51,8 +51,8 @@ __EOF__
 if [ ! -z "$RAM_IN_BYTES" ]; then
   /usr/sbin/rcapadm -z "$ZONENAME" -m "$RAM_IN_BYTES"
 
-  set_memory_cap $ZONENAME $RAM_IN_BYTES
   set_resource_control $ZONENAME zone.max-locked-memory $RAM_IN_BYTES
+  set_memory_cap $ZONENAME $RAM_IN_BYTES
 fi
 
 # swap
