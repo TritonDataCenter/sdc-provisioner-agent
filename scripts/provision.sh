@@ -23,7 +23,7 @@ if zfs list "$ZPOOL_NAME/$ZONENAME" 2>/dev/null 1>&2; then
 fi
 
 # Check if snapshot exists.
-if zfs list "$ZPOOL_NAME/$ZONE_TEMPLATE@$ZONENAME" 2>/dev/null 1>&2; then
+if zfs list "$ZPOOL_NAME/$DATSET_UUID@$ZONENAME" 2>/dev/null 1>&2; then
   echo "Snapshot for $ZONENAME exists." >&2;
   exit 1
 fi
@@ -36,7 +36,7 @@ if [ ! -z "$UUID" ]; then
 fi
 
 # Install the zone now.
-zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${ZONE_TEMPLATE} $UUID_PARAM
+zoneadm -z $ZONENAME install -q ${DISK_IN_GIGABYTES} -t ${DATASET_UUID} $UUID_PARAM
 
 # Set the hostname.
 echo "$HOSTNAME" > "$ZONE_ROOT/etc/nodename"
