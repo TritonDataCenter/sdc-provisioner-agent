@@ -5,6 +5,7 @@
 var path = require('path')
   , fs = require('fs')
   , ini = require('./lib/ini')
+  , async = require('async')
   , ProvisionerAgent = require('./lib/provisioner').ProvisionerAgent;
 
 /**
@@ -30,7 +31,6 @@ function readConfig(cfgPath, callback) {
   });
 }
 
-
 /**
  * main
  */
@@ -42,42 +42,91 @@ function main() {
     configFilename = process.env.PROVISIONER_CONFIG;
   }
 
-  readConfig(configFilename, function (config) {
-    var agent = new ProvisionerAgent(config);
-    var signal = 'SIGWINCH';
+  var agent;
+  var signal = 'SIGWINCH';
+  var config;
 
-    process.on(signal, function () {
-      console.log
-        ( "Received "
-          + signal
-          + ". Attempting to stop processing requests and shut down."
-        );
-      agent.stopShifting();
-
-      // Wait until agent indicates it is done.
-      var interval = setInterval(function () {
-        if (agent.isDone()) {
-          clearInterval(interval);
-          agent.end();
-          console.log("All done...");
-          return;
+  async.waterfall
+    ( [ function (callback) {
+          readConfig(configFilename, function (c) {
+            config = c;
+            callback();
+          });
         }
-        else {
-          console.log("Agent not yet done");
+      , function (callback) {
+          if (!config.max_concurrent_provisions) {
+            console.log("Maximum concurrent provisions not specified");
+            getProcessorCount(function (error, nprocs) {
+              console.log("Defaulting to number of processors: " + nprocs);
+              config.max_concurrent_provisions = nprocs;
+              callback();
+            });
+          }
+          else {
+            console.log
+              ( "Maximum concurrent provisions: "
+                + config.max_concurrent_provisions);
+            callback();
+          }
         }
-      }, 1000);
-    });
+      , function (callback) {
+          agent = new ProvisionerAgent(config);
+          callback();
+        }
+      , function (callback) {
+          process.on(signal, function () {
+            console.log
+              ( "Received "
+                + signal
+                + ". Attempting to stop processing requests and shut down."
+              );
+            agent.stopShifting();
 
-    agent.zone_template_path
-      = path.join(__dirname, 'support', 'zone_template.xml.ejs');
+            // Wait until agent indicates it is done.
+            var interval = setInterval(function () {
+              if (agent.isDone()) {
+                clearInterval(interval);
+                agent.end();
+                console.log("All done...");
+                return;
+              }
+              else {
+                console.log("Agent not yet done");
+              }
+            }, 1000);
+          });
 
-    agent.configureAMQP(function () {
-      agent.connect(function () {
-        agent.setupProvisionQueue();
-        console.log("Ready to rock.");
-      });
-    });
-  });
+          agent.zone_template_path
+            = path.join(__dirname, 'support', 'zone_template.xml.ejs');
+          callback();
+        }
+      , function (callback) {
+          agent.configureAMQP(function () {
+            callback();
+          });
+        }
+      ]
+    , function (error) {
+        if (error) throw error;
+        agent.connect(function () {
+          agent.setupProvisionQueue();
+          console.log("Ready to rock.");
+        });
+      }
+    );
+}
+
+function getProcessorCount(callback) {
+  execFile
+    ( '/usr/sbin/psrinfo'
+    , ['-p']
+    , { encoding: 'utf8' }
+    , function (error, stdout, stderr) {
+        if (error) return callback(new Error(stderr.toString()));
+        var num = Number(stdout.trim());
+        callback(null, num);
+      }
+    );
 }
 
 main();
