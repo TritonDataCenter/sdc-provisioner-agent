@@ -43,6 +43,7 @@ exports.provisionRequest = function (vars) {
 //                  , 'private_netmask': '255.255.192.0'
 //                  , 'public_vlan_id': 420
                  , 'hostname': exports.testZoneName
+                 , 'dataset_uuid': 'e2abe3f6-5668-11e0-bab1-07a4d450d807'
                  , 'zone_template': testDataset
                  , 'root_pw': 'therootpw'
                  , 'owner_uuid': 'this-is-my-uuid'
