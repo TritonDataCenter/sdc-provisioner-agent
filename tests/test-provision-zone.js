@@ -55,7 +55,7 @@ var tests = [
       var data
         = common.provisionRequest
             ( { zonename: "slappy"
-              , zone_template: 'idontexist-4.2.0'
+              , dataset_uuid: 'does-not-exist'
               , dataset_url_path: "foo.zfs.bz2"
               }
             );
