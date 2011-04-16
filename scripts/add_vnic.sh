@@ -63,9 +63,10 @@ BLOCKED_PORTS_OPT=""
 if [ ! -z "$BLOCKED_OUTGOING_PORTS" ] ; then
   BLOCKED_PORTS_OPT="add property (name=blocked-outgoing-ports, value=\"$BLOCKED_OUTGOING_PORTS\");"
 fi
+IP_OPT="add property (name=ip, value=\"$IP\");"
 
 # Add network settings to the vnic
-/usr/sbin/zonecfg -z $ZONENAME "select net physical=${INTERFACE}; set mac-addr=${MAC}; set vlan-id=${VLAN_ID}; set global-nic=${NIC}; ${BLOCKED_PORTS_OPT} end; exit"
+/usr/sbin/zonecfg -z $ZONENAME "select net physical=${INTERFACE}; set mac-addr=${MAC}; set vlan-id=${VLAN_ID}; set global-nic=${NIC}; ${IP_OPT} ${BLOCKED_PORTS_OPT} end; exit"
 
 echo "$IP netmask $NETMASK up" > $ZONE_ROOT/etc/hostname.${INTERFACE}
 
