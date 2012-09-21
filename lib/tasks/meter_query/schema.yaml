@@ -1,0 +1,11 @@
+description: A schema for the meter_query task.
+type: object
+properties:
+  time_start:
+    title: "iso8601 date indicating start of query range"
+    type: string
+    required: true
+  time_end:
+    title: "iso8601 date indicating start of query range"
+    type: string
+    required: true

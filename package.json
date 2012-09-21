@@ -1,19 +1,30 @@
 {
-  "name": "boilerplateapi",
-  "description": "SmartDataCenter Boilerplate API",
-  "version": "1.0.0",
-  "author": "Joyent (joyent.com)",
-  "private": true,
-  "dependencies": {
-    "restify": "1.4.2",
-    "node-uuid": "1.3.3",
-    "filed": "0.0.5",
-    "bunyan": "0.8.0"
-  },
-  "devDependencies": {
-    "tap": "0.2"
-  },
-  "scripts": {
-    "start": "node ./server.js"
-  }
+    "name": "provisioner",
+    "description": "SmartDataCenter Provisioning Agent",
+    "version": "2.2.0",
+    "author": "Joyent (joyent.com)",
+    "private": true,
+    "main": "lib/provisioner",
+    "dependencies": {
+        "async": "0.1.18",
+        "log4js": "0.4.1",
+        "nodeunit": "0.7.4",
+        "optparse": "1.0.3",
+        "yaml": "0.2.3",
+        "zfs": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b",
+				"task_agent": "git+ssh://git@git.joyent.com:task_agent.git#26efacc0d68c189124ee90077605e1e3b5bc6c9a",
+				"tracker": "git+ssh://git@git.joyent.com:node-tracker.git#3a139906c9eb8d8684ac54cf54cd010315856042"
+    },
+    "directories": {
+        "lib": "lib"
+    },
+    "bin": {
+				 "provisioner": "./bin/provisioner.js",
+				 "taskadm": "./bin/taskadm.js"
+    },
+    "scripts": {
+        "test": "./test.sh",
+        "postinstall":   "./npm/postinstall.sh",
+        "postuninstall": "./npm/postuninstall.sh"
+    }
 }

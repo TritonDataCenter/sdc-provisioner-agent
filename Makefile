@@ -17,29 +17,33 @@
 #
 # Tools
 #
-TAP		:= ./node_modules/.bin/tap
 
 #
 # Files
 #
-DOC_FILES	 = index.restdown boilerplateapi.restdown
-JS_FILES	:= $(shell ls *.js) $(shell find lib test -name '*.js')
+DOC_FILES	 = index.restdown
+JS_FILES	:= $(shell ls *.js 2>/dev/null) $(shell find lib test -name '*.js' 2>/dev/null)
 JSL_CONF_NODE	 = tools/jsl.node.conf
 JSL_FILES_NODE   = $(JS_FILES)
 JSSTYLE_FILES	 = $(JS_FILES)
 JSSTYLE_FLAGS    = -o indent=4,doxygen,unparenthesized-return=0
-REPO_MODULES	 = src/node-dummy
-SMF_MANIFESTS_IN = smf/manifests/bapi.xml.in
+#REPO_MODULES	 = src/node-dummy
+SMF_MANIFESTS_IN = smf/manifests/provisioner.xml.in
 
+#NODE_PREBUILT_BRANCH=master-20120703T175035Z
+#NODE_PREBUILT_DIR ?= https://download.joyent.com/pub/build/sdcnode/$(NODE_PREBUILT_BRANCH)/sdcnode
+NODE_PREBUILT_VERSION=v0.8.9
+NODE_PREBUILT_TAG=gz
 
-NODE_PREBUILT_VERSION=v0.6.19
-NODE_PREBUILT_TAG=zone
-
-
+# Included definitions
 include ./tools/mk/Makefile.defs
 include ./tools/mk/Makefile.node_prebuilt.defs
 include ./tools/mk/Makefile.node_deps.defs
 include ./tools/mk/Makefile.smf.defs
+
+ROOT            := $(shell pwd)
+RELEASE_TARBALL := provisioner-pkg-$(STAMP).tar.gz
+TMPDIR          := /tmp/$(STAMP)
 
 #
 # Repo-specific targets
@@ -56,6 +60,24 @@ CLEAN_FILES += $(TAP) ./node_modules/tap
 .PHONY: test
 test: $(TAP)
 	TAP=1 $(TAP) test/*.test.js
+
+.PHONY: release
+release: all deps docs $(SMF_MANIFESTS)
+	@echo "Building $(RELEASE_TARBALL)"
+	@mkdir -p $(TMPDIR)/provisioner
+	cd $(ROOT) && $(NPM) install
+	cp -r $(ROOT)/build \
+    $(ROOT)/bin \
+    $(ROOT)/lib \
+    $(ROOT)/Makefile \
+    $(ROOT)/node_modules \
+    $(ROOT)/package.json \
+    $(ROOT)/smf \
+    $(ROOT)/npm \
+    $(ROOT)/tools \
+    $(TMPDIR)/provisioner
+	(cd $(TMPDIR) && $(TAR) -zcf $(ROOT)/$(RELEASE_TARBALL) *)
+	@rm -rf $(TMPDIR)
 
 include ./tools/mk/Makefile.deps
 include ./tools/mk/Makefile.node_prebuilt.targ
