@@ -1,9 +1,10 @@
 /node_modules
 /tmp
+/*.tar.gz
 build
 docs/*.json
 docs/*.html
 cscope.in.out
 cscope.po.out
 cscope.out
-smf/manifests/bapi.xml
+/smf/manifests/provisioner.xml

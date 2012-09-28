@@ -79,6 +79,15 @@ release: all deps docs $(SMF_MANIFESTS)
 	(cd $(TMPDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)
 	@rm -rf $(TMPDIR)
 
+.PHONY: publish
+publish: release
+	@if [[ -z "$(BITS_DIR)" ]]; then \
+		@echo "error: 'BITS_DIR' must be set for 'publish' target"; \
+		exit 1; \
+	fi
+	mkdir -p $(BITS_DIR)/$(NAME)
+	cp $(TOP)/$(RELEASE_TARBALL) $(BITS_DIR)/$(NAME)/$(RELEASE_TARBALL)
+
 .PHONY: dumpvar
 dumpvar:
 	@if [[ -z "$(VAR)" ]]; then \
