@@ -41,43 +41,51 @@ include ./tools/mk/Makefile.node_prebuilt.defs
 include ./tools/mk/Makefile.node_deps.defs
 include ./tools/mk/Makefile.smf.defs
 
-ROOT            := $(shell pwd)
 RELEASE_TARBALL := provisioner-pkg-$(STAMP).tar.gz
 TMPDIR          := /tmp/$(STAMP)
+NODEUNIT	= $(TOP)/node_modules/.bin/nodeunit
 
 #
 # Repo-specific targets
 #
 .PHONY: all
-all: $(SMF_MANIFESTS) | $(TAP) $(REPO_DEPS)
-	$(NPM) rebuild
+all: $(SMF_MANIFESTS) | $(NPM_EXEC) $(REPO_DEPS)
+	$(NPM) install && $(NPM) update
 
-$(TAP): | $(NPM_EXEC)
+$(NODEUNIT): | $(NPM_EXEC)
 	$(NPM) install
 
-CLEAN_FILES += $(TAP) ./node_modules/tap
+CLEAN_FILES += $(NODEUNIT) ./node_modules/tap
 
 .PHONY: test
-test: $(TAP)
-	TAP=1 $(TAP) test/*.test.js
+test:
+	$(NODEUNIT) test/*.test.js
 
 .PHONY: release
 release: all deps docs $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
 	@mkdir -p $(TMPDIR)/provisioner
-	cd $(ROOT) && $(NPM) install
-	cp -r $(ROOT)/build \
-    $(ROOT)/bin \
-    $(ROOT)/lib \
-    $(ROOT)/Makefile \
-    $(ROOT)/node_modules \
-    $(ROOT)/package.json \
-    $(ROOT)/smf \
-    $(ROOT)/npm \
-    $(ROOT)/tools \
+	cd $(TOP) && $(NPM) install
+	cp -r $(TOP)/build \
+    $(TOP)/bin \
+    $(TOP)/lib \
+    $(TOP)/Makefile \
+    $(TOP)/node_modules \
+    $(TOP)/package.json \
+    $(TOP)/smf \
+    $(TOP)/npm \
+    $(TOP)/tools \
     $(TMPDIR)/provisioner
-	(cd $(TMPDIR) && $(TAR) -zcf $(ROOT)/$(RELEASE_TARBALL) *)
+	(cd $(TMPDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)
 	@rm -rf $(TMPDIR)
+
+.PHONY: dumpvar
+dumpvar:
+	@if [[ -z "$(VAR)" ]]; then \
+		echo "error: set 'VAR' to dump a var"; \
+		exit 1; \
+	fi
+	@echo "$(VAR) is '$($(VAR))'"
 
 include ./tools/mk/Makefile.deps
 include ./tools/mk/Makefile.node_prebuilt.targ
