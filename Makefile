@@ -15,10 +15,6 @@
 #
 
 #
-# Tools
-#
-
-#
 # Files
 #
 DOC_FILES	 = index.restdown
@@ -27,7 +23,6 @@ JSL_CONF_NODE	 = tools/jsl.node.conf
 JSL_FILES_NODE   = $(JS_FILES)
 JSSTYLE_FILES	 = $(JS_FILES)
 JSSTYLE_FLAGS    = -o indent=4,doxygen,unparenthesized-return=0
-#REPO_MODULES	 = src/node-dummy
 SMF_MANIFESTS_IN = smf/manifests/provisioner.xml.in
 
 #NODE_PREBUILT_BRANCH=master-20120703T175035Z
@@ -65,7 +60,7 @@ test:
 .PHONY: release
 release: all deps docs $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
-	@mkdir -p $(TMPDIR)/provisioner
+	@mkdir -p $(TMPDIR)/$(NAME)
 	cd $(TOP) && $(NPM) install
 	cp -r $(TOP)/build \
     $(TOP)/bin \
