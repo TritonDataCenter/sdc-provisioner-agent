@@ -41,7 +41,8 @@ include ./tools/mk/Makefile.node_prebuilt.defs
 include ./tools/mk/Makefile.node_deps.defs
 include ./tools/mk/Makefile.smf.defs
 
-RELEASE_TARBALL := provisioner-pkg-$(STAMP).tar.gz
+NAME			:= provisioner
+RELEASE_TARBALL := $(NAME)-pkg-$(STAMP).tar.gz
 TMPDIR          := /tmp/$(STAMP)
 NODEUNIT	= $(TOP)/node_modules/.bin/nodeunit
 
