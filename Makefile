@@ -42,7 +42,7 @@ include ./tools/mk/Makefile.node_deps.defs
 include ./tools/mk/Makefile.smf.defs
 
 NAME			:= provisioner
-RELEASE_TARBALL := $(NAME)-pkg-$(STAMP).tar.gz
+RELEASE_TARBALL := $(NAME)-pkg-$(STAMP).tgz
 TMPDIR          := /tmp/$(STAMP)
 NODEUNIT	= $(TOP)/node_modules/.bin/nodeunit
 
