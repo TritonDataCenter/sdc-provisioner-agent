@@ -25,8 +25,6 @@ JSSTYLE_FILES	 = $(JS_FILES)
 JSSTYLE_FLAGS    = -o indent=4,doxygen,unparenthesized-return=0
 SMF_MANIFESTS_IN = smf/manifests/provisioner.xml.in
 
-#NODE_PREBUILT_BRANCH=master-20120703T175035Z
-#NODE_PREBUILT_DIR ?= https://download.joyent.com/pub/build/sdcnode/$(NODE_PREBUILT_BRANCH)/sdcnode
 NODE_PREBUILT_VERSION=v0.8.9
 NODE_PREBUILT_TAG=gz
 
@@ -36,8 +34,8 @@ include ./tools/mk/Makefile.node_prebuilt.defs
 include ./tools/mk/Makefile.node_deps.defs
 include ./tools/mk/Makefile.smf.defs
 
-NAME			:= provisioner
-RELEASE_TARBALL := $(NAME)-pkg-$(STAMP).tgz
+NAME		:= provisioner
+RELEASE_TARBALL := $(NAME)-$(STAMP).tgz
 TMPDIR          := /tmp/$(STAMP)
 NODEUNIT	= $(TOP)/node_modules/.bin/nodeunit
 
