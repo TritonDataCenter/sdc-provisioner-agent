@@ -70,6 +70,7 @@ release: all deps docs $(SMF_MANIFESTS)
     $(TOP)/package.json \
     $(TOP)/smf \
     $(TOP)/test \
+    $(TOP)/test.sh \
     $(TOP)/tools \
     $(TMPDIR)/provisioner
 	(cd $(TMPDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)
