@@ -60,14 +60,16 @@ release: all deps docs $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
 	@mkdir -p $(TMPDIR)/$(NAME)
 	cd $(TOP) && $(NPM) install
-	cp -r $(TOP)/build \
-    $(TOP)/bin \
-    $(TOP)/lib \
+	cp -r \
     $(TOP)/Makefile \
+    $(TOP)/bin \
+    $(TOP)/build \
+    $(TOP)/lib \
     $(TOP)/node_modules \
+    $(TOP)/npm \
     $(TOP)/package.json \
     $(TOP)/smf \
-    $(TOP)/npm \
+    $(TOP)/test \
     $(TOP)/tools \
     $(TMPDIR)/provisioner
 	(cd $(TMPDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)

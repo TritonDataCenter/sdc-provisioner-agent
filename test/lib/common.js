@@ -49,7 +49,7 @@ exports.createClient = function (callback) {
         client.connect(function () {
             console.log('Connected!');
             client.getAgentHandle(
-                'provisioner-v2',
+                'provisioner',
                 client.uuid,
                 function (handle) {
                     console.log('Got agent handle: ' + handle.clientId);
