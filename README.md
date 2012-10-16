@@ -1,21 +1,22 @@
-# Joyent Engineering Guide
+# Provisioner Agent
 
-Repository: <git@git.joyent.com:eng.git>
-Browsing: <https://mo.joyent.com/eng>
-Who: Trent Mick, Dave Pacheco
-Docs: <https://mo.joyent.com/docs/eng>
-Tickets/bugs: <https://devhub.joyent.com/jira/browse/TOOLS>
+Repository: <git@git.joyent.com:provisioner.git>
+Browsing: <https://mo.joyent.com/provisioner>
+Who: Orlando Vazquez
+Docs: <https://mo.joyent.com/docs/provisioner>
+Tickets/bugs: <https://devhub.joyent.com/jira/browse/AGENT>
 
 
 # Overview
 
-This repo serves two purposes: (1) It defines the guidelines and best
-practices for Joyent engineering work (this is the primary goal), and (2) it
-also provides boilerplate for an SDC project repo, giving you a starting
-point for many of the suggestion practices defined in the guidelines. This is
-especially true for node.js-based REST API projects.
+The Smart Datacenter Provisioning Agent (or provisioner, for short) is an
+RPC-like mechanism via which a client can interact with a compute node. It
+acts as an externally visible interface to subsystems within the server. 
 
-Start with the guidelines: <https://mo.joyent.com/docs/eng>
+Provisioner is responsible for executing "tasks", which are simply scripts
+which break down some unit of work into a number of steps to be completed.
+This may be may range from creating a virtual machine to something as simple
+as creating or listing ZFS datasets.
 
 
 # Repository
@@ -38,20 +39,27 @@ Start with the guidelines: <https://mo.joyent.com/docs/eng>
 
 # Development
 
-To run the boilerplate API server:
+To run the provisioner agent:
 
-    git clone git@git.joyent.com:eng.git
-    cd eng
+    git clone git@git.joyent.com:provisioner.git
+    cd provisioner
     git submodule update --init
     make all
     node server.js
 
-To update the guidelines, edit "docs/index.restdown" and run `make docs`
+
+# Documentation
+
+To update the documentation, edit "docs/index.restdown" and run `make docs`
 to update "docs/index.html".
 
 Before commiting/pushing run `make prepush` and, if possible, get a code
 review.
 
+
+# Design
+
+(See docs/index.restdown for more in-depth details)
 
 
 # Testing
@@ -60,20 +68,3 @@ review.
 
 If you project has setup steps necessary for testing, then describe those
 here.
-
-
-# Starting a Repo Based on eng.git
-
-Create a new repo called "some-cool-fish" in your "~/work" dir based on "eng.git":
-Note: run this inside the eng dir.
-
-    ./tools/mkrepo $HOME/work/some-cool-fish
-
-
-# Your Other Sections Here
-
-Add other sections to your README as necessary. E.g. Running a demo, adding
-development data.
-
-
-
