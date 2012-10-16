@@ -65,7 +65,8 @@ exports.zoneBootTime = function (zonename, callback) {
         [ zonename, '/usr/bin/kstat', '-p', 'unix:0:system_misc:boot_time' ],
         function (error, stdout, stderr) {
             if (error) {
-                throw stderr.toString();
+                callback(new Error(stderr.toString9));
+                return;
             }
             var kv = stdout.toString().split(/\s+/);
             console.dir(kv);

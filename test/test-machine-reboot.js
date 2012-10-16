@@ -1,14 +1,16 @@
 var testCase = require('nodeunit').testCase;
 var async = require('async');
 var Client = require('task_agent/lib/client');
-var common = require('./lib/common');
+var testcommon = require('./lib/common');
+var libcommon = require('../lib/common');
+var VM = require('VM');
 
 module.exports = testCase({
     setUp:
         function (callback) {
             var self = this;
-            self.msg = common.provisionRequest();
-            common.createClient(function (handle) {
+            self.msg = testcommon.provisionRequest();
+            testcommon.createClient(function (handle) {
                 console.log('Should get handle');
                 self.handle = handle;
                 callback();
@@ -17,7 +19,7 @@ module.exports = testCase({
     tearDown:
         function (callback) {
             var self = this;
-            common.destroyZone(self.msg.zonename, function () {
+            testcommon.destroyZone(self.msg.zonename, function () {
                 self.handle.connection.end();
                 callback();
             });
@@ -31,7 +33,10 @@ function test_reboot(test) {
     async.waterfall([
         createZone.bind(self),
         function (callback) {
-            common.zoneBootTime(self.msg.zonename, function (error, bootTime) {
+            setTimeout(callback, 10000);
+        },
+        function (callback) {
+            testcommon.zoneBootTime(self.msg.zonename, function (error, bootTime) {
                 test.equal(
                     error, undefined,
                     'No error checking machine boot time');
@@ -43,10 +48,14 @@ function test_reboot(test) {
         },
         rebootZone.bind(self),
         function (callback) {
-            setTimeout(callback, 40000);
+            VM.waitForZoneState(
+                { zonename: self.msg.zonename,  uuid: self.msg.zonename },
+                'running', 
+                { timeout: 30 },
+                callback);
         },
         function (callback) {
-            common.zoneBootTime(self.msg.zonename, function (error, bootTime) {
+            testcommon.zoneBootTime(self.msg.zonename, function (error, bootTime) {
                 test.equal(
                     error, undefined,
                     'No error checking machine boot time');
@@ -59,7 +68,8 @@ function test_reboot(test) {
         checkZone.bind(self)
     ],
     function (error) {
-        test.equal(error, undefined, 'No errors raised during waterfall');
+        console.dir(arguments);
+        test.equal(error, null, 'No errors raised during waterfall');
         return test.done();
     });
 
@@ -105,7 +115,7 @@ function test_reboot(test) {
 
     function checkZone(callback) {
         // get the boot time on the zone before
-        common.zoneadmList(function (error, zones) {
+        testcommon.zoneadmList(function (error, zones) {
             test.equal(
                 error, undefined,
                 'No error checking zoneadm');
