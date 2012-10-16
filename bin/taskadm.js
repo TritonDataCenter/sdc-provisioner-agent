@@ -103,7 +103,7 @@ function pad3(n) {
 }
 
 var options = parseOptions();
-var client = new Client({ use_system_config: true, log: console });
+var client = new Client({ attemptToReconnect: false, use_system_config: true, log: console });
 var agent = 'provisioner';
 var task = options.task;
 
@@ -190,10 +190,8 @@ async.waterfall([
         callback();
     },
     client.configureAMQP.bind(client),
-    client.connect.bind(client),
     function (callback) {
-        client.connection.removeAllListeners('close');
-        client.connection.once('ready', callback);
+        client.connect(callback);
     },
     function (callback) {
         client.getAgentHandle(agent, uuid, function (handle) {
