@@ -70,7 +70,8 @@ exports.zoneBootTime = function (zonename, callback) {
             }
             var kv = stdout.toString().split(/\s+/);
             console.dir(kv);
-            return callback(undefined, kv[1]);
+            callback(undefined, kv[1]);
+            return;
         });
 };
 

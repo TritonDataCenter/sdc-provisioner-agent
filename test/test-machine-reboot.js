@@ -36,34 +36,37 @@ function test_reboot(test) {
             setTimeout(callback, 10000);
         },
         function (callback) {
-            testcommon.zoneBootTime(self.msg.zonename, function (error, bootTime) {
-                test.equal(
-                    error, undefined,
-                    'No error checking machine boot time');
+            testcommon.zoneBootTime(
+                self.msg.zonename,
+                function (error, bootTime) {
+                    test.equal(
+                        error, undefined,
+                        'No error checking machine boot time');
 
-                self.zoneBootTime1 = bootTime;
-                console.log('Boottime 1 was ' + bootTime);
-                callback();
-            });
+                    self.zoneBootTime1 = bootTime;
+                    console.log('Boottime 1 was ' + bootTime);
+                    callback();
+                });
         },
         rebootZone.bind(self),
         function (callback) {
             VM.waitForZoneState(
                 { zonename: self.msg.zonename,  uuid: self.msg.zonename },
-                'running', 
+                'running',
                 { timeout: 30 },
                 callback);
         },
         function (callback) {
-            testcommon.zoneBootTime(self.msg.zonename, function (error, bootTime) {
-                test.equal(
-                    error, undefined,
-                    'No error checking machine boot time');
+            testcommon.zoneBootTime(
+                self.msg.zonename, function (error, bootTime) {
+                    test.equal(
+                        error, undefined,
+                        'No error checking machine boot time');
 
-                self.zoneBootTime2 = bootTime;
-                console.log('Boottime 2 was ' + bootTime);
-                callback();
-            });
+                    self.zoneBootTime2 = bootTime;
+                    console.log('Boottime 2 was ' + bootTime);
+                    callback();
+                });
         },
         checkZone.bind(self)
     ],
