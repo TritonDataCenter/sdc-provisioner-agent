@@ -57,6 +57,7 @@ var queueDefns = [
             'zfs_create_dataset',
             'zfs_destroy_dataset',
             'zfs_list_datasets',
+            'zfs_list_snapshots',
             'zfs_rename_dataset',
             'zfs_snapshot_dataset',
             'zfs_rollback_dataset',
