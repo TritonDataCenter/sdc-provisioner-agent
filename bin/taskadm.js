@@ -17,6 +17,8 @@ function parseOptions() {
         ['-f', '--file FILE', 'Read input parameters from this JSON file'],
         ['-p', '--preset PRESET',
             'Read input parameters from preset configuration'],
+        ['-r', '--resource RESOURCE',
+            'Use RESOURCE as the AMQP resource name'],
         ['-l', '--list-presets', 'List known presets for given task'],
         ['-u', '--uuid UUID',
             'UUID of node to run task on (default to this node)'],
@@ -42,6 +44,10 @@ function parseOptions() {
 
     parser.on('preset', function (param, value) {
         opts.preset = value;
+    });
+
+    parser.on('resource', function (param, value) {
+        opts.resource = value;
     });
 
     parser.on('uuid', function (param, value) {
@@ -104,7 +110,7 @@ function pad3(n) {
 
 var options = parseOptions();
 var client = new Client({ attemptToReconnect: false, use_system_config: true, log: console });
-var agent = 'provisioner';
+var resource = options.resource;
 var task = options.task;
 
 if (!task) {
@@ -194,7 +200,7 @@ async.waterfall([
         client.connect(callback);
     },
     function (callback) {
-        client.getAgentHandle(agent, uuid, function (handle) {
+        client.getAgentHandle(resource, uuid, function (handle) {
             if (options.verbose) {
                 console.warn(JSON.stringify(msg, null, '  '));
             }

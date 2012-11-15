@@ -12,7 +12,7 @@
       "version": "0.7.4",
       "dependencies": {
         "tap": {
-          "version": "0.3.1",
+          "version": "0.3.2",
           "dependencies": {
             "inherits": {
               "version": "1.0.0"
@@ -88,8 +88,11 @@
     },
     "task_agent": {
       "version": "0.0.4",
-      "from": "git+ssh://git@git.joyent.com:task_agent.git#48a68d1d8f8949c820c1f14b2e7d4b919b3e34e1",
+      "from": "git+ssh://git@git.joyent.com:task_agent.git#3adc5b52c84387d30cbab9eb99e5b64f88910d9d",
       "dependencies": {
+        "bunyan": {
+          "version": "0.14.5"
+        },
         "JSV": {
           "version": "3.5.0"
         },
@@ -100,6 +103,9 @@
         "amqp-plus": {
           "version": "1.0.0",
           "from": "git://github.com/orlandov/node-amqp-plus.git#a67f9547c116bf991b974ce5b9cd090c8b222fdb"
+        },
+        "sprintf": {
+          "version": "0.1.1"
         }
       }
     },

@@ -5,23 +5,17 @@ var path = require('path');
 var createTaskDispatchFn
 = require('task_agent/lib/dispatch').createTaskDispatchFn;
 var os = require('os');
-var log4js = require('log4js');
 var tty = require('tty');
-
-log4js.clearAppenders();
-var isatty = tty.isatty(process.stdout.fd);
-log4js.addAppender(
-    log4js.consoleAppender(
-        isatty ? log4js.colouredLayout : log4js.basicLayout));
 
 var tasksPath = path.join(__dirname, '..', 'lib/tasks');
 
 var options = {
+    tasklogdir: '/var/log/provisioner',
+    logname: 'provisioner',
     use_system_config: true,
     tasksPath: tasksPath,
     reconnect: true,
     resource: 'provisioner',
-    log4js: log4js,
     use_system_config: true
 };
 
@@ -30,47 +24,65 @@ var agent = new TaskAgent(options);
 var queueDefns = [
     {
         name: 'machine_creation',
+        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         tasks: [ 'machine_create' ]
     },
     {
         name: 'machine_tasks',
+        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         tasks: [
             'machine_boot',
             'machine_destroy',
-            'machine_info',
             'machine_reboot',
             'machine_shutdown',
             'machine_update',
-            'machine_load',
             'machine_screenshot'
         ]
     },
     {
+        name: 'machine_query',
+        log: true,
+        maxConcurrent: os.cpus().lenth,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        tasks: [
+            'machine_load',
+            'machine_info'
+        ]
+    },
+    {
         name: 'zfs_tasks',
+        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         tasks: [
             'zfs_create_dataset',
             'zfs_destroy_dataset',
-            'zfs_list_datasets',
-            'zfs_list_snapshots',
             'zfs_rename_dataset',
             'zfs_snapshot_dataset',
             'zfs_rollback_dataset',
             'zfs_clone_dataset',
-
+            'zfs_set_properties'
+        ]
+    },
+    {
+        name: 'zfs_query',
+        log: true,
+        maxConcurrent: os.cpus().lenth,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        tasks: [
             'zfs_get_properties',
-            'zfs_set_properties',
-
+            'zfs_list_datasets',
+            'zfs_list_snapshots',
             'zfs_list_pools'
         ]
     },
     {
         name: 'test_sleep',
+        log: true,
         maxConcurrent: 3,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         tasks: [ 'sleep' ]
@@ -96,7 +108,6 @@ var queueDefns = [
 ];
 
 agent.configureAMQP(function () {
-    console.dir(agent.config);
     agent.on('ready', function () {
       agent.setupQueues(queueDefns);
     });
