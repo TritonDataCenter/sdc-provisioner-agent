@@ -9,7 +9,7 @@ exports.provisionRequest = function (vars) {
     vars = vars || {};
     var uuid = '2e4a24af-97a2-4cb1-a2a4-1edb209fb311';
     var defaults = {
-        'image_uuid': 'bb6d5a10-c330-11e0-8f18-9fbfcd26660b',
+        'image_uuid': '01b2c898-945f-11e1-a523-af1afbe22822',
         'do_not_inventory': true,
         'root_pw': 'therootpw',
         'owner_uuid': 'this-is-my-uuid',
@@ -65,7 +65,7 @@ exports.zoneBootTime = function (zonename, callback) {
         [ zonename, '/usr/bin/kstat', '-p', 'unix:0:system_misc:boot_time' ],
         function (error, stdout, stderr) {
             if (error) {
-                callback(new Error(stderr.toString9));
+                callback(new Error(stderr.toString()));
                 return;
             }
             var kv = stdout.toString().split(/\s+/);
