@@ -81,6 +81,17 @@ var queueDefns = [
         ]
     },
     {
+        name: 'fw_tasks',
+        log: true,
+        maxConcurrent: 1,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        tasks: [
+            'fw_add',
+            'fw_del',
+            'fw_update'
+        ]
+    },
+    {
         name: 'test_sleep',
         log: true,
         maxConcurrent: 3,
