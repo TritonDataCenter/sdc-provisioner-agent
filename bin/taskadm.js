@@ -89,6 +89,10 @@ function parseOptions() {
         console.warn(opts);
     }
 
+    if (!opts.resoruce) {
+        opts.resource = 'provisioner';
+    }
+
 
     args.forEach(function (key_value) {
         var eqlPos = key_value.indexOf('=');

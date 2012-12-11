@@ -12,7 +12,7 @@
         "optparse": "1.0.3",
         "yaml": "0.2.3",
         "zfs": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b",
-        "task_agent": "git+ssh://git@git.joyent.com:task_agent.git#3adc5b52c84387d30cbab9eb99e5b64f88910d9d",
+        "task_agent": "git+ssh://git@git.joyent.com:task_agent.git#658a5e1d0d3c351ac179e8a7b4c8919695d1f1b4",
         "tracker": "git+ssh://git@git.joyent.com:node-tracker.git#3a139906c9eb8d8684ac54cf54cd010315856042"
     },
     "directories": {

@@ -12,7 +12,7 @@
       "version": "0.7.4",
       "dependencies": {
         "tap": {
-          "version": "0.3.2",
+          "version": "0.3.3",
           "dependencies": {
             "inherits": {
               "version": "1.0.0"
@@ -87,8 +87,8 @@
       "from": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b"
     },
     "task_agent": {
-      "version": "0.0.4",
-      "from": "git+ssh://git@git.joyent.com:task_agent.git#3adc5b52c84387d30cbab9eb99e5b64f88910d9d",
+      "version": "0.1.0",
+      "from": "git+ssh://git@git.joyent.com:task_agent.git#658a5e1d0d3c351ac179e8a7b4c8919695d1f1b4",
       "dependencies": {
         "bunyan": {
           "version": "0.14.5"

@@ -40,13 +40,17 @@ var queueDefns = [
             'machine_reboot',
             'machine_shutdown',
             'machine_update',
-            'machine_screenshot'
+            'machine_screenshot',
+            'machine_create_snapshot',
+            'machine_rollback_snapshot',
+            'machine_delete_snapshot'
         ]
     },
     {
         name: 'machine_query',
+        expires: 60, // expire messages in this queue after a minute
         log: true,
-        maxConcurrent: os.cpus().lenth,
+        maxConcurrent: 64,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         tasks: [
             'machine_load',
