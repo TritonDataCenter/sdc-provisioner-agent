@@ -50,6 +50,9 @@ function test_reboot(test) {
         },
         rebootZone.bind(self),
         function (callback) {
+            setTimeout(callback, 10000);
+        },
+        function (callback) {
             VM.waitForZoneState(
                 { zonename: self.msg.zonename,  uuid: self.msg.zonename },
                 'running',
