@@ -97,7 +97,7 @@ if [[ -n "$opt_test_pattern" ]]; then
     test_files=$(echo "$test_files" | grep "$opt_test_pattern" || true)
     echo "# Running filtered set of test files: $test_files"
 fi
-/usr/node/bin/node ./node_modules/.bin/nodeunit $test_files --reporter=tap \
+/usr/node/bin/node ./node_modules/nodeunit/bin/nodeunit $test_files --reporter=tap \
     | tee $OUTPUT_DIR/provisioner-v2.tap
 
 

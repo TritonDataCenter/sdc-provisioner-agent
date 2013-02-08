@@ -15,7 +15,8 @@ exports.provisionRequest = function (vars) {
         'owner_uuid': 'this-is-my-uuid',
         'uuid': uuid,
         'zonename': uuid,
-        'ram_in_bytes': 1073741824,
+        'ram_in_bytes': 128*1024*1024,
+        'max_swap': 2*128*1024*1024,
         'nics':  [
             { ip: '10.88.88.75',
                 nic: 'external',
