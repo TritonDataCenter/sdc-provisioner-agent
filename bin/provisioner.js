@@ -30,6 +30,15 @@ var queueDefns = [
         tasks: [ 'machine_create' ]
     },
     {
+        name: 'server_tasks',
+        log: true,
+        maxConcurrent: os.cpus().length,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        tasks: [
+            'server_overprovision_ratio'
+        ]
+    },
+    {
         name: 'machine_tasks',
         log: true,
         maxConcurrent: os.cpus().length,
