@@ -39,6 +39,15 @@ var queueDefns = [
         ]
     },
     {
+        name: 'server_nic_tasks',
+        log: true,
+        maxConcurrent: 1,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        tasks: [
+            'server_update_nics'
+        ]
+    },
+    {
         name: 'machine_tasks',
         log: true,
         maxConcurrent: os.cpus().length,
