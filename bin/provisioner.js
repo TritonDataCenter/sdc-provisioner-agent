@@ -27,7 +27,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
-        tasks: [ 'machine_create' ]
+        tasks: [ 'machine_create', 'machine_reprovision' ]
     },
     {
         name: 'server_tasks',
