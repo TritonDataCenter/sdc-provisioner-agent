@@ -58,6 +58,7 @@ var queueDefns = [
             'machine_reboot',
             'machine_shutdown',
             'machine_update',
+            'machine_update_nics',
             'machine_screenshot',
             'machine_create_snapshot',
             'machine_rollback_snapshot',
