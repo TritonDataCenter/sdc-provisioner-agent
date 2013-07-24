@@ -3,8 +3,9 @@
 var TaskAgent = require('task_agent/lib/task_agent');
 var path = require('path');
 var createTaskDispatchFn
-= require('task_agent/lib/dispatch').createTaskDispatchFn;
+    = require('task_agent/lib/dispatch').createTaskDispatchFn;
 var os = require('os');
+var exec = require('child_process').exec;
 var tty = require('tty');
 
 var tasksPath = path.join(__dirname, '..', 'lib/tasks');
@@ -151,9 +152,14 @@ var queueDefns = [
     }
 ];
 
-agent.configureAMQP(function () {
-    agent.on('ready', function () {
-      agent.setupQueues(queueDefns);
+// AGENT-640: Ensure we clean up any stale machine creation guard files, then
+// set queues up as per usual.
+var cmd = '/usr/bin/rm -f /var/tmp/machine-creation-*';
+exec(cmd, function (error, stdout, stderr) {
+    agent.configureAMQP(function () {
+        agent.on('ready', function () {
+          agent.setupQueues(queueDefns);
+        });
+        agent.connect();
     });
-    agent.connect();
 });
