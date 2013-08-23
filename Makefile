@@ -61,9 +61,11 @@ release: all deps docs $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
 	@mkdir -p $(TMPDIR)/$(NAME)
 	cd $(TOP) && $(NPM) install
+	(git symbolic-ref HEAD | awk -F/ '{print $$3}' && git describe) > $(ROOT)/describe
 	cp -r \
     $(TOP)/Makefile \
     $(TOP)/bin \
+    $(TOP)/describe \
     $(TOP)/lib \
     $(TOP)/node_modules \
     $(TOP)/npm \
