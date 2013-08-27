@@ -89,7 +89,7 @@ function parseOptions() {
         console.warn(opts);
     }
 
-    if (!opts.resoruce) {
+    if (!opts.resource) {
         opts.resource = 'provisioner';
     }
 
