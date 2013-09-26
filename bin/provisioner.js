@@ -2,8 +2,8 @@
 
 var TaskAgent = require('task_agent/lib/task_agent');
 var path = require('path');
-var createTaskDispatchFn
-    = require('task_agent/lib/dispatch').createTaskDispatchFn;
+var createTaskDispatchFn = require('task_agent/lib/dispatch').createTaskDispatchFn;
+var createHttpTaskDispatchFn = require('task_agent/lib/dispatch').createHttpTaskDispatchFn;
 var os = require('os');
 var exec = require('child_process').exec;
 var tty = require('tty');
@@ -28,6 +28,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'machine_create', 'machine_reprovision' ]
     },
     {
@@ -35,6 +36,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'server_overprovision_ratio'
         ]
@@ -44,6 +46,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'server_update_nics'
         ]
@@ -53,6 +56,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'machine_boot',
             'machine_destroy',
@@ -72,6 +76,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: 64,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'machine_create_image'
         ]
@@ -82,6 +87,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: 64,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'machine_load',
             'machine_info'
@@ -92,6 +98,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'zfs_create_dataset',
             'zfs_destroy_dataset',
@@ -107,6 +114,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: os.cpus().lenth,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'zfs_get_properties',
             'zfs_list_datasets',
@@ -119,6 +127,7 @@ var queueDefns = [
         log: true,
         maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
             'fw_add',
             'fw_del',
@@ -130,24 +139,28 @@ var queueDefns = [
         log: true,
         maxConcurrent: 3,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'sleep' ]
     },
     {
         name: 'nop',
         maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'nop' ]
     },
     {
         name: 'test_subtask',
         maxConcurrent: 3,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'test_subtask' ]
     },
     {
         name: 'metering',
         maxConcurrent: 3,
         onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'meter_query' ]
     }
 ];
@@ -160,6 +173,6 @@ exec(cmd, function (error, stdout, stderr) {
         agent.on('ready', function () {
           agent.setupQueues(queueDefns);
         });
-        agent.connect();
+        agent.start();
     });
 });
