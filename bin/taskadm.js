@@ -6,7 +6,6 @@ var async = require('async');
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
-var yaml = require('yaml');
 var smartdc_config = require('../lib/smartdc-config');
 
 function parseOptions() {
@@ -127,10 +126,6 @@ var msg = {};
 var presetObj;
 var presetDirPath = path.join(__dirname, '..', 'tasks', task, 'presets');
 
-function presetFilename(preset) {
-    return path.join(presetDirPath, preset + '.yaml');
-}
-
 function merge(a, b) {
     for (var i in b) {
         a[i] = b[i];
@@ -138,24 +133,6 @@ function merge(a, b) {
 }
 
 async.waterfall([
-    function (callback) {
-        if (options.list_presets) {
-            fs.readdir(presetDirPath, function (error, files) {
-                if (error) {
-                    console.error('Error reading directory '
-                        + presetDirPath + ': ' + error.message);
-                    process.exit(1);
-                }
-                files
-                .filter(function (i) { return i.match(/\.yaml$/); })
-                .forEach(function (i) {
-                    console.log(i.replace(/\.yaml$/, ''));
-                 });
-                process.exit(0);
-            });
-        }
-        callback();
-    },
     function (callback) {
         if (options.uuid) {
             uuid = options.uuid;
@@ -165,34 +142,6 @@ async.waterfall([
                 uuid = sysinfo.UUID;
                 callback();
             });
-        }
-    },
-    function (callback) {
-        if (options.preset) {
-            fs.readFile(presetFilename(options.preset), 'utf8',
-                function (error, data) {
-                    if (error) {
-                        console.dir(error);
-                    }
-                    console.dir(yaml.eval(data.toString()));
-                    merge(msg, yaml.eval(data.toString()));
-                    callback();
-                });
-        } else {
-            callback();
-        }
-    },
-    function (callback) {
-        if (options.file) {
-            fs.readFile(options.file, 'utf8', function (error, data) {
-                if (error) {
-                    console.dir(error);
-                }
-                merge(msg, yaml.eval(data.toString()));
-                callback();
-            });
-        } else {
-            callback();
         }
     },
     function (callback) {
