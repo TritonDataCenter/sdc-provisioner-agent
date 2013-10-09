@@ -25,7 +25,6 @@ var agent = new TaskAgent(options);
 var queueDefns = [
     {
         name: 'machine_creation',
-        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -33,7 +32,6 @@ var queueDefns = [
     },
     {
         name: 'server_tasks',
-        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -43,7 +41,6 @@ var queueDefns = [
     },
     {
         name: 'server_nic_tasks',
-        log: true,
         maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -53,7 +50,6 @@ var queueDefns = [
     },
     {
         name: 'machine_tasks',
-        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -73,7 +69,6 @@ var queueDefns = [
     {
         name: 'machine_images',
         expires: 60, // expire messages in this queue after a minute
-        log: true,
         maxConcurrent: 64,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -84,10 +79,10 @@ var queueDefns = [
     {
         name: 'machine_query',
         expires: 60, // expire messages in this queue after a minute
-        log: true,
         maxConcurrent: 64,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
+        logging: false,
         tasks: [
             'machine_load',
             'machine_info'
@@ -95,7 +90,6 @@ var queueDefns = [
     },
     {
         name: 'zfs_tasks',
-        log: true,
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -111,7 +105,6 @@ var queueDefns = [
     },
     {
         name: 'zfs_query',
-        log: true,
         maxConcurrent: os.cpus().lenth,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -124,7 +117,6 @@ var queueDefns = [
     },
     {
         name: 'fw_tasks',
-        log: true,
         maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
@@ -136,7 +128,6 @@ var queueDefns = [
     },
     {
         name: 'test_sleep',
-        log: true,
         maxConcurrent: 3,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
