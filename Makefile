@@ -37,7 +37,7 @@ include ./tools/mk/Makefile.smf.defs
 
 NAME		:= provisioner
 RELEASE_TARBALL := $(NAME)-$(STAMP).tgz
-TMPDIR          := /tmp/$(STAMP)
+RELSTAGEDIR          := /tmp/$(STAMP)
 NODEUNIT	= $(TOP)/node_modules/.bin/nodeunit
 
 #
@@ -59,7 +59,7 @@ test:
 .PHONY: release
 release: all deps docs $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
-	@mkdir -p $(TMPDIR)/$(NAME)
+	@mkdir -p $(RELSTAGEDIR)/$(NAME)
 	cd $(TOP) && $(NPM) install
 	(git symbolic-ref HEAD | awk -F/ '{print $$3}' && git describe) > $(TOP)/describe
 	cp -r \
@@ -74,9 +74,9 @@ release: all deps docs $(SMF_MANIFESTS)
     $(TOP)/test \
     $(TOP)/test.sh \
     $(TOP)/tools \
-    $(TMPDIR)/provisioner
-	(cd $(TMPDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)
-	@rm -rf $(TMPDIR)
+    $(RELSTAGEDIR)/provisioner
+	(cd $(RELSTAGEDIR) && $(TAR) -zcf $(TOP)/$(RELEASE_TARBALL) *)
+	@rm -rf $(RELSTAGEDIR)
 
 .PHONY: publish
 publish: release
