@@ -8,14 +8,19 @@ var os = require('os');
 var exec = require('child_process').exec;
 var tty = require('tty');
 var once = require('once');
+var bunyan = require('bunyan');
 
-var tasksPath = path.join(__dirname, '..', 'lib/tasks');
+var Provisioner = require('../lib/provisioner');
+
+var logname = 'provisioner';
+
+var log = bunyan.createLogger({ name: logname });
 
 var options = {
     tasklogdir: '/var/log/provisioner/logs',
     logname: 'provisioner',
     use_system_config: true,
-    tasksPath: tasksPath,
+    tasksPath: path.join(__dirname, '..', 'lib/tasks'),
     reconnect: true,
     resource: 'provisioner',
     use_system_config: true
