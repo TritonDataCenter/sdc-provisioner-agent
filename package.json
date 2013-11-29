@@ -10,8 +10,8 @@
         "nodeunit": "0.7.4",
         "optparse": "1.0.3",
         "zfs": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b",
-        "task_agent": "git+ssh://git@git.joyent.com:task_agent.git#72fa6f295803c76f3c8a0fe0d2b2135334133a77",
-        "tracker": "git+ssh://git@git.joyent.com:node-tracker.git#1de706617231270edabedb9f7fcac34c04fb900a"
+        "task_agent": "git+ssh://git@git.joyent.com:task_agent.git#1de706617231270edabedb9f7fcac34c04fb900a",
+        "tracker": "git+ssh://git@git.joyent.com:node-tracker.git#3a139906c9eb8d8684ac54cf54cd010315856042"
     },
     "directories": {
         "lib": "lib"
