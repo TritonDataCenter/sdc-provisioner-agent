@@ -31,6 +31,13 @@ var queueDefns = [
         tasks: [ 'machine_create', 'machine_reprovision' ]
     },
     {
+        name: 'image_import_tasks',
+        maxConcurrent: 1,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
+        tasks: [ 'image_ensure_present' ]
+    },
+    {
         name: 'server_tasks',
         maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
