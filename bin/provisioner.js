@@ -11,7 +11,7 @@ var tty = require('tty');
 var tasksPath = path.join(__dirname, '..', 'lib/tasks');
 
 var options = {
-    tasklogdir: '/var/log/provisioner',
+    tasklogdir: '/var/log/provisioner/logs',
     logname: 'provisioner',
     use_system_config: true,
     tasksPath: tasksPath,

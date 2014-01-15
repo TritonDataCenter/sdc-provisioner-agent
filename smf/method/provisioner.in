@@ -11,7 +11,7 @@ set -o xtrace
 
 # Update logadm configuration for the provisioner
 mkdir -p /var/log/provisioner/logs/
-touch /var/log/provisioner/logs/provisioner.log
+touch /var/log/provisioner/provisioner.log
 cp @@ROOT@@/etc/provisioner.logadm.conf /etc/logadm.d/provisioner.logadm.conf
 
 case "$1" in
