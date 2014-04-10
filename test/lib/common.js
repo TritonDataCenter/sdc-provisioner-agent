@@ -43,9 +43,11 @@ exports.provisionRequest = function (vars) {
 exports.destroyZone = libcommon.destroyZone;
 
 exports.createClient = function (callback) {
-    var client = new Client({ attemptToReconnect: false, log: console });
+    var client = new Client({
+        use_system_config: true,
+        attemptToReconnect: false, log: console
+    });
 
-    client.config.use_system_config = true;
     client.configureAMQP(function () {
         client.connect(function () {
             console.log('Connected!');
