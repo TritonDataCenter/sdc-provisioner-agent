@@ -84,6 +84,17 @@ var queueDefns = [
         ]
     },
     {
+        name: 'image_query',
+        expires: 60, // expire messages in this queue after a minute
+        maxConcurrent: 64,
+        onmsg: createTaskDispatchFn(agent, tasksPath),
+        onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
+        logging: false,
+        tasks: [
+            'image_get'
+        ]
+    },
+    {
         name: 'machine_query',
         expires: 60, // expire messages in this queue after a minute
         maxConcurrent: 64,
