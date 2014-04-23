@@ -1,6 +1,6 @@
 #!/usr/node/bin/node
 
-var Client = require('task_agent/lib/client');
+var Client = require('../lib/task_agent/client');
 var optparse = require('optparse');
 var async = require('async');
 var fs = require('fs');
