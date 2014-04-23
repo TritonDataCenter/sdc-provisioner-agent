@@ -1,12 +1,13 @@
 #!/usr/node/bin/node
 
-var TaskAgent = require('task_agent/lib/task_agent');
+var TaskAgent = require('../lib/task_agent/task_agent');
 var path = require('path');
-var createTaskDispatchFn = require('task_agent/lib/dispatch').createTaskDispatchFn;
-var createHttpTaskDispatchFn = require('task_agent/lib/dispatch').createHttpTaskDispatchFn;
+var createTaskDispatchFn = require('../lib/task_agent/dispatch').createTaskDispatchFn;
+var createHttpTaskDispatchFn = require('../lib/task_agent/dispatch').createHttpTaskDispatchFn;
 var os = require('os');
 var exec = require('child_process').exec;
 var tty = require('tty');
+var once = require('once');
 
 var tasksPath = path.join(__dirname, '..', 'lib/tasks');
 
@@ -179,9 +180,11 @@ var queueDefns = [
 var cmd = '/usr/bin/rm -f /var/tmp/machine-creation-*';
 exec(cmd, function (error, stdout, stderr) {
     agent.configureAMQP(function () {
-        agent.on('ready', function () {
-          agent.setupQueues(queueDefns);
-        });
+        // Without the 'once', we begin to accumulate queue consumers, which we
+        // do not want.
+        agent.on('ready', once(function () {
+            agent.setupQueues(queueDefns);
+        }));
         agent.start();
     });
 });

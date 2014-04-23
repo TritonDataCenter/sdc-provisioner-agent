@@ -1,17 +1,24 @@
 {
     "name": "provisioner",
     "description": "SmartDataCenter Provisioning Agent",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "author": "Joyent (joyent.com)",
     "private": true,
     "main": "lib/provisioner",
     "dependencies": {
+        "amqp-plus": "git://github.com/orlandov/node-amqp-plus.git#02ddfbd6f66b7685164cd5e1a4d17a5c2704c01e",
+        "amqp": "git://github.com/postwait/node-amqp.git#ae3a1435ac40379cb6f395085f3dc4444b649143",
         "async": "0.1.18",
+        "bunyan": "0.14.5",
+        "JSV": "3.5.0",
         "nodeunit": "0.7.4",
+        "once": "1.3.0",
         "optparse": "1.0.3",
-        "zfs": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b",
-        "task_agent": "git+ssh://git@git.joyent.com:task_agent.git#2b6e361bab4280eed0609a07146fa595ddc8981a",
-        "tracker": "git+ssh://git@git.joyent.com:node-tracker.git#3a139906c9eb8d8684ac54cf54cd010315856042"
+        "restify": "2.5.1",
+        "sprintf": "0.1.1",
+        "tracker": "git+ssh://git@git.joyent.com:node-tracker.git#3a139906c9eb8d8684ac54cf54cd010315856042",
+        "yaml": "0.2.3",
+        "zfs": "git+ssh://git@git.joyent.com:node_zfs.git#b30860be15d298acaa3bca0ae0e32c3ba241304b"
     },
     "directories": {
         "lib": "lib"
