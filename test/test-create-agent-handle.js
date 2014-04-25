@@ -1,6 +1,6 @@
 var testCase = require('nodeunit').testCase;
 var common = require('./lib/common');
-var Client = require('task_agent/lib/client');
+var Client = require('../lib/task_agent/client');
 
 module.exports = testCase({
     setUp: function (callback) {
