@@ -1,7 +1,7 @@
 var execFile = require('child_process').execFile;
 var fakekeys = require('./fakekeys');
 var libcommon = require('../../lib/common');
-var Client = require('task_agent/lib/client');
+var Client = require('../../lib/task_agent/client');
 
 exports.testZoneDataset = 'zones/' + exports.testZoneName;
 
