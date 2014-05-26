@@ -180,11 +180,9 @@ var queueDefns = [
 var cmd = '/usr/bin/rm -f /var/tmp/machine-creation-*';
 exec(cmd, function (error, stdout, stderr) {
     agent.configureAMQP(function () {
-        // Without the 'once', we begin to accumulate queue consumers, which we
-        // do not want.
-        agent.on('ready', once(function () {
+        agent.on('ready', function () {
             agent.setupQueues(queueDefns);
-        }));
+        });
         agent.start();
     });
 });
