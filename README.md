@@ -51,8 +51,8 @@ as creating or listing ZFS datasets.
 
 To run the provisioner agent:
 
-    git clone git@git.joyent.com:provisioner.git
-    cd provisioner
+    git clone git@github.com:joyent/sdc-provisioner-agent.git
+    cd sdc-provisioner-agent
     git submodule update --init
     make all
     node server.js
