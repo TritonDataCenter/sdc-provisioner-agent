@@ -10,7 +10,7 @@
 
 # Provisioner Agent
 
-Repository: <git@git.joyent.com:provisioner.git>
+Repository: <git@github.com:joyent/sdc-provisioner-agent.git>
 Browsing: <https://mo.joyent.com/provisioner>
 Who: Orlando Vazquez
 Docs: <https://mo.joyent.com/docs/provisioner>
@@ -55,7 +55,7 @@ To run the provisioner agent:
     cd sdc-provisioner-agent
     git submodule update --init
     make all
-    node server.js
+    node bin/provisioner
 
 
 # Documentation
