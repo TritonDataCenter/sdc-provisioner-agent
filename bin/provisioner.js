@@ -73,6 +73,7 @@ var queueDefns = [
         tasks: [
             'machine_boot',
             'machine_destroy',
+            'machine_kill',
             'machine_reboot',
             'machine_shutdown',
             'machine_update',
