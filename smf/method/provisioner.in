@@ -18,10 +18,14 @@ set -o xtrace
 . /lib/sdc/config.sh
 
 # Update logadm configuration for the provisioner
+#
+# Dev Note: Would have prefered the '-t' argument only use underscore for field
+# separation and NOT in the logset name. IOW, "provisioner-tasks" instead of
+# "provisioner_tasks". But we'll keep this name for compat.
 mkdir -p /var/log/provisioner/logs/
 touch /var/log/provisioner/provisioner.log
 logadm -w provisioner_task_logs /var/log/provisioner/provisioner.log -b '/usr/vm/sbin/rotate-logs.sh -m /var/log/provisioner/logs/ /var/log/provisioner/provisioner.log' -t '/var/log/provisioner/provisioner_tasks_$nodename_%FT%H:%M:%S.log' -C 168 -S 1g -p 1h
-logadm -w provisioner_logs -C 168 -S 1g -c -p 1h -t '/var/log/provisioner/provisioner_$nodename_%FT%H:%M:%S.log' var/svc/log/*provisioner*.log
+logadm -w provisioner_logs -C 168 -S 1g -c -p 1h -t '/var/log/provisioner/provisioner_$nodename_%FT%H:%M:%S.log' /var/svc/log/*provisioner*.log
 
 case "$1" in
 'start')
