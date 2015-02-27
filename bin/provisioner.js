@@ -17,6 +17,7 @@ var os = require('os');
 var exec = require('child_process').exec;
 var tty = require('tty');
 var once = require('once');
+var fs = require('fs');
 
 var tasksPath = path.join(__dirname, '..', 'lib/tasks');
 
@@ -184,6 +185,27 @@ var queueDefns = [
         tasks: [ 'meter_query' ]
     }
 ];
+
+// Don't run provisioner if cn-agent is up and running
+var cnAgentConfig;
+var cnAgentConfigPath = '/opt/smartdc/agents/etc/cn-agent.config.json';
+
+if (fs.existsSync(cnAgentConfigPath)) {
+    try {
+        cnAgentConfig = require(cnAgentConfigPath);
+        if (cnAgentConfig.no_rabbit) {
+            agent.log.warn('"no_rabbit" flag is true for cn-agent, ' +
+                'provisioner agent will now sleep');
+            // http://nodejs.org/docs/latest/api/all.html#all_settimeout_cb_ms
+            // ...The timeout must be in the range of 1-2,147,483,647 inclusive
+            setInterval(function () {}, 2000000000);
+            return;
+        }
+    } catch (e) {
+        agent.log.warn('Error parsing cn-agent config: "%s". Will now continue ' +
+            'running provisioner agent', e.message);
+    }
+}
 
 // AGENT-640: Ensure we clean up any stale machine creation guard files, then
 // set queues up as per usual.
