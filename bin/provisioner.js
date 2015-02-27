@@ -193,18 +193,18 @@ var cnAgentConfigPath = '/opt/smartdc/agents/etc/cn-agent.config.json';
 if (fs.existsSync(cnAgentConfigPath)) {
     try {
         cnAgentConfig = require(cnAgentConfigPath);
-        if (cnAgentConfig.no_rabbit) {
-            agent.log.warn('"no_rabbit" flag is true for cn-agent, ' +
-                'provisioner agent will now sleep');
-            // http://nodejs.org/docs/latest/api/all.html#all_settimeout_cb_ms
-            // ...The timeout must be in the range of 1-2,147,483,647 inclusive
-            setInterval(function () {}, 2000000000);
-        }
     } catch (e) {
         agent.log.warn('Error parsing cn-agent config: "%s". Will now continue ' +
             'running provisioner agent', e.message);
-        runProvisioner();
     }
+}
+
+if (cnAgentConfig && cnAgentConfig.no_rabbit) {
+    agent.log.warn('"no_rabbit" flag is true for cn-agent, ' +
+        'provisioner agent will now sleep');
+    // http://nodejs.org/docs/latest/api/all.html#all_settimeout_cb_ms
+    // ...The timeout must be in the range of 1-2,147,483,647 inclusive
+    setInterval(function () {}, 2000000000);
 } else {
     runProvisioner();
 }
