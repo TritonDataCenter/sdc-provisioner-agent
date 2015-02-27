@@ -199,22 +199,26 @@ if (fs.existsSync(cnAgentConfigPath)) {
             // http://nodejs.org/docs/latest/api/all.html#all_settimeout_cb_ms
             // ...The timeout must be in the range of 1-2,147,483,647 inclusive
             setInterval(function () {}, 2000000000);
-            return;
         }
     } catch (e) {
         agent.log.warn('Error parsing cn-agent config: "%s". Will now continue ' +
             'running provisioner agent', e.message);
+        runProvisioner();
     }
+} else {
+    runProvisioner();
 }
 
-// AGENT-640: Ensure we clean up any stale machine creation guard files, then
-// set queues up as per usual.
-var cmd = '/usr/bin/rm -f /var/tmp/machine-creation-*';
-exec(cmd, function (error, stdout, stderr) {
-    agent.configureAMQP(function () {
-        agent.on('ready', function () {
-            agent.setupQueues(queueDefns);
+function runProvisioner() {
+    // AGENT-640: Ensure we clean up any stale machine creation guard files,
+    // then set queues up as per usual.
+    var cmd = '/usr/bin/rm -f /var/tmp/machine-creation-*';
+    exec(cmd, function (error, stdout, stderr) {
+        agent.configureAMQP(function () {
+            agent.on('ready', function () {
+                agent.setupQueues(queueDefns);
+            });
+            agent.start();
         });
-        agent.start();
     });
-});
+}
