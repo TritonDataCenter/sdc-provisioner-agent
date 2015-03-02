@@ -100,6 +100,12 @@ export NODE_PATH=/usr/node_modules:/usr/vm/node_modules:/usr/img/node_modules
 
 cd $TOP
 
+
+no_rabbit=$(sdc-sapi /applications?name=sdc | json -H 0.metadata.no_rabbit)
+if [[ "$no_rabbit" == "true" ]]; then
+    fatal "cannot run provisioner agent tests: no_rabbit=true, provisioner is idling"
+fi
+
 test_files=$(ls -1 test/test-*.js)
 if [[ -n "$opt_test_pattern" ]]; then
     test_files=$(echo "$test_files" | grep "$opt_test_pattern" || true)
