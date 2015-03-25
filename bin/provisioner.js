@@ -31,12 +31,21 @@ var options = {
     use_system_config: true
 };
 
+var cpuLimit = function(min, max) {
+    var cpus = os.cpus().length;
+    if (cpus < min)
+        return min;
+    if (cpus > max)
+        return max;
+    return cpus;
+}
+
 var agent = new TaskAgent(options);
 
 var queueDefns = [
     {
         name: 'machine_creation',
-        maxConcurrent: os.cpus().length,
+        maxConcurrent: cpuLimit(4, 8),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [ 'machine_create', 'machine_reprovision' ]
@@ -50,7 +59,7 @@ var queueDefns = [
     },
     {
         name: 'server_tasks',
-        maxConcurrent: os.cpus().length,
+        maxConcurrent: 1,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
@@ -68,7 +77,7 @@ var queueDefns = [
     },
     {
         name: 'machine_tasks',
-        maxConcurrent: os.cpus().length,
+        maxConcurrent: cpuLimit(4, 8),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
@@ -88,7 +97,7 @@ var queueDefns = [
     {
         name: 'machine_images',
         expires: 60, // expire messages in this queue after a minute
-        maxConcurrent: 64,
+        maxConcurrent: cpuLimit(4, 16),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
@@ -98,7 +107,7 @@ var queueDefns = [
     {
         name: 'image_query',
         expires: 60, // expire messages in this queue after a minute
-        maxConcurrent: 64,
+        maxConcurrent: cpuLimit(16, 64),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         logging: false,
@@ -109,7 +118,7 @@ var queueDefns = [
     {
         name: 'machine_query',
         expires: 60, // expire messages in this queue after a minute
-        maxConcurrent: 64,
+        maxConcurrent: cpuLimit(16, 32),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         logging: false,
@@ -120,7 +129,7 @@ var queueDefns = [
     },
     {
         name: 'zfs_tasks',
-        maxConcurrent: os.cpus().length,
+        maxConcurrent: cpuLimit(4, 8),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
@@ -135,7 +144,7 @@ var queueDefns = [
     },
     {
         name: 'zfs_query',
-        maxConcurrent: os.cpus().length,
+        maxConcurrent: cpuLimit(4, 8),
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
