@@ -135,7 +135,7 @@ var queueDefns = [
     },
     {
         name: 'zfs_query',
-        maxConcurrent: os.cpus().lenth,
+        maxConcurrent: os.cpus().length,
         onmsg: createTaskDispatchFn(agent, tasksPath),
         onhttpmsg: createHttpTaskDispatchFn(agent, tasksPath),
         tasks: [
