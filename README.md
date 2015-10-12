@@ -8,30 +8,29 @@
     Copyright (c) 2014, Joyent, Inc.
 -->
 
-# sdc-provisioner-agent
+# SDC Provisioner Agent
 
-This repository is part of the Joyent SmartDataCenter project (SDC).  For
-contribution guidelines, issues, and general documentation, visit the main
-[SDC](http://github.com/joyent/sdc) project page.
-
-
-# Overview
-
-sdc-provisioner-agent is an RPC service via which a client can interact with
-a compute node. It acts as an externally visible interface to subsystems
-within the server.
-
-Provisioner is responsible for executing "tasks", which are simply scripts
-which break down some unit of work into a number of steps to be completed.
-This may be may range from creating a virtual machine to something as simple
-as creating or listing ZFS datasets.
+This repository is part of the SmartDataCenter (SDC) project. For
+contribution guidelines, issues, and general documentation, visit the
+[main SDC project](http://github.com/joyent/sdc).
 
 
-# Repository
+## Overview
+
+Provisioner agent is an RPC service for interacting with a compute node. It
+acts as an externally visible interface to subsystems within the server.
+
+Provisioner is responsible for executing "tasks". Tasks are scripts which break
+down some unit of work into a number of steps to be completed.
+These range from something as simple as listing ZFS datasets to
+creating a virtual machine.
+
+
+## Code Layout
 
     deps/           Git submodules and/or commited 3rd-party deps should go
                     here. See "node_modules/" for node.js deps.
-    docs/           Project docs (restdown)
+    docs/           Project docs
     lib/            Source files.
     node_modules/   Node.js deps, either populated at build time or commited.
                     See Managing Dependencies.
@@ -45,10 +44,16 @@ as creating or listing ZFS datasets.
     README.md
 
 
-# Development
+## Development
 
 To run the provisioner agent:
 
     git clone git@github.com:joyent/sdc-provisioner-agent.git
     cd sdc-provisioner-agent
     git submodule update --init
+
+
+## License
+
+SDC is licensed under the
+[Mozilla Public License version 2.0](http://mozilla.org/MPL/2.0/).
