@@ -8,6 +8,8 @@
     Copyright (c) 2014, Joyent, Inc.
 -->
 
+**Note: This repository is no longer used by Triton.**
+
 # sdc-provisioner-agent
 
 This repository is part of the Joyent SmartDataCenter project (SDC).  For
